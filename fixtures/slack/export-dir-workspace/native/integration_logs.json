@@ -1,0 +1,13 @@
+{
+    "logs": [
+        {
+            "user_id": "U0BOB",
+            "user_name": "bob",
+            "date": "1713900200",
+            "change_type": "added",
+            "app_id": "A0AGENT",
+            "app_type": "app",
+            "service_name": "build-agent"
+        }
+    ]
+}

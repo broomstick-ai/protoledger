@@ -1,0 +1,30 @@
+{
+  "format": "hermes",
+  "case": "state-db-v4",
+  "variant": "state-db",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"state.db\"] missing [] extra []; clean: 1 agents, 9 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 12,
+    "codex": 9,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 12; missing [settings×1, usage×1]; extra [settings×1]",
+    "codex": "score 9; missing [title×1]; extra [title×1]; changed [settings.body.model×1, usage.body.cache_write×1, usage.body.model×3, usage.body.reasoning×1]",
+    "opencode": "score 5; changed [settings.body.system_prompt×1, usage.body.cache_read×1, usage.body.cache_write×1, usage.body.reasoning×1, usage.ts×1]"
+  },
+  "errors": {}
+}

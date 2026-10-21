@@ -1,0 +1,112 @@
+{
+  "info": {
+    "id": "ses_212b7e0dfffeuUt2gV0HQWrKfb",
+    "parentID": "ses_212b82effffeMX36DJaZTs7ULY",
+    "projectID": "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750",
+    "agent": "general",
+    "model": {
+      "id": "gpt-5.5",
+      "providerID": "openai",
+      "variant": "high"
+    },
+    "cost": 0.001,
+    "tokens": {
+      "input": 800,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1777802420000,
+      "updated": 1777802427100,
+      "idle": 1777802427100
+    },
+    "title": "Count plan lines",
+    "location": {
+      "directory": "/home/user/project-a"
+    },
+    "metadata": {
+      "ci": {
+        "job": 42
+      }
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_ded481f84001izjPIeM4VzC8LS",
+      "time": {
+        "created": 1777802420100
+      },
+      "text": "You are a subagent spawned by another session.\nCount the lines in notes/plan.md.",
+      "type": "user"
+    },
+    {
+      "id": "msg_ded482308001hR9o1N51m1M63y",
+      "time": {
+        "created": 1777802421000,
+        "completed": 1777802427000
+      },
+      "type": "assistant",
+      "agent": "general",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "call_synthShell",
+          "name": "shell",
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "wc -l notes/plan.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "4 notes/plan.md"
+              }
+            ],
+            "metadata": {
+              "exit": 0
+            }
+          },
+          "time": {
+            "created": 1777802422000,
+            "ran": 1777802422010,
+            "completed": 1777802422500
+          }
+        },
+        {
+          "type": "text",
+          "text": "4 lines"
+        }
+      ],
+      "finish": "stop",
+      "cost": 0.001,
+      "tokens": {
+        "input": 800,
+        "output": 20,
+        "reasoning": 0,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_ded483adc001RLCv0kpYD1IrY0",
+      "time": {
+        "created": 1777802427100
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

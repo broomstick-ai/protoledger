@@ -1,0 +1,29 @@
+{
+  "id": "msg_14729df4d001h7ueU4i16U2HtV",
+  "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+  "role": "assistant",
+  "time": {
+    "created": 1792195288909,
+    "completed": 1792195289084
+  },
+  "parentID": "msg_14729dd9a001OIKMtBbFzDCX2H",
+  "modelID": "fixture-model",
+  "providerID": "fixture",
+  "mode": "build",
+  "agent": "build",
+  "path": {
+    "cwd": "/home/user/project-a",
+    "root": "/home/user/project-a"
+  },
+  "cost": 0,
+  "tokens": {
+    "input": 120,
+    "output": 12,
+    "reasoning": 0,
+    "cache": {
+      "read": 0,
+      "write": 0
+    }
+  },
+  "finish": "stop"
+}

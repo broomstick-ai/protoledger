@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.5-rfc-example",
+  "variant": "ATIF-v1.5",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 15 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 15,
+    "codex": 13,
+    "opencode": 1
+  },
+  "no_carry_summary": {
+    "claude-code": "score 15; missing [settings×2, usage×1]; changed [settings.body.effort×1, usage.body.cost_usd×2]",
+    "codex": "score 13; missing [settings×3]; changed [usage.body.cost_usd×3, usage.body.model×3]",
+    "opencode": "score 1; changed [settings.body.tools×1]"
+  },
+  "errors": {}
+}

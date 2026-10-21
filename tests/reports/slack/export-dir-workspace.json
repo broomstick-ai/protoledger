@@ -1,0 +1,30 @@
+{
+  "format": "slack",
+  "case": "export-dir-workspace",
+  "variant": "export-dir",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 3 agents, 12 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 18,
+    "codex": 18,
+    "opencode": 20
+  },
+  "no_carry_summary": {
+    "claude-code": "score 18; header [header.created_at×2, header.links×2, header.meta×2]; changed [media.body.media_type×1, media.group×1, media.meta.slack×1, text.group×4, text.meta.slack×5]",
+    "codex": "score 18; header [header.links×2, header.meta×2]; missing [media×1]; changed [text.group×4, text.meta.slack×5]",
+    "opencode": "score 20; header [header.links×2, header.meta×2]; missing [media×1]; extra [settings×2]; changed [text.group×4, text.meta.slack×5]"
+  },
+  "errors": {}
+}

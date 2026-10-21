@@ -1,0 +1,48 @@
+{
+    "schema_version": "ATIF-v1.3",
+    "session_id": "synthetic-v1-3",
+    "agent": {
+        "name": "rl-agent",
+        "version": "1.0.0",
+        "model_name": "example-model",
+        "extra": {
+            "sampler": "greedy"
+        }
+    },
+    "steps": [
+        {
+            "step_id": 1,
+            "source": "user",
+            "message": "Say \u201ch\u00e9llo\u201d in French."
+        },
+        {
+            "step_id": 2,
+            "source": "agent",
+            "message": "Bonjour \u2014 \u00ab salut \u00bb \ud83d\udc4b",
+            "reasoning_content": "Simple translation.",
+            "reasoning_effort": "low",
+            "metrics": {
+                "prompt_tokens": 12,
+                "completion_tokens": 5,
+                "completion_token_ids": [
+                    33,
+                    812,
+                    17,
+                    9,
+                    2
+                ],
+                "logprobs": [
+                    -0.01,
+                    -0.2,
+                    -1.5e-05,
+                    -0.3,
+                    -0.0
+                ],
+                "extra": {
+                    "reasoning_tokens": 3
+                }
+            }
+        }
+    ],
+    "notes": "Synthetic: token ids are made up."
+}

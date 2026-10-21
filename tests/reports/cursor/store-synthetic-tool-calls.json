@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "store-synthetic-tool-calls",
+  "variant": "agent-store",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 10 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 6,
+    "codex": 6,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 6; missing [settings×1]; extra [settings×2]; changed [reasoning.body.sealed×1]",
+    "codex": "score 6; missing [title×1]; extra [title×1]; changed [reasoning.body.sealed×1, settings.body.model×1, tool_result.body.is_error×1]",
+    "opencode": "score 2; changed [reasoning.body.sealed×1, tool_result.body.output×1]"
+  },
+  "errors": {}
+}

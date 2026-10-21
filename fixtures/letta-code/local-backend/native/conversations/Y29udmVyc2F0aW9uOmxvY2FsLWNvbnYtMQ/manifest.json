@@ -1,0 +1,6 @@
+{
+  "schema_version": 2,
+  "message_format": "pi-session-entry-jsonl",
+  "provider_stack": "pi-ai",
+  "created_at": "2026-10-17T00:44:09.876Z"
+}

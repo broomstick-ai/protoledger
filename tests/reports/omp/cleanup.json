@@ -1,0 +1,33 @@
+{
+  "format": "omp",
+  "case": "cleanup",
+  "variant": "header-first",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 13 events",
+  "import_losses": [
+    "malformed-line ×1",
+    "record-native-only ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 7,
+    "codex": 9,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 7; header [header.created_at×1, header.parent×1]; extra [settings×1]; changed [media.group×1, settings.ts×1, text.group×1, usage.body.cost_usd×1]",
+    "codex": "score 9; header [header.parent×1]; missing [tool_result×1]; extra [settings×1]; changed [tool_result.body.is_error×1, usage.body.cache_write×1, usage.body.cost_usd×1, usage.body.model×1]",
+    "opencode": "score 5; header [header.parent×1]; missing [tool_result×1]; extra [settings×1]"
+  },
+  "errors": {}
+}

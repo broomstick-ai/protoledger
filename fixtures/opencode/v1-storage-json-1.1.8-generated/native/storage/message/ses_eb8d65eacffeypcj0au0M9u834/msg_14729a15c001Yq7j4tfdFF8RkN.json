@@ -1,0 +1,17 @@
+{
+  "id": "msg_14729a15c001Yq7j4tfdFF8RkN",
+  "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+  "role": "user",
+  "time": {
+    "created": 1792195273052
+  },
+  "summary": {
+    "title": "Failing shell command",
+    "diffs": []
+  },
+  "agent": "build",
+  "model": {
+    "providerID": "fixture",
+    "modelID": "fixture-model"
+  }
+}

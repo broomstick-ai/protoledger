@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "dir-dejavu-1.0.71-compaction",
+  "variant": "session-dir",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 10 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 7,
+    "codex": 4,
+    "opencode": 8
+  },
+  "no_carry_summary": {
+    "claude-code": "score 7; header [header.created_at×1]; missing [settings×1, turn×1]; extra [settings×1]; changed [settings.ts×1]",
+    "codex": "score 4; missing [settings×1]; changed [compaction.body.trigger×1, settings.ts×1]",
+    "opencode": "score 8; missing [compaction×1, settings×1, turn×1]; changed [settings.ts×1]"
+  },
+  "errors": {}
+}

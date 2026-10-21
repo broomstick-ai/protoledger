@@ -1,0 +1,105 @@
+# CI for protoledger: format, lint, and the test suite on Linux and macOS.
+#
+# The repository is self-contained: no test runs a real harness, logs
+# in, or reads a keychain, the real home directory or a credential, so the
+# whole suite is plain `cargo test` and nothing needs excluding. Live sync
+# properties are asserted against a simulated harness (tests/sim_harness.rs,
+# docs/LIVE-TESTS.md).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    name: fmt + clippy + doc (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.99.0"
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: fmt
+        run: cargo fmt --check
+      - name: clippy (default features)
+        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: clippy (all features)
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
+      - name: clippy (no default features)
+        run: cargo clippy --locked --all-targets --no-default-features -- -D warnings
+      - name: clippy (store without sqlite)
+        run: cargo clippy --locked --all-targets --no-default-features --features store,cli -- -D warnings
+      - name: doc
+        run: cargo doc --locked --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+  test:
+    name: test (${{ matrix.os }}, ${{ matrix.features.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        features:
+          - name: default
+            flags: ""
+          - name: store without sqlite
+            flags: --no-default-features --features store,cli
+          - name: no default features
+            flags: --no-default-features
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The ratchet reads committed reports from the base commit.
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.99.0"
+      - uses: Swatinem/rust-cache@v2
+      # The fixtures ratchet (tests/fixtures.rs) compares this run with the
+      # reports committed on RATCHET_BASE. Defaulting to main would compare a
+      # push to main with itself, so a commit that changes code and
+      # regenerates its reports together would pass by construction: the base
+      # is the PR's merge-base, or on a push the commit the branch pointed at
+      # before it (so a push of several commits is ratcheted as a whole), or
+      # HEAD~1 when there is none (a new branch: all zeros) or it is unknown.
+      - name: ratchet base
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = pull_request ]; then
+            base=$(git merge-base "origin/$BASE_REF" HEAD)
+          elif [ -n "${BEFORE:-}" ] && [ -z "${BEFORE//0/}" ]; then
+            echo "push with no previous commit (before=$BEFORE): HEAD~1"
+            base=$(git rev-parse HEAD~1)
+          elif [ -n "${BEFORE:-}" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            base=$BEFORE
+          else
+            echo "before=${BEFORE:-<missing>} is not a commit here: HEAD~1"
+            base=$(git rev-parse HEAD~1)
+          fi
+          echo "RATCHET_BASE=$base" >> "$GITHUB_ENV"
+          echo "ratchet base: $base (HEAD $(git rev-parse HEAD))"
+      # The whole suite: every test target, the unit tests and the doctests.
+      - name: test
+        shell: bash
+        run: cargo test --locked --no-fail-fast ${{ matrix.features.flags }}

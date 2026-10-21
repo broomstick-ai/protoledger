@@ -1,0 +1,8 @@
+{"id":"codex-rollout-session","instructions":"INSTRUCTIONS_MARKER Authorization: Bearer REDACTED","timestamp":"2026-06-01T09:00:00.000Z","git":{"repository_url":"https://example.com/acme/project.git"}}
+{"record_type":"state","state":{"private":"STATE_MARKER"}}
+{"type":"message","role":"developer","content":[{"type":"input_text","text":"DEVELOPER_MARKER"}]}
+{"type":"message","role":"user","content":[{"type":"input_text","text":"Find the earlier billing decision."}]}
+{"type":"reasoning","summary":[{"type":"summary_text","text":"REASONING_MARKER"}],"encrypted_content":"ENCRYPTED_REASONING_MARKER"}
+{"type":"message","role":"assistant","content":[{"type":"output_text","text":"I will search memory."},{"type":"encrypted_content","data":"ENCRYPTED_MESSAGE_MARKER"}]}
+{"type":"function_call","name":"search_memories","arguments":"{\"query\":\"billing decision\"}","call_id":"rollout-search-call"}
+{"type":"function_call_output","call_id":"rollout-search-call","output":"{\"result_ids\":[\"mem_01ROLLOUT\"]}"}

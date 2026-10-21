@@ -1,0 +1,30 @@
+{
+  "format": "letta-code",
+  "case": "local-backend",
+  "variant": "local-backend",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 6 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 2,
+    "codex": 0,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 2; header [header.created_at×1]; changed [settings.ts×1]",
+    "codex": "clean: 1 agents, 6 events",
+    "opencode": "clean: 1 agents, 6 events"
+  },
+  "errors": {}
+}

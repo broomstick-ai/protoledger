@@ -1,0 +1,21 @@
+[
+    {
+        "type": "message",
+        "subtype": "channel_join",
+        "ts": "1713900000.000100",
+        "user": "U0ALICE",
+        "text": "<@U0ALICE> has joined the channel"
+    },
+    {
+        "type": "message",
+        "text": "Morning all \u2014 CI is red again.",
+        "user": "U0ALICE",
+        "ts": "1713950000.000200",
+        "team": "T0EXAMPLE",
+        "user_profile": {
+            "display_name": "alice",
+            "real_name": "Alice Example",
+            "name": "alice"
+        }
+    }
+]

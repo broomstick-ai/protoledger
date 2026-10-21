@@ -1,0 +1,17 @@
+{
+  "id": "msg_147291776001Sd91xH7N3ppl5q",
+  "sessionID": "ses_eb8d6e895ffelnosNEd7BusjvE",
+  "role": "user",
+  "time": {
+    "created": 1792195237750
+  },
+  "summary": {
+    "title": "Hello fixture reply",
+    "diffs": []
+  },
+  "agent": "build",
+  "model": {
+    "providerID": "fixture",
+    "modelID": "fixture-model"
+  }
+}

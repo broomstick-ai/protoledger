@@ -1,0 +1,31 @@
+[
+  {
+    "type": "message",
+    "text": "Is the deploy done?",
+    "user": "U0ALICE",
+    "ts": "1713950000.000200"
+  },
+  {
+    "type": "message",
+    "subtype": "bot_message",
+    "bot_id": "B0DEPLOY",
+    "username": "deploy-bot",
+    "text": "Deploy 118 finished in 4m12s.",
+    "ts": "1713950030.000300",
+    "attachments": [
+      {
+        "fallback": "Deploy 118",
+        "color": "good",
+        "title": "Deploy 118",
+        "title_link": "https://deploy.example.com/118"
+      }
+    ]
+  },
+  {
+    "type": "message",
+    "subtype": "me_message",
+    "text": "is relieved",
+    "user": "U0ALICE",
+    "ts": "1713950040.000400"
+  }
+]

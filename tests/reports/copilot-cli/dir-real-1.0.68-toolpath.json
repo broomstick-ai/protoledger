@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "dir-real-1.0.68-toolpath",
+  "variant": "session-dir",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 100 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 92,
+    "codex": 44,
+    "opencode": 39
+  },
+  "no_carry_summary": {
+    "claude-code": "score 92; header [header.created_at×1]; missing [settings×1, turn×22, usage×1]; extra [settings×2]; changed [reasoning.turn×2, settings.ts×1, subagent.body.agent×2, subagent.body.outcome×1, subagent.ts×2, text.turn×1, tool_call.turn×2, usage.body.model×11, usage.turn×2]",
+    "codex": "score 44; missing [settings×1, subagent×2]; extra [settings×1]; changed [reasoning.body.sealed×13, settings.ts×1, tool_result.body.is_error×1, usage.body.model×14, usage.turn×1]",
+    "opencode": "score 39; missing [settings×1, subagent×2, turn×11]; extra [settings×1]; changed [settings.ts×1, usage.ts×1, usage.turn×1]"
+  },
+  "errors": {}
+}

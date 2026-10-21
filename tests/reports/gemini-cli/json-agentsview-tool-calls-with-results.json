@@ -1,0 +1,30 @@
+{
+  "format": "gemini-cli",
+  "case": "json-agentsview-tool-calls-with-results",
+  "variant": "session-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 8 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 2,
+    "codex": 3,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 2; changed [settings.ts×1, text.group×1]",
+    "codex": "score 3; missing [settings×1]; changed [text.group×1]",
+    "opencode": "score 2; extra [settings×1]; changed [text.group×1]"
+  },
+  "errors": {}
+}

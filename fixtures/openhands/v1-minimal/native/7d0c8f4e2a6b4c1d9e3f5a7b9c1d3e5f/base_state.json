@@ -1,0 +1,1 @@
+{"id":"7d0c8f4e-2a6b-4c1d-9e3f-5a7b9c1d3e5f","agent":{"llm":{"model":"test-model"},"tools":[{"name":"terminal"}],"kind":"Agent"},"workspace":{"working_dir":"/workspace","kind":"LocalWorkspace"}}

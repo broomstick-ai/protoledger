@@ -1,0 +1,17 @@
+{
+  "id": "msg_14729dd9a001OIKMtBbFzDCX2H",
+  "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+  "role": "user",
+  "time": {
+    "created": 1792195288474
+  },
+  "summary": {
+    "title": "Subagent plan summary",
+    "diffs": []
+  },
+  "agent": "build",
+  "model": {
+    "providerID": "fixture",
+    "modelID": "fixture-model"
+  }
+}

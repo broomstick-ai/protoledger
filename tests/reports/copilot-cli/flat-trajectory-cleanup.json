@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "flat-trajectory-cleanup",
+  "variant": "flat-jsonl",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 6 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 3,
+    "codex": 1,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 3; header [header.created_at×1]; changed [settings.ts×1, tool_call.body.input×1]",
+    "codex": "score 1; changed [tool_result.body.is_error×1]",
+    "opencode": "score 2; changed [settings.body.git_branch×1, tool_call.body.input×1]"
+  },
+  "errors": {}
+}

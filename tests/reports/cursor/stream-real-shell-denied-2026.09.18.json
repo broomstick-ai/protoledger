@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "stream-real-shell-denied-2026.09.18",
+  "variant": "stream-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 9 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 25,
+    "codex": 7,
+    "opencode": 4
+  },
+  "no_carry_summary": {
+    "claude-code": "score 25; missing [tool_call×2, tool_result×2]; extra [settings×1, tool_call×2, tool_result×2]; changed [settings.body.permission_mode×1, turn.body.outcome×1]",
+    "codex": "score 7; changed [settings.body.model×1, settings.body.permission_mode×1, tool_call.body.tool_type×2, tool_result.body.is_error×2, usage.body.cache_write×1]",
+    "opencode": "score 4; changed [settings.body.permission_mode×1, tool_call.body.tool_type×2, turn.body.duration_ms×1]"
+  },
+  "errors": {}
+}

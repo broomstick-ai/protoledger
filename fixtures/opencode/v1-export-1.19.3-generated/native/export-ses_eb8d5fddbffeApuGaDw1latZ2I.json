@@ -1,0 +1,164 @@
+{
+  "info": {
+    "id": "ses_eb8d5fddbffeApuGaDw1latZ2I",
+    "slug": "clever-comet",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "path": "",
+    "title": "New session - 2026-10-17T00:01:37.828Z",
+    "agent": "build",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "version": "1.19.3",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 7141,
+      "output": 154,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "permission": [
+      {
+        "permission": "question",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_enter",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_exit",
+        "pattern": "*",
+        "action": "deny"
+      }
+    ],
+    "time": {
+      "created": 1792195297828,
+      "updated": 1792195356430
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195297872
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "opencode",
+          "modelID": "big-pickle"
+        },
+        "summary": {
+          "diffs": []
+        },
+        "id": "msg_1472a0250001hJxmJlnSYOfWD8",
+        "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Reply with exactly: hello fixture. Do not use tools.\"",
+          "id": "prt_1472a0255001u9R89D5o3yQWlw",
+          "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I",
+          "messageID": "msg_1472a0250001hJxmJlnSYOfWD8"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_1472a0250001hJxmJlnSYOfWD8",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 7295,
+          "input": 7141,
+          "output": 154,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 0
+          }
+        },
+        "modelID": "big-pickle",
+        "providerID": "opencode",
+        "time": {
+          "created": 1792195298347,
+          "completed": 1792195356426
+        },
+        "finish": "stop",
+        "id": "msg_1472a042a001wZ0HXiVbjoxroT",
+        "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I"
+      },
+      "parts": [
+        {
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "type": "step-start",
+          "id": "prt_1472aba10001QV921fBf5VtZCn",
+          "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I",
+          "messageID": "msg_1472a042a001wZ0HXiVbjoxroT"
+        },
+        {
+          "type": "reasoning",
+          "text": "The user asks to reply with exactly \"hello fixture. Do not use tools.\" Hmm, they said: \"Reply with exactly: hello fixture. Do not use tools.\"\n\nSo I should just reply with that text, no tools. Keep it simple. The exact string: \"hello fixture. Do not use tools.\"\n\nThey said \"Reply with exactly: hello fixture. Do not use tools.\" So probably the reply should be exactly \"hello fixture.\" or including the instruction? I think they want the reply to be exactly \"hello fixture.\" and the instruction not to use tools. To be safe, reply with exactly the text they specified: hello fixture. Do not use tools.\n\nI should just answer directly without tools.",
+          "time": {
+            "start": 1792195344947,
+            "end": 1792195356052
+          },
+          "id": "prt_1472aba33001u1JO1MjCeJIQOb",
+          "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I",
+          "messageID": "msg_1472a042a001wZ0HXiVbjoxroT"
+        },
+        {
+          "type": "text",
+          "text": "hello fixture. Do not use tools.",
+          "time": {
+            "start": 1792195356055,
+            "end": 1792195356298
+          },
+          "id": "prt_1472ae597001bOywo23cPLeTSo",
+          "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I",
+          "messageID": "msg_1472a042a001wZ0HXiVbjoxroT"
+        },
+        {
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "type": "step-finish",
+          "tokens": {
+            "total": 7295,
+            "input": 7141,
+            "output": 154,
+            "reasoning": 0,
+            "cache": {
+              "write": 0,
+              "read": 0
+            }
+          },
+          "cost": 0,
+          "id": "prt_1472ae6c50016LMWbUyfRLXCWn",
+          "sessionID": "ses_eb8d5fddbffeApuGaDw1latZ2I",
+          "messageID": "msg_1472a042a001wZ0HXiVbjoxroT"
+        }
+      ]
+    }
+  ]
+}

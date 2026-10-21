@@ -1,0 +1,32 @@
+{
+  "format": "openhands",
+  "case": "api-cleanup",
+  "variant": "v1-api",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 8 events",
+  "import_losses": [
+    "record-native-only ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 10,
+    "codex": 11,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 10; missing [tool_call×1, tool_result×1]; extra [tool_call×1, tool_result×1]; changed [error.body.kind×1]",
+    "codex": "score 11; missing [error×1, tool_call×1, tool_result×1]; extra [tool_call×1]",
+    "opencode": "score 5; missing [error×1]; extra [error×1, settings×1]"
+  },
+  "errors": {}
+}

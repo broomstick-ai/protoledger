@@ -1,0 +1,357 @@
+{
+  "info": {
+    "id": "ses_eb8d458b3ffeZ1K0WtB1fzo7r8",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 9876,
+      "output": 743,
+      "reasoning": 719,
+      "cache": {
+        "read": 20292,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1792195405775,
+      "updated": 1792196837487,
+      "idle": 1792196839182
+    },
+    "title": "[redacted:session-title:ses_eb8d458b3ffeZ1K0WtB1fzo7r8]",
+    "location": {
+      "directory": "/[redacted:session-directory:ses_eb8d458b3ffeZ1K0WtB1fzo7r8]"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_1472ba7d4001jPHXsByVGa9Y7X",
+      "time": {
+        "created": 1792195405850
+      },
+      "text": "[redacted:text:msg_1472ba7d4001jPHXsByVGa9Y7X]",
+      "files": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_1472ba823001Xl79Ii0hu3T7FJ",
+      "time": {
+        "created": 1792195405865,
+        "streamed": 1792195548725,
+        "completed": 1792195548774
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "b1a8a73f-43b7-4ea0-a53b-81cb9458bc4d",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "redacted": "tool-input:msg_1472ba823001Xl79Ii0hu3T7FJ"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "[redacted:tool-output:msg_1472ba823001Xl79Ii0hu3T7FJ]"
+              }
+            ],
+            "metadata": {
+              "redacted": "tool-metadata:msg_1472ba823001Xl79Ii0hu3T7FJ"
+            }
+          },
+          "time": {
+            "created": 1792195548716,
+            "ran": 1792195548723,
+            "completed": 1792195548732
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 4175,
+        "output": 44,
+        "reasoning": 75,
+        "cache": {
+          "read": 70,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472dd675001UoWaee9JwbEnoy",
+      "time": {
+        "created": 1792195548796,
+        "streamed": 1792195551610,
+        "completed": 1792195551636
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "53a7f0cb-77d0-429c-82f0-8037a67980dd",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "redacted": "tool-input:msg_1472dd675001UoWaee9JwbEnoy"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "[redacted:tool-output:msg_1472dd675001UoWaee9JwbEnoy]"
+              }
+            ],
+            "metadata": {
+              "redacted": "tool-metadata:msg_1472dd675001UoWaee9JwbEnoy"
+            }
+          },
+          "time": {
+            "created": 1792195551607,
+            "ran": 1792195551609,
+            "completed": 1792195551613
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 282,
+        "output": 46,
+        "reasoning": 74,
+        "cache": {
+          "read": 4038,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472de19c0016xbKmQth0AsBVa",
+      "time": {
+        "created": 1792195551649,
+        "streamed": 1792195552995,
+        "completed": 1792195564337
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "5f1fcf31-6edf-4b15-a624-45bc40d4b5d6",
+          "name": "glob",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "redacted": "tool-input:msg_1472de19c0016xbKmQth0AsBVa"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "[redacted:tool-output:msg_1472de19c0016xbKmQth0AsBVa]"
+              }
+            ],
+            "metadata": {
+              "redacted": "tool-metadata:msg_1472de19c0016xbKmQth0AsBVa"
+            }
+          },
+          "time": {
+            "created": 1792195552991,
+            "ran": 1792195552994,
+            "completed": 1792195564289
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 82,
+        "output": 31,
+        "reasoning": 0,
+        "cache": {
+          "read": 4322,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472e133f001YZD1tbAEDXXlEJ",
+      "time": {
+        "created": 1792195564356,
+        "streamed": 1792195589584,
+        "completed": 1792195589606
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "[redacted:text:msg_1472e133f001YZD1tbAEDXXlEJ]"
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 42,
+        "output": 31,
+        "reasoning": 326,
+        "cache": {
+          "read": 4434,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472e75e8002wq6UckAl6irEOe",
+      "time": {
+        "created": 1792195589608
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    },
+    {
+      "id": "msg_14736ca06001C73fPLNkOhbtPr",
+      "time": {
+        "created": 1792196135643
+      },
+      "text": "[redacted:text:msg_14736ca06001C73fPLNkOhbtPr]",
+      "files": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_14736cae1001Njsg05qBS5Ai0j",
+      "time": {
+        "created": 1792196135654,
+        "streamed": 1792196197863,
+        "completed": 1792196197888
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "[redacted:text:msg_14736cae1001Njsg05qBS5Ai0j]"
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 4026,
+        "output": 302,
+        "reasoning": 0,
+        "cache": {
+          "read": 1792,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14737be03001e5lTyLstA4GOmG",
+      "time": {
+        "created": 1792196197891
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    },
+    {
+      "type": "compaction",
+      "id": "msg_14741806e001Is3Ek0yxVzUXks",
+      "time": {
+        "created": 1792196837796
+      },
+      "status": "completed",
+      "reason": "manual",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "summary": "[redacted:compaction-summary:msg_14741806e001Is3Ek0yxVzUXks]",
+      "recent": "[redacted:compaction-recent:msg_14741806e001Is3Ek0yxVzUXks]",
+      "cost": 0,
+      "tokens": {
+        "input": 733,
+        "output": 276,
+        "reasoning": 0,
+        "cache": {
+          "read": 5632,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14741870e001d7XRixF6BoNdov",
+      "time": {
+        "created": 1792196839182
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

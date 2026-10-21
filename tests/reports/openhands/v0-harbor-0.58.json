@@ -1,0 +1,32 @@
+{
+  "format": "openhands",
+  "case": "v0-harbor-0.58",
+  "variant": "v0-trajectory",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 11 events",
+  "import_losses": [
+    "record-native-only ×2"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 24,
+    "codex": 13,
+    "opencode": 13
+  },
+  "no_carry_summary": {
+    "claude-code": "score 24; header [header.created_at×1]; missing [settings×1, usage×2]; extra [settings×1]; changed [tool_call.body.tool_type×1, usage.body.model×1]",
+    "codex": "score 13; changed [settings.body.agent×1, settings.body.tools×1, tool_call.body.tool_type×1, usage.body.cache_write×2, usage.body.cost_usd×2, usage.body.model×3, usage.body.reasoning×1, usage.group×2]",
+    "opencode": "score 13; missing [usage×1]; changed [settings.body.system_prompt×1, settings.body.tools×1, tool_call.body.tool_type×1, usage.body.cache_write×1, usage.group×1]"
+  },
+  "errors": {}
+}

@@ -1,0 +1,37 @@
+[
+    {
+        "id": "U0ALICE",
+        "team_id": "T0EXAMPLE",
+        "name": "alice",
+        "deleted": false,
+        "real_name": "Alice Example",
+        "profile": {
+            "display_name": "alice",
+            "real_name": "Alice Example",
+            "image_72": "https:\/\/avatars.example.com\/a.png"
+        },
+        "is_bot": false
+    },
+    {
+        "id": "U0BOB",
+        "team_id": "T0EXAMPLE",
+        "name": "bob",
+        "real_name": "Bob Ex\u00e4mple",
+        "profile": {
+            "display_name": "",
+            "real_name": "Bob Ex\u00e4mple"
+        },
+        "is_bot": false
+    },
+    {
+        "id": "U0AGENTAPP",
+        "team_id": "T0EXAMPLE",
+        "name": "build-agent",
+        "real_name": "build-agent",
+        "profile": {
+            "display_name": "build-agent",
+            "bot_id": "B0AGENT"
+        },
+        "is_bot": true
+    }
+]

@@ -1,0 +1,30 @@
+{
+  "format": "pi",
+  "case": "v3-tool-calls",
+  "variant": "v3",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 14 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 16,
+    "codex": 16,
+    "opencode": 10
+  },
+  "no_carry_summary": {
+    "claude-code": "score 16; header [header.created_at×1]; missing [file_change×1, settings×2]; extra [settings×1]; changed [settings.ts×1, tool_call.body.tool_type×1, usage.body.cost_usd×3]",
+    "codex": "score 16; missing [settings×2]; changed [reasoning.body.sealed×1, tool_call.body.tool_type×1, usage.body.cache_write×3, usage.body.cost_usd×3, usage.body.model×3]",
+    "opencode": "score 10; missing [file_change×1, settings×2]; changed [tool_call.body.tool_type×1]"
+  },
+  "errors": {}
+}

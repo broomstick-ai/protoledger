@@ -1,0 +1,5 @@
+{"sessionId":"b0c1d2e3-0000-4000-8000-00000000c0de","projectHash":"9dad1e4e08b0b11cbcd860257e8bdfa6b8e5f01790e10a6a0b1f4870c13e686b","startTime":"2026-10-16T23:43:46.938Z","lastUpdated":"2026-10-16T23:43:46.938Z","kind":"subagent","directories":["/home/user/project"]}
+{"id":"2dd82824-a6df-4e9c-8186-d97f3d2c0200","timestamp":"2026-10-16T23:43:46.938Z","type":"user","content":[{"text":"Find the program entry point."}]}
+{"$set":{"lastUpdated":"2026-10-16T23:43:46.938Z"}}
+{"id":"b742aaaf-c447-4e0a-af0e-ee82cafb8653","timestamp":"2026-10-16T23:43:46.938Z","type":"gemini","content":"The entry point is src/main.rs.","thoughts":[],"tokens":{"input":300,"output":20,"cached":0,"thoughts":0,"tool":0,"total":320},"model":"gemini-2.5-flash"}
+{"$set":{"lastUpdated":"2026-10-16T23:43:46.938Z"}}

@@ -1,0 +1,202 @@
+{
+  "info": {
+    "id": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+    "version": "1.1.8",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Create notes/out.txt",
+    "time": {
+      "created": 1792195317473,
+      "updated": 1792195317738
+    },
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "id": "msg_1472a4ef5001Qf6eHUhBfUkZz8",
+        "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+        "role": "user",
+        "time": {
+          "created": 1792195317493
+        },
+        "summary": {
+          "title": "Create notes/out.txt",
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_1472a4ef5002uiYbzwk64mzuAf",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4ef5001Qf6eHUhBfUkZz8",
+          "type": "text",
+          "text": "\"Create the file notes/out.txt containing exactly the word done (followed by a newline). Then reply ok.\"\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_1472a4f2e001iNhVbZtokxbUOw",
+        "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+        "role": "assistant",
+        "time": {
+          "created": 1792195317550,
+          "completed": 1792195317712
+        },
+        "parentID": "msg_1472a4ef5001Qf6eHUhBfUkZz8",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls"
+      },
+      "parts": [
+        {
+          "id": "prt_1472a4f79001kBd60tvB6Cy4B4",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4f2e001iNhVbZtokxbUOw",
+          "type": "step-start",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77"
+        },
+        {
+          "id": "prt_1472a4f7b001H8cZy3FYDvpwiR",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4f2e001iNhVbZtokxbUOw",
+          "type": "tool",
+          "callID": "call_fixture_23",
+          "tool": "write",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/home/user/project-a/notes/out.txt",
+              "content": "done\n"
+            },
+            "output": "",
+            "title": "notes/out.txt",
+            "metadata": {
+              "diagnostics": {},
+              "filepath": "/home/user/project-a/notes/out.txt",
+              "exists": false,
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195317628,
+              "end": 1792195317630
+            }
+          }
+        },
+        {
+          "id": "prt_1472a4f7f0019J43XUjpnuYBL4",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4f2e001iNhVbZtokxbUOw",
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_1472a4fd6001UqsE3n5rBWiGAs",
+        "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+        "role": "assistant",
+        "time": {
+          "created": 1792195317718,
+          "completed": 1792195317833
+        },
+        "parentID": "msg_1472a4ef5001Qf6eHUhBfUkZz8",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop"
+      },
+      "parts": [
+        {
+          "id": "prt_1472a500000111ChwFKi7ZvcXY",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4fd6001UqsE3n5rBWiGAs",
+          "type": "step-start",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77"
+        },
+        {
+          "id": "prt_1472a5001001bmX817egIJQ87a",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4fd6001UqsE3n5rBWiGAs",
+          "type": "text",
+          "text": "ok",
+          "time": {
+            "start": 1792195317762,
+            "end": 1792195317762
+          }
+        },
+        {
+          "id": "prt_1472a5002001Xp5XBY3mBq2d1L",
+          "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+          "messageID": "msg_1472a4fd6001UqsE3n5rBWiGAs",
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

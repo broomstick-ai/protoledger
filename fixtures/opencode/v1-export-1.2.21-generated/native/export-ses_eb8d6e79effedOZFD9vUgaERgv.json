@@ -1,0 +1,136 @@
+{
+  "info": {
+    "id": "ses_eb8d6e79effedOZFD9vUgaERgv",
+    "slug": "proud-otter",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Hello fixture reply",
+    "version": "1.2.21",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "permission": [
+      {
+        "permission": "question",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_enter",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_exit",
+        "pattern": "*",
+        "action": "deny"
+      }
+    ],
+    "time": {
+      "created": 1792195237985,
+      "updated": 1792195238087
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195238003
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_1472918730015w6IG4R5Bng6ER",
+        "sessionID": "ses_eb8d6e79effedOZFD9vUgaERgv"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Reply with exactly: hello fixture. Do not use tools.\"\n",
+          "id": "prt_147291874001ajCcR3O7go8hOq",
+          "sessionID": "ses_eb8d6e79effedOZFD9vUgaERgv",
+          "messageID": "msg_1472918730015w6IG4R5Bng6ER"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195238059,
+          "completed": 1792195238363
+        },
+        "parentID": "msg_1472918730015w6IG4R5Bng6ER",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_1472918ab0010y1gkeVSAzHgZG",
+        "sessionID": "ses_eb8d6e79effedOZFD9vUgaERgv"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_14729195e0011lNp40Uzw5kfx3",
+          "sessionID": "ses_eb8d6e79effedOZFD9vUgaERgv",
+          "messageID": "msg_1472918ab0010y1gkeVSAzHgZG"
+        },
+        {
+          "type": "text",
+          "text": "hello fixture",
+          "time": {
+            "start": 1792195238240,
+            "end": 1792195238240
+          },
+          "id": "prt_14729195f0011Iuypvd5jZURDa",
+          "sessionID": "ses_eb8d6e79effedOZFD9vUgaERgv",
+          "messageID": "msg_1472918ab0010y1gkeVSAzHgZG"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_147291961001MSZsbVxI09g1rS",
+          "sessionID": "ses_eb8d6e79effedOZFD9vUgaERgv",
+          "messageID": "msg_1472918ab0010y1gkeVSAzHgZG"
+        }
+      ]
+    }
+  ]
+}

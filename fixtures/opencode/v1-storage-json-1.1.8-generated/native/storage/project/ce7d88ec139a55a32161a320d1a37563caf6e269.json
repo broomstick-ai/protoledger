@@ -1,0 +1,10 @@
+{
+  "id": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+  "worktree": "/home/user/project-a",
+  "vcs": "git",
+  "sandboxes": [],
+  "time": {
+    "created": 1792195236194,
+    "updated": 1792195634232
+  }
+}

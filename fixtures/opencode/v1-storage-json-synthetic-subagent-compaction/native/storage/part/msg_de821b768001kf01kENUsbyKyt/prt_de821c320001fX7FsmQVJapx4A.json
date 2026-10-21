@@ -1,0 +1,31 @@
+{
+  "id": "prt_de821c320001fX7FsmQVJapx4A",
+  "sessionID": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "messageID": "msg_de821b768001kf01kENUsbyKyt",
+  "type": "tool",
+  "callID": "toolu_01SynthEdit",
+  "tool": "edit",
+  "state": {
+    "status": "completed",
+    "input": {
+      "filePath": "/home/user/project-a/notes/plan.md",
+      "oldString": "teh",
+      "newString": "the"
+    },
+    "output": "",
+    "title": "notes/plan.md",
+    "metadata": {
+      "diagnostics": {},
+      "diff": "@@ -3 +3 @@\n-- Read teh input.\n+- Read the input.\n",
+      "filediff": {
+        "file": "/home/user/project-a/notes/plan.md",
+        "additions": 1,
+        "deletions": 1
+      }
+    },
+    "time": {
+      "start": 1777716020000,
+      "end": 1777716020300
+    }
+  }
+}

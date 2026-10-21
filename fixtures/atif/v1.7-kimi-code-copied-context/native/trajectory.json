@@ -1,0 +1,280 @@
+{
+  "schema_version": "ATIF-v1.7",
+  "session_id": "session_8192ee32-068a-47f4-a145-829f33b1b234",
+  "agent": {
+    "name": "kimi-code",
+    "version": "2.1.1",
+    "model_name": "moonshotai/kimi-k3",
+    "extra": {
+      "wire_protocol_version": "1.5",
+      "profile": "agent",
+      "subagents": [
+        "coder",
+        "explore",
+        "plan"
+      ],
+      "active_tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Grep",
+        "Glob",
+        "Bash",
+        "TaskList",
+        "TaskOutput",
+        "TaskStop",
+        "WaitFor",
+        "CronCreate",
+        "CronList",
+        "CronDelete",
+        "ReadMediaFile",
+        "TodoList",
+        "Skill",
+        "WebSearch",
+        "Agent",
+        "AgentSwarm",
+        "FetchURL",
+        "AskUserQuestion",
+        "NotifyUser",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "CreateGoal",
+        "GetGoal",
+        "SetGoalBudget",
+        "UpdateGoal",
+        "TowerInit",
+        "TowerStatus",
+        "TowerTeardown",
+        "mcp__*"
+      ],
+      "cwd": "/app",
+      "permission_mode": "auto"
+    }
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "timestamp": "2026-10-01T21:34:17.382Z",
+      "source": "user",
+      "message": "Create a file called `hello.txt` in the working directory (`/app`) with the\nexact content:\n\nHello, world!\n",
+      "is_copied_context": true,
+      "extra": {
+        "turn_id": 0
+      }
+    },
+    {
+      "step_id": 2,
+      "timestamp": "2026-10-01T21:34:17.392Z",
+      "source": "system",
+      "message": "<system-reminder>\nToday's date is 2026-10-01. The current date is restated in a reminder whenever it changes; rely on the latest such reminder for the current date. DO NOT mention this to the user explicitly.\n</system-reminder>",
+      "is_copied_context": true,
+      "extra": {
+        "origin": {
+          "kind": "injection",
+          "variant": "date_change"
+        }
+      }
+    },
+    {
+      "step_id": 3,
+      "timestamp": "2026-10-01T21:34:17.393Z",
+      "source": "system",
+      "message": "<system-reminder>\nAuto permission mode is active. Tool approvals will be handled automatically while this mode remains enabled.\n  - Continue normally without pausing for approval prompts.\n  - Do NOT call AskUserQuestion while auto mode is active; decide and continue.\n  - ExitPlanMode is also approved automatically, without the user reviewing the plan. An auto-approved plan is NOT a signal from the user to start executing \u2014 follow the user's original instructions on whether to proceed.\n</system-reminder>",
+      "is_copied_context": true,
+      "extra": {
+        "origin": {
+          "kind": "injection",
+          "variant": "permission_mode"
+        }
+      }
+    },
+    {
+      "step_id": 4,
+      "timestamp": "2026-10-01T21:34:17.398Z",
+      "source": "agent",
+      "model_name": "moonshotai/kimi-k3",
+      "reasoning_effort": "max",
+      "message": "",
+      "reasoning_content": "Simple task: create hello.txt with \"Hello, world!\" content. Use Write tool.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_419963a4c28a47d2bb9d7315",
+          "function_name": "Write",
+          "arguments": {
+            "path": "/app/hello.txt",
+            "content": "Hello, world!\n"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_419963a4c28a47d2bb9d7315",
+            "content": "Wrote 14 bytes to /app/hello.txt",
+            "extra": {
+              "duration_ms": 5
+            }
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 19745,
+        "completion_tokens": 86
+      },
+      "is_copied_context": true,
+      "llm_call_count": 1,
+      "extra": {
+        "turn_id": "0",
+        "step": 1,
+        "finish_reason": "tool_use",
+        "provider_finish_reason": "tool_calls",
+        "message_id": "chatcmpl-2cb2a96d96c2486eacd4f0fc9d63f51b",
+        "llm_first_token_latency_ms": 3184,
+        "llm_stream_duration_ms": 1419
+      }
+    },
+    {
+      "step_id": 5,
+      "timestamp": "2026-10-01T21:34:22.060Z",
+      "source": "agent",
+      "model_name": "moonshotai/kimi-k3",
+      "reasoning_effort": "max",
+      "message": "Created `/app/hello.txt` with the content:\n\n```\nHello, world!\n```",
+      "metrics": {
+        "prompt_tokens": 19870,
+        "completion_tokens": 29,
+        "cached_tokens": 19744,
+        "extra": {
+          "cache_read_input_tokens": 19744
+        }
+      },
+      "is_copied_context": true,
+      "llm_call_count": 1,
+      "extra": {
+        "turn_id": "0",
+        "step": 2,
+        "finish_reason": "end_turn",
+        "provider_finish_reason": "completed",
+        "message_id": "chatcmpl-cf0609a3cea542eb9367eb44fb0944c6",
+        "llm_first_token_latency_ms": 1115,
+        "llm_stream_duration_ms": 483
+      }
+    },
+    {
+      "step_id": 6,
+      "timestamp": "2026-10-01T21:34:17.382Z",
+      "source": "user",
+      "message": "Now append a second line.",
+      "extra": {
+        "turn_id": 0
+      }
+    },
+    {
+      "step_id": 7,
+      "timestamp": "2026-10-01T21:34:17.392Z",
+      "source": "system",
+      "message": "<system-reminder>\nToday's date is 2026-10-01. The current date is restated in a reminder whenever it changes; rely on the latest such reminder for the current date. DO NOT mention this to the user explicitly.\n</system-reminder>",
+      "extra": {
+        "origin": {
+          "kind": "injection",
+          "variant": "date_change"
+        }
+      }
+    },
+    {
+      "step_id": 8,
+      "timestamp": "2026-10-01T21:34:17.393Z",
+      "source": "system",
+      "message": "<system-reminder>\nAuto permission mode is active. Tool approvals will be handled automatically while this mode remains enabled.\n  - Continue normally without pausing for approval prompts.\n  - Do NOT call AskUserQuestion while auto mode is active; decide and continue.\n  - ExitPlanMode is also approved automatically, without the user reviewing the plan. An auto-approved plan is NOT a signal from the user to start executing \u2014 follow the user's original instructions on whether to proceed.\n</system-reminder>",
+      "extra": {
+        "origin": {
+          "kind": "injection",
+          "variant": "permission_mode"
+        }
+      }
+    },
+    {
+      "step_id": 9,
+      "timestamp": "2026-10-01T21:34:17.398Z",
+      "source": "agent",
+      "model_name": "moonshotai/kimi-k3",
+      "reasoning_effort": "max",
+      "message": "",
+      "reasoning_content": "Simple task: create hello.txt with \"Hello, world!\" content. Use Write tool.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_second",
+          "function_name": "Write",
+          "arguments": {
+            "path": "/app/hello.txt",
+            "content": "Hello, world!\n"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_second",
+            "content": "Wrote 14 bytes to /app/hello.txt",
+            "extra": {
+              "duration_ms": 5
+            }
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 10,
+        "completion_tokens": 5,
+        "cost_usd": 0.000105
+      },
+      "llm_call_count": 1,
+      "extra": {
+        "turn_id": "0",
+        "step": 1,
+        "finish_reason": "tool_use",
+        "provider_finish_reason": "tool_calls",
+        "message_id": "chatcmpl-2cb2a96d96c2486eacd4f0fc9d63f51b",
+        "llm_first_token_latency_ms": 3184,
+        "llm_stream_duration_ms": 1419
+      }
+    },
+    {
+      "step_id": 10,
+      "timestamp": "2026-10-01T21:34:22.060Z",
+      "source": "agent",
+      "model_name": "moonshotai/kimi-k3",
+      "reasoning_effort": "max",
+      "message": "Created `/app/hello.txt` with the content:\n\n```\nHello, world!\n```",
+      "metrics": {
+        "prompt_tokens": 10,
+        "completion_tokens": 5,
+        "cost_usd": 0.000105
+      },
+      "llm_call_count": 1,
+      "extra": {
+        "turn_id": "0",
+        "step": 2,
+        "finish_reason": "end_turn",
+        "provider_finish_reason": "completed",
+        "message_id": "chatcmpl-cf0609a3cea542eb9367eb44fb0944c6",
+        "llm_first_token_latency_ms": 1115,
+        "llm_stream_duration_ms": 483
+      }
+    }
+  ],
+  "notes": "final_metrics excludes steps marked is_copied_context; copied steps remain serialized to preserve resumed-session context.",
+  "final_metrics": {
+    "total_prompt_tokens": 20,
+    "total_completion_tokens": 10,
+    "total_cached_tokens": 0,
+    "total_cost_usd": 0.00021,
+    "total_steps": 5,
+    "extra": {
+      "source": "wire",
+      "total_turn_duration_ms": 12574,
+      "total_cache_read_input_tokens": 0,
+      "total_cache_creation_input_tokens": 0,
+      "cost_source": "litellm_estimate"
+    }
+  }
+}

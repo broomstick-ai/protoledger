@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.7-claude-code-real-run",
+  "variant": "ATIF-v1.7",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 44 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 10,
+    "codex": 15,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 10; missing [settings×1, usage×1]; extra [settings×1]",
+    "codex": "score 15; missing [settings×1]; changed [usage.body.cost_usd×1, usage.body.model×12]",
+    "opencode": "clean: 1 agents, 44 events"
+  },
+  "errors": {}
+}

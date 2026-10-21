@@ -1,0 +1,23 @@
+{
+  "id": "prt_de8219c100011cBq2VP1aT4xyH",
+  "sessionID": "ses_217de67d7ffeZFihP4MKsPcXsP",
+  "messageID": "msg_de8219a1c001ONBiVPe7CfpggS",
+  "type": "tool",
+  "callID": "toolu_01SynthRead",
+  "tool": "read",
+  "state": {
+    "status": "completed",
+    "input": {
+      "filePath": "/home/user/project-a/notes/plan.md"
+    },
+    "output": "<file>\n00001| # Plan\n00002| \n00003| - Read teh input.\n00004| - Count the lines.\n</file>",
+    "title": "notes/plan.md",
+    "metadata": {
+      "preview": "# Plan"
+    },
+    "time": {
+      "start": 1777716010000,
+      "end": 1777716010100
+    }
+  }
+}

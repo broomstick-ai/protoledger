@@ -1,0 +1,5 @@
+{"id":"fix-codex-flat-0002","timestamp":"2025-07-19T22:25:43.741Z","instructions":"# AGENTS.md\n\nThis is the project instructions."}
+{"type":"message","role":"user","content":[{"type":"input_text","text":"Can you list the current directory?"}]}
+{"type":"local_shell_call","id":"lsh_001","call_id":"call_flat_001","status":"completed","action":{"type":"exec","command":["bash","-lc","ls -1"],"timeout_ms":null,"working_directory":null,"env":{},"user":null}}
+{"type":"function_call_output","call_id":"call_flat_001","output":"{\"output\":\"AGENTS.md\\nREADME.md\\nsrc\\n\",\"metadata\":{\"exit_code\":0,\"duration_seconds\":0.0}}"}
+{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Here's the listing of the current directory:\n\n```\nAGENTS.md\nREADME.md\nsrc\n```"}]}

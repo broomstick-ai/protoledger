@@ -1,0 +1,117 @@
+{
+  "schema_version": "ATIF-v1.7",
+  "session_id": "trial__agent",
+  "agent": {
+    "name": "strands",
+    "version": "unknown",
+    "model_name": "test-model",
+    "tool_definitions": [
+      {
+        "type": "function",
+        "function": {
+          "name": "sandbox_shell",
+          "description": "Executes shell commands. Each call runs in a fresh shell; state does not persist across calls.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "command"
+            ]
+          }
+        }
+      }
+    ],
+    "extra": {
+      "model_provider": "tests.ScriptedModel",
+      "model_config": {
+        "model_id": "test-model",
+        "params": {
+          "temperature": 0
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "source": "user",
+      "message": "Complete the task."
+    },
+    {
+      "step_id": 2,
+      "source": "agent",
+      "message": "(tool calls)",
+      "tool_calls": [
+        {
+          "tool_call_id": "call-1",
+          "function_name": "sandbox_shell",
+          "arguments": {
+            "command": "pwd"
+          }
+        },
+        {
+          "tool_call_id": "call-2",
+          "function_name": "sandbox_shell",
+          "arguments": {
+            "command": "ls"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call-1",
+            "content": "/workspace",
+            "extra": {
+              "status": "success"
+            }
+          },
+          {
+            "source_call_id": "call-2",
+            "content": "README.md",
+            "extra": {
+              "status": "success"
+            }
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 5,
+        "completion_tokens": 2,
+        "cached_tokens": 0
+      },
+      "llm_call_count": 1
+    },
+    {
+      "step_id": 3,
+      "source": "agent",
+      "message": "Done.",
+      "metrics": {
+        "prompt_tokens": 5,
+        "completion_tokens": 2,
+        "cached_tokens": 0
+      },
+      "llm_call_count": 1
+    }
+  ],
+  "notes": "Converted from a Strands Agent invocation by Harbor.",
+  "final_metrics": {
+    "total_prompt_tokens": 13,
+    "total_completion_tokens": 4,
+    "total_cached_tokens": 2,
+    "total_steps": 3,
+    "extra": {
+      "checkpoint": {
+        "position": "after_model"
+      },
+      "cache_write_input_tokens": 1
+    }
+  },
+  "extra": {
+    "stop_reason": "end_turn"
+  }
+}

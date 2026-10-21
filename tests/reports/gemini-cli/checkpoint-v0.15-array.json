@@ -1,0 +1,30 @@
+{
+  "format": "gemini-cli",
+  "case": "checkpoint-v0.15-array",
+  "variant": "checkpoint",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 10 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 3,
+    "codex": 4,
+    "opencode": 3
+  },
+  "no_carry_summary": {
+    "claude-code": "score 3; changed [reasoning.body.sealed×1, text.group×2]",
+    "codex": "score 4; changed [reasoning.body.sealed×1, text.group×2, tool_result.body.is_error×1]",
+    "opencode": "score 3; extra [settings×1]; changed [text.group×2]"
+  },
+  "errors": {}
+}

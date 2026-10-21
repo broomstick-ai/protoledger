@@ -1,0 +1,5 @@
+{"role": "session_meta", "tools": [{"type": "function", "function": {"name": "web_search", "description": "Search the web.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}}}], "model": "anthropic/claude-sonnet-4", "platform": "telegram", "timestamp": "2026-04-12T08:00:00.120511"}
+{"role": "user", "content": "Remind me what the weather is like in Oslo.", "timestamp": "2026-04-12T08:00:00.120511"}
+{"role": "assistant", "content": null, "tool_calls": [{"id": "call_w1", "type": "function", "function": {"name": "web_search", "arguments": "{\"query\": \"Oslo weather today\"}"}}], "finish_reason": "tool_calls", "timestamp": "2026-04-12T08:00:04.930001"}
+{"role": "tool", "content": "{\"results\": [{\"snippet\": \"Oslo: 7°C, light rain.\"}]}", "tool_call_id": "call_w1", "tool_name": "web_search", "timestamp": "2026-04-12T08:00:06.410772"}
+{"role": "assistant", "content": "Oslo is 7°C with light rain today. 🌧️", "finish_reason": "stop", "timestamp": "2026-04-12T08:00:09.002145"}

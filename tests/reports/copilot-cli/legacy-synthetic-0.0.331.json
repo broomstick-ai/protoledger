@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "legacy-synthetic-0.0.331",
+  "variant": "legacy-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 11 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 4,
+    "codex": 2,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 4; header [header.created_at×1]; missing [settings×1]; extra [settings×1]",
+    "codex": "score 2; missing [settings×1]",
+    "opencode": "clean: 1 agents, 11 events"
+  },
+  "errors": {}
+}

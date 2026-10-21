@@ -1,0 +1,27 @@
+{
+  "id": "prt_14729a1d0002JA9aeV7mSZSmLJ",
+  "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+  "messageID": "msg_14729a18a001MhNvSChtJcIou5",
+  "type": "tool",
+  "callID": "call_fixture_10",
+  "tool": "bash",
+  "state": {
+    "status": "completed",
+    "input": {
+      "command": "printf 'x\\n'; exit 7",
+      "description": "Run command that exits with code 7"
+    },
+    "output": "x\n",
+    "title": "Run command that exits with code 7",
+    "metadata": {
+      "output": "x\n",
+      "exit": 7,
+      "description": "Run command that exits with code 7",
+      "truncated": false
+    },
+    "time": {
+      "start": 1792195273169,
+      "end": 1792195273170
+    }
+  }
+}

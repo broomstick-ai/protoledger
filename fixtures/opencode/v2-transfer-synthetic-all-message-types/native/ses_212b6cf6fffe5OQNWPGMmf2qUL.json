@@ -1,0 +1,211 @@
+{
+  "info": {
+    "id": "ses_212b6cf6fffe5OQNWPGMmf2qUL",
+    "fork": {
+      "sessionID": "ses_212b82effffeMX36DJaZTs7ULY",
+      "boundary": {
+        "type": "through",
+        "messageID": "msg_ded47d8d0001JAj9Z9wBu7h16h"
+      }
+    },
+    "projectID": "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750",
+    "agent": "build",
+    "model": {
+      "id": "gpt-5.5",
+      "providerID": "openai",
+      "variant": "high"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "time": {
+      "created": 1777802490000,
+      "updated": 1777802491000
+    },
+    "title": "Count plan lines and run tests (fork #1)",
+    "location": {
+      "directory": "/home/user/project-a"
+    },
+    "metadata": {
+      "ci": {
+        "job": 42
+      }
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_1",
+      "time": {
+        "created": 1777802400100
+      },
+      "type": "model-switched",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      }
+    },
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_2",
+      "time": {
+        "created": 1777802400200
+      },
+      "type": "agent-switched",
+      "agent": "build"
+    },
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_3",
+      "time": {
+        "created": 1777802400300
+      },
+      "type": "system",
+      "text": "You are running in /home/user/project-a. Today is 2026-05-03.",
+      "description": "Environment"
+    },
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_4",
+      "time": {
+        "created": 1777802400400
+      },
+      "type": "skill",
+      "skill": "skill_counting",
+      "name": "counting",
+      "text": "<skill name=\"counting\">Count lines with wc -l.</skill>"
+    },
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_5",
+      "time": {
+        "created": 1777802401000
+      },
+      "text": "Count the lines of @notes/plan.md with a subagent, then run the tests.",
+      "files": [
+        {
+          "data": "IyBQbGFuCgotIFJlYWQgdGhlIGlucHV0LgotIENvdW50IHRoZSBsaW5lcy4K",
+          "mime": "text/plain",
+          "source": {
+            "type": "uri",
+            "uri": "file:///home/user/project-a/notes/plan.md"
+          },
+          "name": "plan.md",
+          "mention": {
+            "start": 20,
+            "end": 34,
+            "text": "@notes/plan.md"
+          }
+        }
+      ],
+      "agents": [
+        {
+          "name": "general"
+        }
+      ],
+      "type": "user"
+    },
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_6",
+      "time": {
+        "created": 1777802401100
+      },
+      "text": "Called the read tool with {\"path\":\"notes/plan.md\"}",
+      "description": "Attached file",
+      "type": "synthetic"
+    },
+    {
+      "id": "msg_ded493090002FOwMPCD06wKOVG_7",
+      "time": {
+        "created": 1777802402000,
+        "streamed": 1777802429000,
+        "completed": 1777802429500
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Delegate the count, then run tests.",
+          "state": {
+            "openai": {
+              "itemId": "rs_synthetic",
+              "reasoningEncryptedContent": "gAAAAsynthetic"
+            }
+          },
+          "time": {
+            "created": 1777802402100,
+            "completed": 1777802402600
+          }
+        },
+        {
+          "type": "tool",
+          "id": "call_synthSubagent",
+          "name": "subagent",
+          "executed": true,
+          "state": {
+            "status": "completed",
+            "input": {
+              "agent": "general",
+              "description": "Count plan lines",
+              "prompt": "Count the lines in notes/plan.md."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "<subagent sessionID=\"ses_212b7e0dfffeuUt2gV0HQWrKfb\" state=\"completed\">\n4 lines\n</subagent>"
+              }
+            ],
+            "metadata": {
+              "sessionID": "ses_212b7e0dfffeuUt2gV0HQWrKfb",
+              "status": "completed"
+            }
+          },
+          "time": {
+            "created": 1777802403000,
+            "ran": 1777802403100,
+            "completed": 1777802428000
+          }
+        },
+        {
+          "type": "text",
+          "text": "The subagent counted 4 lines."
+        }
+      ],
+      "snapshot": {
+        "start": "snap_start_1",
+        "end": "snap_end_1",
+        "files": [
+          "notes/plan.md"
+        ]
+      },
+      "finish": "stop",
+      "cost": 0.0215,
+      "tokens": {
+        "input": 3200,
+        "output": 260,
+        "reasoning": 128,
+        "cache": {
+          "read": 1024,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_ded493478001eMrZMRT0iHTet5",
+      "time": {
+        "created": 1777802491000
+      },
+      "text": "Instead, count the words.",
+      "type": "user"
+    }
+  ]
+}

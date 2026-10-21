@@ -1,0 +1,1 @@
+{"self_exact": false, "self_reason": "SQLite file bytes cannot be reproduced (page layout); export rebuilds the store row for row: same schema text, identical checkpoints and writes rows (blobs byte-identical) and every other table, re-imported without difference.", "requires_features": ["sqlite"]}

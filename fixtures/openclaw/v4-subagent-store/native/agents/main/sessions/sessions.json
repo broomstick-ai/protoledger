@@ -1,0 +1,22 @@
+{
+  "agent:main:main": {
+    "sessionId": "5d0c3f9e-6a1b-4c2d-8e3f-a1b2c3d4e5f6",
+    "updatedAt": 1790913601000,
+    "chatType": "direct",
+    "sessionFile": "/home/user/.openclaw/agents/main/sessions/5d0c3f9e-6a1b-4c2d-8e3f-a1b2c3d4e5f6.jsonl",
+    "compactionCount": 1,
+    "modelProvider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "agent:main:subagent:7e1d2c3b-4a5f-4e6d-8c7b-9a0f1e2d3c4b": {
+    "sessionId": "7e1d2c3b-4a5f-4e6d-8c7b-9a0f1e2d3c4b",
+    "updatedAt": 1790845204100,
+    "sessionFile": "/home/user/.openclaw/agents/main/sessions/7e1d2c3b-4a5f-4e6d-8c7b-9a0f1e2d3c4b.jsonl",
+    "spawnedBy": "agent:main:main",
+    "spawnedBySessionId": "5d0c3f9e-6a1b-4c2d-8e3f-a1b2c3d4e5f6",
+    "spawnDepth": 1,
+    "label": "file-counter",
+    "modelProvider": "anthropic",
+    "model": "claude-sonnet-5"
+  }
+}

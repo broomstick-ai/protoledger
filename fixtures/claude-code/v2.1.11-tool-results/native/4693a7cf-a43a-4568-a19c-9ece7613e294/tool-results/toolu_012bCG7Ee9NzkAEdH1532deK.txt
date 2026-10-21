@@ -1,0 +1,814 @@
+diff --git a/.claude/sessions-index.json b/.claude/sessions-index.json
+index 153c013..4278bf3 100644
+--- a/.claude/sessions-index.json
++++ b/.claude/sessions-index.json
+@@ -2,21 +2,33 @@
+   "version": 1,
+   "entries": [
+     {
+-      "sessionId": "427cfff7-8336-4da1-980d-4f7046ca9a17",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/427cfff7-8336-4da1-980d-4f7046ca9a17.jsonl",
+-      "fileMtime": 1767834198773,
++      "sessionId": "ab297a56-bd97-4bc9-b949-d292b1c29a57",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/ab297a56-bd97-4bc9-b949-d292b1c29a57.jsonl",
++      "fileMtime": 1768582432930,
+       "firstPrompt": ".",
+-      "messageCount": 64,
+-      "created": "2026-01-06T02:56:05.835Z",
+-      "modified": "2026-01-06T04:38:31.649Z",
+-      "gitBranch": "add-rlibc-x2-to-support-std",
++      "messageCount": 9,
++      "created": "2026-01-15T18:17:58.398Z",
++      "modified": "2026-01-15T18:43:40.658Z",
++      "gitBranch": "main",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
++    {
++      "sessionId": "2797e2cd-d252-4fe5-8a32-0874c6a0de3d",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/2797e2cd-d252-4fe5-8a32-0874c6a0de3d.jsonl",
++      "fileMtime": 1768582432930,
++      "firstPrompt": ".",
++      "messageCount": 77,
++      "created": "2026-01-15T18:48:24.666Z",
++      "modified": "2026-01-16T01:38:59.881Z",
++      "gitBranch": "main",
++      "projectPath": "/home/user/data/prgs/rust/rlibc-xt",
++      "isSidechain": false
++    },
+     {
+       "sessionId": "7ad248d7-6380-49ce-a690-c324d9d9a430",
+       "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/7ad248d7-6380-49ce-a690-c324d9d9a430.jsonl",
+-      "fileMtime": 1767834198775,
++      "fileMtime": 1768502662813,
+       "firstPrompt": ".",
+       "messageCount": 16,
+       "created": "2026-01-07T22:55:14.955Z",
+@@ -26,61 +38,49 @@
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "8e303a0e-a8ff-4694-98ba-5f8e80297fce",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/8e303a0e-a8ff-4694-98ba-5f8e80297fce.jsonl",
+-      "fileMtime": 1767834198775,
+-      "firstPrompt": "I had to kill zed where you are running as you hung, anyway I've commited where we are now. I've also verified app and rlibc-x1 builds and runs. Also rlibc-x2 and app-std does compile but app-std hang…",
+-      "messageCount": 5,
+-      "created": "2026-01-06T02:54:13.046Z",
+-      "modified": "2026-01-06T02:55:31.796Z",
++      "sessionId": "c6672248-1e03-443b-932e-2dd4d967c2da",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/c6672248-1e03-443b-932e-2dd4d967c2da.jsonl",
++      "fileMtime": 1768502662820,
++      "firstPrompt": "[Request interrupted by user]",
++      "messageCount": 28,
++      "created": "2026-01-06T02:19:14.264Z",
++      "modified": "2026-01-06T02:22:22.560Z",
+       "gitBranch": "add-rlibc-x2-to-support-std",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "cb68d61f-c730-418a-929e-4d372d7b8af8",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/cb68d61f-c730-418a-929e-4d372d7b8af8.jsonl",
+-      "fileMtime": 1767834198787,
+-      "firstPrompt": ".",
+-      "messageCount": 25,
+-      "created": "2026-01-06T21:32:32.737Z",
+-      "modified": "2026-01-06T22:25:19.141Z",
+-      "gitBranch": "main",
+-      "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+-      "isSidechain": false
+-    },
+-    {
+-      "sessionId": "91e75f97-eac4-4485-9f73-ddfb631ba442",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/91e75f97-eac4-4485-9f73-ddfb631ba442.jsonl",
+-      "fileMtime": 1767834198782,
++      "sessionId": "427cfff7-8336-4da1-980d-4f7046ca9a17",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/427cfff7-8336-4da1-980d-4f7046ca9a17.jsonl",
++      "fileMtime": 1768502662808,
+       "firstPrompt": ".",
+-      "messageCount": 13,
+-      "created": "2026-01-06T17:29:41.655Z",
+-      "modified": "2026-01-06T17:50:09.080Z",
+-      "gitBranch": "main",
++      "messageCount": 64,
++      "created": "2026-01-06T02:56:05.835Z",
++      "modified": "2026-01-06T04:38:31.649Z",
++      "gitBranch": "add-rlibc-x2-to-support-std",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "ab297a56-bd97-4bc9-b949-d292b1c29a57",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/ab297a56-bd97-4bc9-b949-d292b1c29a57.jsonl",
+-      "fileMtime": 1768582432930,
+-      "firstPrompt": ".",
++      "sessionId": "de0ca0e5-a925-4621-8a95-26ff141f2f96",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/de0ca0e5-a925-4621-8a95-26ff141f2f96.jsonl",
++      "fileMtime": 1768628776903,
++      "firstPrompt": "No prompt",
+       "messageCount": 9,
+-      "created": "2026-01-15T18:17:58.398Z",
+-      "modified": "2026-01-15T18:43:40.658Z",
++      "created": "2026-01-17T05:42:58.571Z",
++      "modified": "2026-01-17T05:46:16.863Z",
+       "gitBranch": "main",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "0696dd99-8e3c-49aa-9943-f25c7cd97888",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/0696dd99-8e3c-49aa-9943-f25c7cd97888.jsonl",
+-      "fileMtime": 1767834198772,
+-      "firstPrompt": ".",
+-      "messageCount": 16,
+-      "created": "2026-01-07T03:41:17.021Z",
+-      "modified": "2026-01-07T03:50:17.247Z",
++      "sessionId": "6b9c4408-913e-4495-bf33-3df2050cc1a2",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/6b9c4408-913e-4495-bf33-3df2050cc1a2.jsonl",
++      "fileMtime": 1768502662813,
++      "firstPrompt": "Why when build in the root not in app/ is the build 184ms ? ``` user@host 26-01-05T20:33:32.044Z:~/data/prgs/rust/rlibc-x (main) $ cargo clean      Removed 55 files, 1.1MiB total user@host 26-…",
++      "messageCount": 6,
++      "created": "2026-01-05T20:35:21.567Z",
++      "modified": "2026-01-05T20:39:23.930Z",
+       "gitBranch": "main",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+@@ -88,7 +88,7 @@
+     {
+       "sessionId": "8b33d032-1f50-4956-8926-39dd320ecb5e",
+       "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/8b33d032-1f50-4956-8926-39dd320ecb5e.jsonl",
+-      "fileMtime": 1767834198775,
++      "fileMtime": 1768502662813,
+       "firstPrompt": "i'm trying to build app-std panic_abort is undefined: ``` user@host 26-01-06T04:50:05.988Z:~/data/prgs/rust/rlibc-x/app-std (add-rlibc-x2-to-support-std) $ cargo +nightly build -Z build-std    Com…",
+       "messageCount": 10,
+       "created": "2026-01-06T04:52:37.037Z",
+@@ -98,21 +98,21 @@
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "6b9c4408-913e-4495-bf33-3df2050cc1a2",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/6b9c4408-913e-4495-bf33-3df2050cc1a2.jsonl",
+-      "fileMtime": 1767834198774,
+-      "firstPrompt": "Why when build in the root not in app/ is the build 184ms ? ``` user@host 26-01-05T20:33:32.044Z:~/data/prgs/rust/rlibc-x (main) $ cargo clean      Removed 55 files, 1.1MiB total user@host 26-…",
+-      "messageCount": 6,
+-      "created": "2026-01-05T20:35:21.567Z",
+-      "modified": "2026-01-05T20:39:23.930Z",
+-      "gitBranch": "main",
++      "sessionId": "12d60be3-2f21-4118-9347-f705cdf91ad8",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/12d60be3-2f21-4118-9347-f705cdf91ad8.jsonl",
++      "fileMtime": 1768502662807,
++      "firstPrompt": "I've removed the _start_rlibc_x1 as it was just a test to verify we weren't using std or crt. But maybe we need a two step start because I'd rather call init_heap before main to save the cycles and it…",
++      "messageCount": 107,
++      "created": "2026-01-05T17:22:09.329Z",
++      "modified": "2026-01-05T20:18:12.826Z",
++      "gitBranch": "custom-target",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+       "sessionId": "7cdafc7d-0d2c-40ea-b780-2fe33638829d",
+       "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/7cdafc7d-0d2c-40ea-b780-2fe33638829d.jsonl",
+-      "fileMtime": 1768589782986,
++      "fileMtime": 1768591050628,
+       "firstPrompt": "No prompt",
+       "messageCount": 3,
+       "created": "2026-01-16T18:49:44.385Z",
+@@ -122,33 +122,69 @@
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "592adf73-3c62-4b0a-91fb-63ecbb64ec92",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/592adf73-3c62-4b0a-91fb-63ecbb64ec92.jsonl",
+-      "fileMtime": 1768104100568,
++      "sessionId": "91e75f97-eac4-4485-9f73-ddfb631ba442",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/91e75f97-eac4-4485-9f73-ddfb631ba442.jsonl",
++      "fileMtime": 1768502662815,
+       "firstPrompt": ".",
+-      "messageCount": 41,
+-      "created": "2026-01-10T22:46:10.401Z",
+-      "modified": "2026-01-11T03:56:43.629Z",
+-      "gitBranch": "add-apps-hw-glibc-musl",
++      "messageCount": 13,
++      "created": "2026-01-06T17:29:41.655Z",
++      "modified": "2026-01-06T17:50:09.080Z",
++      "gitBranch": "main",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "6e7c8aa1-249e-45aa-a81d-0a982e136418",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/6e7c8aa1-249e-45aa-a81d-0a982e136418.jsonl",
+-      "fileMtime": 1768085767040,
++      "sessionId": "745b32f8-ca9f-490f-b167-f865418c73dd",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/745b32f8-ca9f-490f-b167-f865418c73dd.jsonl",
++      "fileMtime": 1768502662813,
+       "firstPrompt": ".",
+-      "messageCount": 16,
+-      "created": "2026-01-08T06:14:36.214Z",
+-      "modified": "2026-01-08T06:27:27.139Z",
++      "messageCount": 83,
++      "created": "2026-01-08T03:29:56.549Z",
++      "modified": "2026-01-08T06:12:58.746Z",
+       "gitBranch": "add-tests",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
++    {
++      "sessionId": "8e6a7b42-8cea-438d-bf44-8e7febfe00db",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/8e6a7b42-8cea-438d-bf44-8e7febfe00db.jsonl",
++      "fileMtime": 1768502662814,
++      "firstPrompt": ".",
++      "messageCount": 26,
++      "created": "2026-01-08T01:58:05.287Z",
++      "modified": "2026-01-08T03:28:14.790Z",
++      "gitBranch": "main",
++      "projectPath": "/home/user/data/prgs/rust/rlibc-x",
++      "isSidechain": false
++    },
++    {
++      "sessionId": "8e303a0e-a8ff-4694-98ba-5f8e80297fce",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/8e303a0e-a8ff-4694-98ba-5f8e80297fce.jsonl",
++      "fileMtime": 1768502662813,
++      "firstPrompt": "I had to kill zed where you are running as you hung, anyway I've commited where we are now. I've also verified app and rlibc-x1 builds and runs. Also rlibc-x2 and app-std does compile but app-std hang…",
++      "messageCount": 5,
++      "created": "2026-01-06T02:54:13.046Z",
++      "modified": "2026-01-06T02:55:31.796Z",
++      "gitBranch": "add-rlibc-x2-to-support-std",
++      "projectPath": "/home/user/data/prgs/rust/rlibc-x",
++      "isSidechain": false
++    },
++    {
++      "sessionId": "a6065d56-4f34-4b76-b55f-cf35d66cc02b",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/a6065d56-4f34-4b76-b55f-cf35d66cc02b.jsonl",
++      "fileMtime": 1768591382832,
++      "firstPrompt": "We've added tools/is-libc-used now use it in verify-no-libc.sh",
++      "messageCount": 20,
++      "created": "2026-01-16T19:01:43.105Z",
++      "modified": "2026-01-16T19:22:20.074Z",
++      "gitBranch": "main",
++      "projectPath": "/home/user/data/prgs/rust/rlibc-x",
++      "isSidechain": false
++    },
+     {
+       "sessionId": "a6c19cbe-bb0f-42b1-a340-2277ea6e6230",
+       "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/a6c19cbe-bb0f-42b1-a340-2277ea6e6230.jsonl",
+-      "fileMtime": 1767834198783,
++      "fileMtime": 1768502662817,
+       "firstPrompt": ".",
+       "messageCount": 81,
+       "created": "2026-01-03T19:55:21.868Z",
+@@ -158,37 +194,25 @@
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "49dfe3a6-a5ec-4d1a-b5c0-08f7e208345e",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/49dfe3a6-a5ec-4d1a-b5c0-08f7e208345e.jsonl",
+-      "fileMtime": 1767834198774,
++      "sessionId": "6e7c8aa1-249e-45aa-a81d-0a982e136418",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/6e7c8aa1-249e-45aa-a81d-0a982e136418.jsonl",
++      "fileMtime": 1768502662813,
+       "firstPrompt": ".",
+-      "messageCount": 91,
+-      "created": "2026-01-07T01:21:18.138Z",
+-      "modified": "2026-01-07T03:32:24.576Z",
+-      "gitBranch": "main",
+-      "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+-      "isSidechain": false
+-    },
+-    {
+-      "sessionId": "c6672248-1e03-443b-932e-2dd4d967c2da",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/c6672248-1e03-443b-932e-2dd4d967c2da.jsonl",
+-      "fileMtime": 1767834198786,
+-      "firstPrompt": "[Request interrupted by user]",
+-      "messageCount": 28,
+-      "created": "2026-01-06T02:19:14.264Z",
+-      "modified": "2026-01-06T02:22:22.560Z",
+-      "gitBranch": "add-rlibc-x2-to-support-std",
++      "messageCount": 16,
++      "created": "2026-01-08T06:14:36.214Z",
++      "modified": "2026-01-08T06:27:27.139Z",
++      "gitBranch": "add-tests",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "745b32f8-ca9f-490f-b167-f865418c73dd",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/745b32f8-ca9f-490f-b167-f865418c73dd.jsonl",
+-      "fileMtime": 1768085767045,
++      "sessionId": "39bfb6c7-6a1d-4a87-aea7-23ed53c2dd1d",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/39bfb6c7-6a1d-4a87-aea7-23ed53c2dd1d.jsonl",
++      "fileMtime": 1768502662807,
+       "firstPrompt": ".",
+-      "messageCount": 83,
+-      "created": "2026-01-08T03:29:56.549Z",
+-      "modified": "2026-01-08T06:12:58.746Z",
++      "messageCount": 11,
++      "created": "2026-01-08T06:33:48.538Z",
++      "modified": "2026-01-08T06:44:34.776Z",
+       "gitBranch": "add-tests",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+@@ -196,7 +220,7 @@
+     {
+       "sessionId": "9f17a520-e99a-4557-b363-c9cea23dfa53",
+       "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/9f17a520-e99a-4557-b363-c9cea23dfa53.jsonl",
+-      "fileMtime": 1767834198783,
++      "fileMtime": 1768502662815,
+       "firstPrompt": ".",
+       "messageCount": 14,
+       "created": "2026-01-07T03:50:34.437Z",
+@@ -206,33 +230,33 @@
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "12d60be3-2f21-4118-9347-f705cdf91ad8",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/12d60be3-2f21-4118-9347-f705cdf91ad8.jsonl",
+-      "fileMtime": 1767834198773,
+-      "firstPrompt": "I've removed the _start_rlibc_x1 as it was just a test to verify we weren't using std or crt. But maybe we need a two step start because I'd rather call init_heap before main to save the cycles and it…",
+-      "messageCount": 107,
+-      "created": "2026-01-05T17:22:09.329Z",
+-      "modified": "2026-01-05T20:18:12.826Z",
+-      "gitBranch": "custom-target",
++      "sessionId": "0696dd99-8e3c-49aa-9943-f25c7cd97888",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/0696dd99-8e3c-49aa-9943-f25c7cd97888.jsonl",
++      "fileMtime": 1768502662807,
++      "firstPrompt": ".",
++      "messageCount": 16,
++      "created": "2026-01-07T03:41:17.021Z",
++      "modified": "2026-01-07T03:50:17.247Z",
++      "gitBranch": "main",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "2797e2cd-d252-4fe5-8a32-0874c6a0de3d",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/2797e2cd-d252-4fe5-8a32-0874c6a0de3d.jsonl",
+-      "fileMtime": 1768582432930,
++      "sessionId": "cb68d61f-c730-418a-929e-4d372d7b8af8",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/cb68d61f-c730-418a-929e-4d372d7b8af8.jsonl",
++      "fileMtime": 1768502662822,
+       "firstPrompt": ".",
+-      "messageCount": 77,
+-      "created": "2026-01-15T18:48:24.666Z",
+-      "modified": "2026-01-16T01:38:59.881Z",
++      "messageCount": 25,
++      "created": "2026-01-06T21:32:32.737Z",
++      "modified": "2026-01-06T22:25:19.141Z",
+       "gitBranch": "main",
+-      "projectPath": "/home/user/data/prgs/rust/rlibc-xt",
++      "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+       "sessionId": "f8ce1903-f195-4b3e-b8cf-29e1d67e1fef",
+       "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/f8ce1903-f195-4b3e-b8cf-29e1d67e1fef.jsonl",
+-      "fileMtime": 1767834198787,
++      "fileMtime": 1768502662822,
+       "firstPrompt": ".",
+       "messageCount": 24,
+       "created": "2026-01-03T22:56:20.047Z",
+@@ -242,26 +266,26 @@
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "8e6a7b42-8cea-438d-bf44-8e7febfe00db",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/8e6a7b42-8cea-438d-bf44-8e7febfe00db.jsonl",
+-      "fileMtime": 1767842894806,
++      "sessionId": "592adf73-3c62-4b0a-91fb-63ecbb64ec92",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/592adf73-3c62-4b0a-91fb-63ecbb64ec92.jsonl",
++      "fileMtime": 1768502662811,
+       "firstPrompt": ".",
+-      "messageCount": 26,
+-      "created": "2026-01-08T01:58:05.287Z",
+-      "modified": "2026-01-08T03:28:14.790Z",
+-      "gitBranch": "main",
++      "messageCount": 41,
++      "created": "2026-01-10T22:46:10.401Z",
++      "modified": "2026-01-11T03:56:43.629Z",
++      "gitBranch": "add-apps-hw-glibc-musl",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     },
+     {
+-      "sessionId": "39bfb6c7-6a1d-4a87-aea7-23ed53c2dd1d",
+-      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/39bfb6c7-6a1d-4a87-aea7-23ed53c2dd1d.jsonl",
+-      "fileMtime": 1768085767038,
++      "sessionId": "49dfe3a6-a5ec-4d1a-b5c0-08f7e208345e",
++      "fullPath": "/home/user/.claude/projects/-home-user-data-prgs-rust-rlibc-x/49dfe3a6-a5ec-4d1a-b5c0-08f7e208345e.jsonl",
++      "fileMtime": 1768502662810,
+       "firstPrompt": ".",
+-      "messageCount": 11,
+-      "created": "2026-01-08T06:33:48.538Z",
+-      "modified": "2026-01-08T06:44:34.776Z",
+-      "gitBranch": "add-tests",
++      "messageCount": 91,
++      "created": "2026-01-07T01:21:18.138Z",
++      "modified": "2026-01-07T03:32:24.576Z",
++      "gitBranch": "main",
+       "projectPath": "/home/user/data/prgs/rust/rlibc-x",
+       "isSidechain": false
+     }
+diff --git a/README.md b/README.md
+index 1450c20..11b6e07 100644
+--- a/README.md
++++ b/README.md
+@@ -87,64 +87,19 @@ For comparison, `ex-x2` using `rlibc-x2` (which supports Rust's std library) is
+ 
+ ## Verifying No libc Usage
+ 
+-The `verify-no-libc.sh` script validates that a binary doesn't use any C library (glibc, musl, etc.):
++The `is-libc-used` tool checks if a binary uses libc by inspecting the INTERP and NEEDED ELF headers:
+ 
+-```
+-$ ./verify-no-libc.sh ./target/release/ex-x1
+-=== Verifying: ./target/release/ex-x1 ===
+-
+-1. Dynamic linking check (ldd)... INFO (not a dynamic executable)
+-2. Interpreter (INTERP) check... PASS (no INTERP program header)
+-3. NEEDED libraries check... PASS (no NEEDED libraries)
+-4. Undefined symbols check... PASS (no dynsym section - fully static)
+-5a. GLIBC dynamic symbols check... PASS (no @GLIBC version symbols)
+-5b. GLIBC entrypoint symbols (heuristic)... PASS (no undefined glibc entrypoint symbols)
+-6. Syscall instructions (heuristic)... PASS (2 syscall instructions)
+-7. Runtime library file check... PASS (no libc/runtime libraries accessed)
+-8. Runtime syscall trace check... PASS (3 syscalls, no dynamic loader activity)
+-
+-========================================
+-RESULT: PASS - No INTERP/NEEDED (checks 2 & 3 are authoritative)
+-```
+-
+-### Self-Test Mode
+-
+-Run the built-in test suite to verify the script works correctly:
++```bash
++# Check a specific binary
++cargo run -p is-libc-used -- ./target/release/ex-x1
+ 
++# Verbose output
++cargo run -p is-libc-used -- -v ./target/release/ex-x1
+ ```
+-$ ./verify-no-libc.sh --test
+-=== verify-no-libc.sh self-test ===
+-
+-Testing ex-x1 (release)... OK (PASS as expected)
+-Testing ex-x2 (release)... OK (PASS as expected)
+-Testing hw-x1 (release)... OK (PASS as expected)
+-Testing hw-x2 (release)... OK (PASS as expected)
+-Testing /usr/bin/ls... OK (FAIL as expected)
+-Testing /usr/bin/true... OK (FAIL as expected)
+-
+-========================================
+-Tests passed: 6
+-Tests failed: 0
+-RESULT: ALL TESTS PASSED
+-```
+-
+-### Configuration
+-
+-- **Timeout**: Runtime checks default to 5 seconds. Override with: `TIMEOUT=10s ./verify-no-libc.sh ./mybinary`
+ 
+-### Checks Performed
++All apps include libc usage tests that run automatically with `cargo test`. The `test-repo` tool runs the complete test suite including these checks.
+ 
+-| # | Check | Tool | Why |
+-|---|-------|------|-----|
+-| 1 | Dynamic linking (info) | `ldd` | Informational only - ldd can execute code, so checks 2 & 3 are authoritative |
+-| 2 | No INTERP header | `readelf -lW` | No dynamic linker (ld-linux.so) needed - **primary check** |
+-| 3 | No NEEDED libraries | `readelf -d` | No shared library dependencies - **primary check** |
+-| 4 | No strong undefined symbols | `readelf --dyn-syms` | All symbols resolved (weak undefined is acceptable) |
+-| 5a | No @GLIBC dynamic symbols | `objdump -T` | No dynamically linked glibc version-tagged symbols |
+-| 5b | No glibc entrypoint symbols (heuristic) | `nm` | No undefined `__libc_start_main`, etc. (nm optional - may not work on stripped binaries) |
+-| 6 | Syscall instructions (heuristic) | `objdump -d` | Looks for `syscall`/`svc`/`int 0x80` - may be hidden by vDSO or LTO |
+-| 7 | No libc files accessed | `strace -f -e trace=file` | Runtime doesn't access libc.so, ld-linux.so, or runtime libs |
+-| 8 | No dynamic loader activity | `strace -f` | Full syscall trace shows no library loading (ld.so.cache, etc.) |
++For additional diagnostic checks (strace, syscall inspection, etc.), see the reference script at `tools/sh/verify-no-libc.sh`.
+ 
+ ### The "Dynamically Linked" Discrepancy
+ 
+diff --git a/verify-no-libc.sh b/verify-no-libc.sh
+deleted file mode 100755
+index f6947fa..0000000
+--- a/verify-no-libc.sh
++++ /dev/null
+@@ -1,321 +0,0 @@
+-#!/bin/bash
+-set -uo pipefail
+-# verify-no-libc.sh - Verify binary uses no C library (glibc, musl, etc.)
+-#
+-# Usage: ./verify-no-libc.sh <binary>
+-#        ./verify-no-libc.sh --test    # Run self-tests
+-#
+-# Checks performed:
+-#   0. is-libc-used tool (INTERP + NEEDED check) - AUTHORITATIVE
+-#   1. Not dynamically linked (ldd) - informational
+-#   2. No strong undefined symbols
+-#   3. No GLIBC version references
+-#   4. Contains direct syscall instructions (heuristic)
+-#   5. Runtime: no libc/ld-linux files opened (diagnostic)
+-#   6. Runtime: full strace shows no dynamic loader activity (diagnostic)
+-
+-# Self-test mode
+-if [ "${1:-}" = "--test" ]; then
+-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+-    SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+-    PASS_COUNT=0
+-    FAIL_COUNT=0
+-
+-    run_test() {
+-        local binary="$1"
+-        local expect_pass="$2"
+-        local name="$3"
+-
+-        echo -n "Testing $name... "
+-        if "$SELF" "$binary" >/dev/null 2>&1; then
+-            if [ "$expect_pass" = "yes" ]; then
+-                echo "OK (PASS as expected)"
+-                PASS_COUNT=$((PASS_COUNT + 1))
+-            else
+-                echo "FAILED (expected FAIL, got PASS)"
+-                FAIL_COUNT=$((FAIL_COUNT + 1))
+-            fi
+-        else
+-            if [ "$expect_pass" = "no" ]; then
+-                echo "OK (FAIL as expected)"
+-                PASS_COUNT=$((PASS_COUNT + 1))
+-            else
+-                echo "FAILED (expected PASS, got FAIL)"
+-                FAIL_COUNT=$((FAIL_COUNT + 1))
+-            fi
+-        fi
+-    }
+-
+-    echo "=== verify-no-libc.sh self-test ==="
+-    echo
+-
+-    # Test binaries that should PASS (no libc)
+-    if [ -f "$SCRIPT_DIR/target/debug/ex-x1" ]; then
+-        run_test "$SCRIPT_DIR/target/debug/ex-x1" "yes" "ex-x1 (debug)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/release/ex-x1" ]; then
+-        run_test "$SCRIPT_DIR/target/release/ex-x1" "yes" "ex-x1 (release)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/debug/ex-x2" ]; then
+-        run_test "$SCRIPT_DIR/target/debug/ex-x2" "yes" "ex-x2 (debug)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/release/ex-x2" ]; then
+-        run_test "$SCRIPT_DIR/target/release/ex-x2" "yes" "ex-x2 (release)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/debug/hw-x1" ]; then
+-        run_test "$SCRIPT_DIR/target/debug/hw-x1" "yes" "hw-x1 (debug)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/release/hw-x1" ]; then
+-        run_test "$SCRIPT_DIR/target/release/hw-x1" "yes" "hw-x1 (release)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/debug/hw-x2" ]; then
+-        run_test "$SCRIPT_DIR/target/debug/hw-x2" "yes" "hw-x2 (debug)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/release/hw-x2" ]; then
+-        run_test "$SCRIPT_DIR/target/release/hw-x2" "yes" "hw-x2 (release)"
+-    fi
+-
+-    # Test binaries from rlibc-x2/tests
+-    if [ -f "$SCRIPT_DIR/target/debug/test-environ" ]; then
+-        run_test "$SCRIPT_DIR/target/debug/test-environ" "yes" "test-environ (debug)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/release/test-environ" ]; then
+-        run_test "$SCRIPT_DIR/target/release/test-environ" "yes" "test-environ (release)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/debug/test-std-env" ]; then
+-        run_test "$SCRIPT_DIR/target/debug/test-std-env" "yes" "test-std-env (debug)"
+-    fi
+-    if [ -f "$SCRIPT_DIR/target/release/test-std-env" ]; then
+-        run_test "$SCRIPT_DIR/target/release/test-std-env" "yes" "test-std-env (release)"
+-    fi
+-
+-    # Test system binaries that should FAIL (use libc)
+-    run_test "/usr/bin/ls" "no" "/usr/bin/ls"
+-    run_test "/usr/bin/true" "no" "/usr/bin/true"
+-
+-    echo
+-    echo "========================================"
+-    echo "Tests passed: $PASS_COUNT"
+-    echo "Tests failed: $FAIL_COUNT"
+-    if [ $FAIL_COUNT -eq 0 ]; then
+-        echo "RESULT: ALL TESTS PASSED"
+-        exit 0
+-    else
+-        echo "RESULT: SOME TESTS FAILED"
+-        exit 1
+-    fi
+-fi
+-
+-if [ -z "${1:-}" ]; then
+-    echo "Usage: $0 <binary>"
+-    echo "       $0 --test    # Run self-tests"
+-    echo "Example: $0 ./target/release/ex-x1"
+-    exit 1
+-fi
+-
+-BINARY="$1"
+-
+-if [ ! -f "$BINARY" ]; then
+-    echo "Error: File not found: $BINARY"
+-    exit 1
+-fi
+-
+-# Check required tools (nm is optional - may not work on stripped binaries)
+-REQUIRED_TOOLS="ldd readelf objdump strace timeout"
+-TIMEOUT="${TIMEOUT:-5s}"
+-HAS_NM=0
+-if command -v nm &>/dev/null; then
+-    HAS_NM=1
+-fi
+-for tool in $REQUIRED_TOOLS; do
+-    if ! command -v "$tool" &>/dev/null; then
+-        echo "Error: Required tool '$tool' not found"
+-        exit 1
+-    fi
+-done
+-
+-# Find is-libc-used binary
+-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+-IS_LIBC_USED=""
+-if [ -x "$SCRIPT_DIR/target/release/is-libc-used" ]; then
+-    IS_LIBC_USED="$SCRIPT_DIR/target/release/is-libc-used"
+-elif [ -x "$SCRIPT_DIR/target/debug/is-libc-used" ]; then
+-    IS_LIBC_USED="$SCRIPT_DIR/target/debug/is-libc-used"
+-fi
+-
+-FAILED=0
+-WARNINGS=0
+-
+-echo "=== Verifying: $BINARY ==="
+-echo
+-
+-# 0. Primary check using is-libc-used tool (AUTHORITATIVE - checks INTERP and NEEDED)
+-echo -n "0. is-libc-used tool check... "
+-if [ -n "$IS_LIBC_USED" ]; then
+-    IS_LIBC_OUTPUT=$("$IS_LIBC_USED" -v "$BINARY" 2>&1)
+-    IS_LIBC_EXIT=$?
+-    if [ $IS_LIBC_EXIT -eq 0 ]; then
+-        echo "PASS (no libc dependency)"
+-        echo "$IS_LIBC_OUTPUT" | sed 's/^/   /'
+-    elif [ $IS_LIBC_EXIT -eq 1 ]; then
+-        echo "FAIL (uses libc)"
+-        echo "$IS_LIBC_OUTPUT" | sed 's/^/   /'
+-        FAILED=1
+-    else
+-        echo "WARN (tool error: exit $IS_LIBC_EXIT)"
+-        echo "$IS_LIBC_OUTPUT" | sed 's/^/   /'
+-        WARNINGS=$((WARNINGS + 1))
+-    fi
+-else
+-    echo "SKIP (is-libc-used not found - build with: cargo build -p is-libc-used)"
+-    WARNINGS=$((WARNINGS + 1))
+-fi
+-
+-# 1. Dynamic linking check (informational - ldd can execute code, so check 0 is authoritative)
+-echo -n "1. Dynamic linking check (ldd)... "
+-LDD_OUTPUT=$(ldd "$BINARY" 2>&1)
+-if echo "$LDD_OUTPUT" | grep -qE "not a dynamic executable|statically linked"; then
+-    echo "INFO ($(echo "$LDD_OUTPUT" | tr -d '\t'))"
+-else
+-    echo "INFO (ldd reports dynamically linked - see check 0)"
+-    echo "$LDD_OUTPUT" | head -5
+-fi
+-
+-# 2. Check no strong undefined symbols
+-echo -n "2. Undefined symbols check... "
+-# Check if dynsym section exists
+-DYNSYM_OUTPUT=$(readelf --dyn-syms "$BINARY" 2>/dev/null || true)
+-if [ -z "$DYNSYM_OUTPUT" ] || echo "$DYNSYM_OUTPUT" | grep -q "no dynamic symbol"; then
+-    echo "PASS (no dynsym section - fully static)"
+-else
+-    # Get undefined symbols that are not weak and not local
+-    # Use $NF (last field) for robustness across readelf versions
+-    STRONG_UNDEF=$(echo "$DYNSYM_OUTPUT" | awk '
+-        /UND/ && !/WEAK/ && !/LOCAL/ && NF > 0 { print $NF }
+-    ' | grep -v '^$' || true)
+-    WEAK_UNDEF=$(echo "$DYNSYM_OUTPUT" | awk '
+-        /UND/ && /WEAK/ && NF > 0 { print $NF }
+-    ' | grep -v '^$' || true)
+-
+-    if [ -z "$STRONG_UNDEF" ]; then
+-        if [ -z "$WEAK_UNDEF" ]; then
+-            echo "PASS (no undefined symbols)"
+-        else
+-            echo "WARN (weak undefined symbols - acceptable)"
+-            echo "   Weak symbols: $WEAK_UNDEF"
+-            WARNINGS=$((WARNINGS + 1))
+-        fi
+-    else
+-        echo "FAIL (has strong undefined symbols)"
+-        echo "   Strong undefined: $STRONG_UNDEF"
+-        FAILED=1
+-    fi
+-fi
+-
+-# 3a. Check no GLIBC version references in dynamic symbols
+-# Note: This only catches dynamically linked glibc; check 3b covers statically linked
+-echo -n "3a. GLIBC dynamic symbols check... "
+-if ! objdump -T "$BINARY" 2>/dev/null | grep -qi "@glibc"; then
+-    echo "PASS (no @GLIBC version symbols)"
+-else
+-    echo "FAIL (has GLIBC version references)"
+-    objdump -T "$BINARY" 2>/dev/null | grep -i "@glibc"
+-    FAILED=1
+-fi
+-
+-# 3b. Check for common glibc entrypoint symbols (heuristic - nm may not work on stripped binaries)
+-# Defined symbols (T/t) are OK - they're our own implementations
+-echo -n "3b. GLIBC entrypoint symbols (heuristic)... "
+-if [ "$HAS_NM" -eq 0 ]; then
+-    echo "WARN (nm not available)"
+-    WARNINGS=$((WARNINGS + 1))
+-else
+-    NM_OUTPUT=$(nm "$BINARY" 2>&1)
+-    NM_EXIT=$?
+-    if [ $NM_EXIT -ne 0 ] || [ -z "$NM_OUTPUT" ] || echo "$NM_OUTPUT" | grep -qi "no symbols"; then
+-        echo "WARN (nm produced no symbols - binary may be stripped)"
+-        WARNINGS=$((WARNINGS + 1))
+-    else
+-        GLIBC_UNDEF=$(echo "$NM_OUTPUT" | grep " U " | grep -E "__libc_start_main|__glibc|__cxa_atexit" || true)
+-        if [ -z "$GLIBC_UNDEF" ]; then
+-            echo "PASS (no undefined glibc entrypoint symbols)"
+-        else
+-            echo "FAIL (has undefined glibc symbols)"
+-            echo "$GLIBC_UNDEF" | head -5
+-            FAILED=1
+-        fi
+-    fi
+-fi
+-
+-# 4. Heuristic: syscall instruction presence (vDSO, LTO, or stripping may hide them)
+-echo -n "4. Syscall instructions (heuristic)... "
+-# Match syscall instructions at end of line: syscall (x86_64), svc (ARM/AArch64), int $0x80 (x86 32-bit)
+-SYSCALL_PATTERN='(syscall|svc|int.*0x80)\s*$'
+-SYSCALL_INSTR_COUNT=$(objdump -d "$BINARY" 2>/dev/null | grep -cE "$SYSCALL_PATTERN" || true)
+-SYSCALL_INSTR_COUNT=${SYSCALL_INSTR_COUNT:-0}
+-if [ "$SYSCALL_INSTR_COUNT" -gt 0 ]; then
+-    echo "PASS ($SYSCALL_INSTR_COUNT syscall instructions)"
+-else
+-    echo "WARN (no syscall instructions found - may use vDSO or be LTO'd)"
+-    WARNINGS=$((WARNINGS + 1))
+-fi
+-
+-# 5. Runtime check - no libc files opened (diagnostic - check 0 is authoritative)
+-# Use -f to follow forks, trace=file catches open/openat/openat2/access/stat/etc.
+-echo -n "5. Runtime library file check... "
+-STRACE_OUT7=$(timeout "$TIMEOUT" strace -f -e trace=file "$BINARY" 2>&1 >/dev/null)
+-STRACE_EXIT7=$?
+-if [ $STRACE_EXIT7 -eq 124 ]; then
+-    echo "WARN (binary timed out after $TIMEOUT - may be interactive)"
+-    WARNINGS=$((WARNINGS + 1))
+-else
+-    # Tighter patterns: libc.so, ld-linux, ld.so, and common C++ runtime libs
+-    LIBC_PATTERN='ld-linux|ld\.so|libc\.so|libpthread\.so|libm\.so|libgcc_s\.so|libstdc\+\+\.so'
+-    LIBC_LOAD=$(echo "$STRACE_OUT7" | grep -E "$LIBC_PATTERN" || true)
+-    if [ -z "$LIBC_LOAD" ]; then
+-        echo "PASS (no libc/runtime libraries accessed)"
+-    else
+-        echo "FAIL (accesses libc/runtime library files)"
+-        echo "$LIBC_LOAD" | head -5
+-        FAILED=1
+-    fi
+-fi
+-
+-# 6. Runtime check - verify no dynamic loading via full strace (diagnostic - check 0 is authoritative)
+-# Use -f to follow forks/execs
+-echo -n "6. Runtime syscall trace check... "
+-STRACE_OUT8=$(timeout "$TIMEOUT" strace -f "$BINARY" 2>&1 >/dev/null)
+-STRACE_EXIT8=$?
+-if [ $STRACE_EXIT8 -eq 124 ]; then
+-    echo "WARN (binary timed out after $TIMEOUT - may be interactive)"
+-    WARNINGS=$((WARNINGS + 1))
+-else
+-    RUNTIME_SYSCALL_COUNT=$(echo "$STRACE_OUT8" | grep -cE "^\w+\(" || echo "0")
+-    # Check for known dynamic loader artifacts:
+-    # - ld.so.cache (loader cache), ld-linux (dynamic linker)
+-    # - .so files in /lib/ or /usr/lib/ paths
+-    DYN_PATTERN='ld\.so\.cache|ld-linux|"/lib/.*\.so|"/lib64/.*\.so|"/usr/lib/.*\.so'
+-    DYN_LOAD=$(echo "$STRACE_OUT8" | grep -E "$DYN_PATTERN" || true)
+-    if [ -z "$DYN_LOAD" ]; then
+-        echo "PASS ($RUNTIME_SYSCALL_COUNT syscalls, no dynamic loader activity)"
+-    else
+-        echo "FAIL (dynamic loading detected)"
+-        echo "$DYN_LOAD" | head -5
+-        FAILED=1
+-    fi
+-fi
+-
+-# Summary
+-echo
+-echo "========================================"
+-if [ $FAILED -eq 0 ]; then
+-    if [ $WARNINGS -eq 0 ]; then
+-        echo "RESULT: PASS - No INTERP/NEEDED (check 0 is authoritative)"
+-    else
+-        echo "RESULT: PASS with $WARNINGS warning(s) - No INTERP/NEEDED (check 0 is authoritative)"
+-    fi
+-    exit 0
+-else
+-    echo "RESULT: FAIL - Dynamic dependency detected (see check 0)"
+-    exit 1
+-fi

@@ -1,0 +1,11 @@
+{
+  "id": "prt_14729a259001oNSPmyeSoCmFAa",
+  "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+  "messageID": "msg_14729a222001XBgiVoeAX3nTLb",
+  "type": "text",
+  "text": "The command printed `x` and exited with code 7.",
+  "time": {
+    "start": 1792195273321,
+    "end": 1792195273321
+  }
+}

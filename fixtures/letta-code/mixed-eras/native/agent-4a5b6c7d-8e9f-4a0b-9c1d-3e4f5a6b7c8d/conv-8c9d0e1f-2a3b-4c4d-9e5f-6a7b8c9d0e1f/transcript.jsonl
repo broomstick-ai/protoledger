@@ -1,0 +1,15 @@
+{"kind":"user","text":"What does main.py print?","captured_at":"2026-10-17T00:43:16.257Z"}
+{"kind":"reasoning","text":"Open main.py.","captured_at":"2026-10-17T00:43:16.257Z"}
+{"kind":"tool_call","name":"Read","argsText":"{\"file_path\":\"main.py\"}","resultText":"print(\"hello\")","resultOk":true,"captured_at":"2026-10-17T00:43:16.257Z"}
+{"kind":"assistant","text":"It prints `hello`.","captured_at":"2026-10-17T00:43:16.257Z"}
+{"kind":"user","text":"Inspect src/app.ts and run the tests.","captured_at":"2026-10-17T00:42:50.205Z","source_line_id":"user-mgx1a2b3-k9q2zt","source_message_id":"message-0b1c2d3e-0000-4000-8000-000000000001"}
+{"kind":"reasoning","text":"Read the file, then run bun test.","captured_at":"2026-10-17T00:42:50.205Z","source_line_id":"message-0b1c2d3e-0000-4000-8000-000000000002","source_message_id":"message-0b1c2d3e-0000-4000-8000-000000000002"}
+{"kind":"assistant","text":"Reading the entry point first.\n\n","captured_at":"2026-10-17T00:42:50.205Z","source_line_id":"message-0b1c2d3e-0000-4000-8000-000000000002-split-0","source_message_id":"message-0b1c2d3e-0000-4000-8000-000000000002"}
+{"kind":"tool_call","name":"Read","argsText":"{\"file_path\":\"src/app.ts\"}","resultText":"export const value = 1;","resultOk":true,"captured_at":"2026-10-17T00:42:50.205Z","source_line_id":"toolu_01AbCdEfGhIjKlMnOpQrStUv"}
+{"kind":"tool_call","name":"Bash","argsText":"{\"command\":\"bun test\"}","resultText":"error: 1 test failed","resultOk":false,"captured_at":"2026-10-17T00:42:50.205Z","source_line_id":"toolu_01ZyXwVuTsRqPoNmLkJiHgFe"}
+{"kind":"assistant","text":"The entry point exports value 1; one test fails.","captured_at":"2026-10-17T00:42:50.205Z","source_line_id":"message-0b1c2d3e-0000-4000-8000-000000000003","source_message_id":"message-0b1c2d3e-0000-4000-8000-000000000003"}
+{"kind":"user","text":"Stop that and summarise. ✓","captured_at":"2026-10-17T00:42:51.312Z","source_line_id":"user-mgx1c4d5-a1b2c3"}
+{"kind":"error","text":"Stream error: upstream timeout (retrying)","captured_at":"2026-10-17T00:42:51.312Z","source_line_id":"err-mgx1c4d6-x7y8z9"}
+{"kind":"tool_call","name":"Grep","argsText":"{\"pattern\":\"TODO\"}","resultText":"Interrupted by user","resultOk":false,"captured_at":"2026-10-17T00:42:51.312Z","source_line_id":"call_9f8e7d6c5b4a"}
+{"kind":"tool_call","name":"Glob","argsText":"{\"pattern\":\"**/*.ts\"}","captured_at":"2026-10-17T00:42:51.312Z","source_line_id":"call_unfinished01"}
+{"kind":"assistant","text":"Summary: the entry point is fine; a test fails.","captured_at":"2026-10-17T00:42:51.312Z","source_line_id":"message-0b1c2d3e-0000-4000-8000-000000000005","source_message_id":"message-0b1c2d3e-0000-4000-8000-000000000005"}

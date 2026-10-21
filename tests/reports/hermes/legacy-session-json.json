@@ -1,0 +1,30 @@
+{
+  "format": "hermes",
+  "case": "legacy-session-json",
+  "variant": "session-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 7 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 5,
+    "codex": 2,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 5; missing [settings×1]; extra [settings×1]",
+    "codex": "score 2; changed [settings.body.model×1, settings.body.tools×1]",
+    "opencode": "score 2; changed [settings.body.system_prompt×1, settings.body.tools×1]"
+  },
+  "errors": {}
+}

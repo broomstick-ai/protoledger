@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "stream-real-mcp-calls-2026.09.18",
+  "variant": "stream-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 42 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 149,
+    "codex": 11,
+    "opencode": 13
+  },
+  "no_carry_summary": {
+    "claude-code": "score 149; missing [tool_call×15, tool_result×15]; extra [settings×1, tool_call×15, tool_result×15]; changed [settings.body.model×1, turn.body.outcome×1]",
+    "codex": "score 11; changed [settings.body.model×1, settings.body.permission_mode×1, tool_call.body.tool_type×3, tool_call.group-split×1, tool_result.body.is_error×4, usage.body.cache_write×1]",
+    "opencode": "score 13; changed [settings.body.permission_mode×1, tool_call.body.server×4, tool_call.body.tool_type×7, turn.body.duration_ms×1]"
+  },
+  "errors": {}
+}

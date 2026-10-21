@@ -1,0 +1,30 @@
+{
+  "format": "openhands",
+  "case": "api-tool-calls",
+  "variant": "v1-api",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 7 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 14,
+    "codex": 14,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 14; missing [tool_call×1, tool_result×1]; extra [tool_call×1, tool_result×1]; changed [tool_result.body.call_id×1, tool_result.body.output×1]",
+    "codex": "score 14; missing [tool_call×1, tool_result×2]; extra [tool_call×1]",
+    "opencode": "score 5; missing [tool_result×1]; extra [settings×1]; changed [tool_result.body.status×1]"
+  },
+  "errors": {}
+}

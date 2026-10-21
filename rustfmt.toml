@@ -1,0 +1,5 @@
+# The house style: long lines, as the code was written before CI checked it.
+# `use_small_heuristics = "Max"` keeps short calls on one line.
+edition = "2024"
+max_width = 160
+use_small_heuristics = "Max"

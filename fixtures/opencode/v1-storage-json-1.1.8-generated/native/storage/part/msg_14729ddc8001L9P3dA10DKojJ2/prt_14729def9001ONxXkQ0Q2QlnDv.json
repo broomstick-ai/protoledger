@@ -1,0 +1,18 @@
+{
+  "id": "prt_14729def9001ONxXkQ0Q2QlnDv",
+  "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+  "messageID": "msg_14729ddc8001L9P3dA10DKojJ2",
+  "type": "step-finish",
+  "reason": "tool-calls",
+  "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+  "cost": 0,
+  "tokens": {
+    "input": 120,
+    "output": 12,
+    "reasoning": 0,
+    "cache": {
+      "read": 0,
+      "write": 0
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "ide-agentsview-composers",
+  "variant": "ide-state-vscdb",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"state.vscdb\"] missing [] extra []; clean: 3 agents, 9 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 5,
+    "codex": 3,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 5; header [header.created_at×2]; missing [settings×1]; extra [settings×1]",
+    "codex": "score 3; missing [title×1]; extra [title×1]",
+    "opencode": "score 2; extra [settings×2]"
+  },
+  "errors": {}
+}

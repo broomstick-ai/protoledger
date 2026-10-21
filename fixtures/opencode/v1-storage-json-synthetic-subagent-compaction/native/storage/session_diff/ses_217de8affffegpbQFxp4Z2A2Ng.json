@@ -1,0 +1,9 @@
+[
+  {
+    "file": "notes/plan.md",
+    "before": "# Plan\n\n- Read teh input.\n",
+    "after": "# Plan\n\n- Read the input.\n",
+    "additions": 1,
+    "deletions": 1
+  }
+]

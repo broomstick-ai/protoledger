@@ -1,0 +1,84 @@
+{
+  "sessionId": "0b3c6c7e-1f6a-4c55-9a43-0d8a2f7f1b11",
+  "startTime": "2025-10-01T16:00:00.000Z",
+  "chatMessages": [
+    {
+      "role": "user",
+      "content": "List the files here"
+    },
+    {
+      "role": "assistant",
+      "content": "I'll list them.",
+      "tool_calls": [
+        {
+          "id": "call_1",
+          "type": "function",
+          "function": {
+            "name": "bash",
+            "arguments": "{\"command\":\"ls\",\"description\":\"List files\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_1",
+      "content": "README.md\nsrc"
+    },
+    {
+      "role": "assistant",
+      "content": "There are two entries: README.md and src."
+    }
+  ],
+  "timeline": [
+    {
+      "id": "7d2b8f0e-3c41-4a8e-9a55-2b0a3d9e6f01",
+      "timestamp": "2025-10-01T16:00:01.000Z",
+      "type": "user",
+      "text": "List the files here"
+    },
+    {
+      "id": "7d2b8f0e-3c41-4a8e-9a55-2b0a3d9e6f02",
+      "timestamp": "2025-10-01T16:00:02.000Z",
+      "type": "copilot",
+      "text": "I'll list them."
+    },
+    {
+      "id": "7d2b8f0e-3c41-4a8e-9a55-2b0a3d9e6f03",
+      "timestamp": "2025-10-01T16:00:02.100Z",
+      "type": "tool_call_requested",
+      "callId": "call_1",
+      "name": "bash",
+      "toolTitle": "Run command",
+      "intentionSummary": "List files",
+      "arguments": {
+        "command": "ls",
+        "description": "List files"
+      }
+    },
+    {
+      "id": "7d2b8f0e-3c41-4a8e-9a55-2b0a3d9e6f04",
+      "timestamp": "2025-10-01T16:00:03.000Z",
+      "type": "tool_call_completed",
+      "callId": "call_1",
+      "name": "bash",
+      "toolTitle": "Run command",
+      "intentionSummary": "List files",
+      "result": {
+        "type": "success",
+        "log": "README.md\nsrc"
+      },
+      "arguments": {
+        "command": "ls",
+        "description": "List files"
+      }
+    },
+    {
+      "id": "7d2b8f0e-3c41-4a8e-9a55-2b0a3d9e6f05",
+      "timestamp": "2025-10-01T16:00:04.000Z",
+      "type": "copilot",
+      "text": "There are two entries: README.md and src."
+    }
+  ],
+  "selectedModel": "claude-sonnet-4.5"
+}

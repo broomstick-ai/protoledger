@@ -1,0 +1,175 @@
+{
+  "info": {
+    "id": "ses_eb8d18896ffeTiyOVNOvNBtsGu",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 8783,
+      "output": 289,
+      "reasoning": 0,
+      "cache": {
+        "read": 1408,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1792195590195,
+      "updated": 1792195671003,
+      "idle": 1792195671006
+    },
+    "location": {
+      "directory": "/home/user/project-a"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_1472e78370018SahilRXTDIwoX",
+      "time": {
+        "created": 1792195590272
+      },
+      "text": "\"Use the bash tool to run exactly `printf 'x\\n'; exit 7` and report the exit code.\"",
+      "files": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_1472e7889001CuR6d014KwgIHa",
+      "time": {
+        "created": 1792195590286,
+        "streamed": 1792195633930,
+        "completed": 1792195634077
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants me to run exactly `printf 'x\\n'; exit 7` via bash tool and report the exit code.\n\nLet me use the execute tool in code mode, or should I use the shell tool? The user said \"Use the bash tool to run exactly `printf 'x\\n'; exit 7` and report the exit code.\"\n\nThe shell tool is the bash tool available. Let me run it.\n\nWait, there's an `execute` tool available in code mode. But the user asked for the \"bash tool\". The shell tool is likely the bash tool. Let me use the shell tool.\n\nThe command: `printf 'x\\n'; exit 7`\n\nLet me run it.",
+          "state": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1792195620906,
+            "completed": 1792195633920
+          }
+        },
+        {
+          "type": "tool",
+          "id": "call_023f3d4aea944fcd9c7c3c13",
+          "name": "shell",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "printf 'x\\n'; exit 7"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "x\n"
+              },
+              {
+                "type": "text",
+                "text": "Exited with code 7"
+              }
+            ],
+            "metadata": {
+              "status": "completed",
+              "truncated": false,
+              "exit": 7
+            }
+          },
+          "time": {
+            "created": 1792195633396,
+            "ran": 1792195633923,
+            "completed": 1792195634007
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 5010,
+        "output": 161,
+        "reasoning": 0,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472f23ac001Imc3tEmUAT9io6",
+      "time": {
+        "created": 1792195634103,
+        "streamed": 1792195670969,
+        "completed": 1792195671003
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The command ran. `printf 'x\\n'` printed `x` and then `exit 7` caused exit code 7.\n\nThe user asked to report the exit code. It should be 7.\n\nNote: the shell tool reported \"Exited with code 7\" — that's the harness reporting the shell's exit code. The actual exit code is 7.\n\nLet me report clearly.",
+          "state": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1792195664518,
+            "completed": 1792195670964
+          }
+        },
+        {
+          "type": "text",
+          "text": "The command ran successfully:\n\n- `printf 'x\\n'` printed `x` followed by a newline.\n- `exit 7` terminated the shell with the exit code **7**.\n\n**Reported exit code: 7** ✅"
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 3773,
+        "output": 128,
+        "reasoning": 0,
+        "cache": {
+          "read": 1408,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472fb3de001eOSwTUM6Xjiaj6",
+      "time": {
+        "created": 1792195671006
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

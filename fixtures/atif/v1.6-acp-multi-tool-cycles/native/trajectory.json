@@ -1,0 +1,146 @@
+{
+  "schema_version": "ATIF-v1.6",
+  "session_id": "ses_test_456",
+  "agent": {
+    "name": "codex-acp",
+    "version": "0.10.0",
+    "model_name": "openai/gpt-5.4",
+    "extra": {
+      "auth_policy": null,
+      "selected_authenticate_method_id": null,
+      "selected_distribution": null,
+      "source": null
+    }
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "source": "user",
+      "message": "Create the file and verify it."
+    },
+    {
+      "step_id": 2,
+      "source": "agent",
+      "model_name": "openai/gpt-5.4",
+      "message": "Plan",
+      "extra": {
+        "session_update_counts": {
+          "agent_message_chunk": 1,
+          "usage_update": 1
+        },
+        "usage_updates": [
+          {
+            "sessionUpdate": "usage_update",
+            "used": 10
+          }
+        ],
+        "permissions_requested": null
+      }
+    },
+    {
+      "step_id": 3,
+      "source": "agent",
+      "model_name": "openai/gpt-5.4",
+      "message": "",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_1",
+          "function_name": "write_file",
+          "arguments": {
+            "path": "/app/hello.txt"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_1",
+            "content": "wrote hello.txt"
+          }
+        ]
+      },
+      "extra": {
+        "session_update_counts": {
+          "tool_call": 1,
+          "tool_call_update": 1,
+          "usage_update": 1
+        },
+        "usage_updates": [
+          {
+            "sessionUpdate": "usage_update",
+            "used": 11
+          }
+        ],
+        "permissions_requested": null
+      }
+    },
+    {
+      "step_id": 4,
+      "source": "agent",
+      "model_name": "openai/gpt-5.4",
+      "message": "",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_2",
+          "function_name": "read_file",
+          "arguments": {
+            "path": "/app/hello.txt"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_2",
+            "content": "Hello, world!"
+          }
+        ]
+      },
+      "extra": {
+        "session_update_counts": {
+          "tool_call": 1,
+          "tool_call_update": 1,
+          "usage_update": 1
+        },
+        "usage_updates": [
+          {
+            "sessionUpdate": "usage_update",
+            "used": 12
+          }
+        ],
+        "permissions_requested": null
+      }
+    },
+    {
+      "step_id": 5,
+      "source": "agent",
+      "model_name": "openai/gpt-5.4",
+      "message": "Done",
+      "metrics": {
+        "prompt_tokens": 201,
+        "completion_tokens": 21,
+        "cost_usd": 0.25
+      },
+      "extra": {
+        "session_update_counts": {
+          "agent_message_chunk": 1,
+          "usage_update": 1
+        },
+        "usage_updates": [
+          {
+            "sessionUpdate": "usage_update",
+            "used": 13
+          }
+        ],
+        "permissions_requested": null
+      }
+    }
+  ],
+  "notes": "Converted from ACP session updates captured in acp-events.jsonl. Step boundaries are inferred best-effort from chunked ACP events.",
+  "final_metrics": {
+    "total_prompt_tokens": 201,
+    "total_completion_tokens": 21,
+    "total_cost_usd": 0.25,
+    "total_steps": 5
+  }
+}

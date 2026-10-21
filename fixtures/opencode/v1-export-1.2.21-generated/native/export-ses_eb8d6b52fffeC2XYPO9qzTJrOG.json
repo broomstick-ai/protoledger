@@ -1,0 +1,597 @@
+{
+  "info": {
+    "id": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+    "slug": "shiny-lagoon",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Read input and list files",
+    "version": "1.2.21",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "permission": [
+      {
+        "permission": "question",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_enter",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_exit",
+        "pattern": "*",
+        "action": "deny"
+      }
+    ],
+    "time": {
+      "created": 1792195250896,
+      "updated": 1792195482422
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195250908
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_147294adc001syXKWk5a1RMdyf",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Read input.txt using the read tool, then list files with glob, and reply with the three words and the line count.\"\n",
+          "id": "prt_147294adf001sURXlXtTwtYx8H",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294adc001syXKWk5a1RMdyf"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195250966,
+          "completed": 1792195251261
+        },
+        "parentID": "msg_147294adc001syXKWk5a1RMdyf",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls",
+        "id": "msg_147294b16001jBAPjSAdAvumeq",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_147294b8f001sufTs1cTr9n7aM",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294b16001jBAPjSAdAvumeq"
+        },
+        {
+          "type": "tool",
+          "callID": "call_fixture_4",
+          "tool": "read",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/home/user/project-a/input.txt"
+            },
+            "output": "<path>/home/user/project-a/input.txt</path>\n<type>file</type>\n<content>1: alpha\n2: beta\n3: gamma\n\n(End of file - total 3 lines)\n</content>",
+            "title": "input.txt",
+            "metadata": {
+              "preview": "alpha\nbeta\ngamma",
+              "truncated": false,
+              "loaded": []
+            },
+            "time": {
+              "start": 1792195251091,
+              "end": 1792195251097
+            }
+          },
+          "id": "prt_147294b92001CwDpt0LUN4t78s",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294b16001jBAPjSAdAvumeq"
+        },
+        {
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_147294b9e001DNhPPjer7oITSF",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294b16001jBAPjSAdAvumeq"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195251263,
+          "completed": 1792195264721
+        },
+        "parentID": "msg_147294adc001syXKWk5a1RMdyf",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls",
+        "id": "msg_147294c3f001Yry5mRCIHnFA22",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_147294cb3001pdx7UKwpMa2eqA",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294c3f001Yry5mRCIHnFA22"
+        },
+        {
+          "type": "tool",
+          "callID": "call_fixture_5",
+          "tool": "glob",
+          "state": {
+            "status": "completed",
+            "input": {
+              "pattern": "**/*"
+            },
+            "output": "/home/user/project-a/.git/opencode\n/home/user/project-a/.git/refs/heads/main\n/home/user/project-a/.git/logs/refs/heads/main\n/home/user/project-a/.git/logs/HEAD\n/home/user/project-a/.git/COMMIT_EDITMSG\n/home/user/project-a/.git/objects/ce/7d88ec139a55a32161a320d1a37563caf6e269\n/home/user/project-a/.git/index\n/home/user/project-a/.git/objects/59/41e240b600fcebf8dd43c705d4e726de3428dc\n/home/user/project-a/.git/objects/1d/f70e0ec353ecea96ff08a11a0afeebb4b3b769\n/home/user/project-a/.git/objects/48/dd792b5c488ca919fd3e2ad629300fd63be5ae\n/home/user/project-a/.git/objects/85/c30401ce288f253613cb07ee32e62128089caa\n/home/user/project-a/.git/HEAD\n/home/user/project-a/.git/config\n/home/user/project-a/.git/hooks/push-to-checkout.sample\n/home/user/project-a/.git/hooks/update.sample\n/home/user/project-a/.git/hooks/pre-push.sample\n/home/user/project-a/.git/hooks/pre-applypatch.sample\n/home/user/project-a/.git/hooks/pre-merge-commit.sample\n/home/user/project-a/.git/hooks/post-update.sample\n/home/user/project-a/.git/hooks/prepare-commit-msg.sample\n/home/user/project-a/.git/hooks/pre-receive.sample\n/home/user/project-a/.git/hooks/fsmonitor-watchman.sample\n/home/user/project-a/.git/hooks/applypatch-msg.sample\n/home/user/project-a/.git/hooks/pre-commit.sample\n/home/user/project-a/.git/hooks/sendemail-validate.sample\n/home/user/project-a/.git/hooks/pre-rebase.sample\n/home/user/project-a/.git/hooks/commit-msg.sample\n/home/user/project-a/.git/description\n/home/user/project-a/.git/info/exclude\n/home/user/project-a/input.txt\n/home/user/project-a/notes/plan.md",
+            "title": "",
+            "metadata": {
+              "count": 31,
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195251397,
+              "end": 1792195264521
+            }
+          },
+          "id": "prt_147294cbc001EkKhUfxexvm4aP",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294c3f001Yry5mRCIHnFA22"
+        },
+        {
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_14729800a001JZzUiga7dfcPHc",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_147294c3f001Yry5mRCIHnFA22"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195264722,
+          "completed": 1792195264917
+        },
+        "parentID": "msg_147294adc001syXKWk5a1RMdyf",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_1472980d2001zNfGvipWkGG5aq",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_147298128001YRSJI2Tvpsa0uV",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472980d2001zNfGvipWkGG5aq"
+        },
+        {
+          "type": "text",
+          "text": "The three words are alpha, beta and gamma; input.txt has 3 lines.",
+          "time": {
+            "start": 1792195264809,
+            "end": 1792195264809
+          },
+          "id": "prt_147298128002xD5ry2SMkAcqga",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472980d2001zNfGvipWkGG5aq"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_14729812a001Ve1NiLWEBCMOpe",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472980d2001zNfGvipWkGG5aq"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195304896
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_1472a1dc00015YNz82jM7N5s62",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Follow-up: which of those three words is the longest? Answer in one word.\"\n",
+          "id": "prt_1472a1dc40019QVL3I0IDG9htK",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472a1dc00015YNz82jM7N5s62"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195304959,
+          "completed": 1792195305197
+        },
+        "parentID": "msg_1472a1dc00015YNz82jM7N5s62",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_1472a1dff001vYMii6NMellfSB",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_1472a1e6a0014E0ysr3GhDiZ9u",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472a1dff001vYMii6NMellfSB"
+        },
+        {
+          "type": "text",
+          "text": "ok",
+          "time": {
+            "start": 1792195305069,
+            "end": 1792195305069
+          },
+          "id": "prt_1472a1e6b0018hEUID4FI8y0ys",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472a1dff001vYMii6NMellfSB"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_1472a1e6e0018tzH2Xa49sygAw",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472a1dff001vYMii6NMellfSB"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195482297
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_1472cd2b9001eFzVcz5XiMnCiw",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Follow-up: which of those three words is the longest? Answer in one word.\"\n",
+          "id": "prt_1472cd2ba001HXfT6ElbDS7ZzV",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472cd2b9001eFzVcz5XiMnCiw"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195482366,
+          "completed": 1792195482747
+        },
+        "parentID": "msg_1472cd2b9001eFzVcz5XiMnCiw",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_1472cd2fe001DLCX6Yg2z2EEvk",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "id": "prt_1472cd3b9001YSOHDzh7epaaSH",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472cd2fe001DLCX6Yg2z2EEvk"
+        },
+        {
+          "type": "text",
+          "text": "alpha",
+          "time": {
+            "start": 1792195482567,
+            "end": 1792195482567
+          },
+          "id": "prt_1472cd3be001u6GqrbeHCptchv",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472cd2fe001DLCX6Yg2z2EEvk"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_1472cd3c9001DhBaYCfiiCAFgX",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472cd2fe001DLCX6Yg2z2EEvk"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195646977
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_1472f5601001MG3wS5o6m4lmjC",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "compaction",
+          "auto": false,
+          "id": "prt_1472f5602001anveaGXR265Oeg",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472f5601001MG3wS5o6m4lmjC"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195647032,
+          "completed": 1792195647230
+        },
+        "parentID": "msg_1472f5601001MG3wS5o6m4lmjC",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "compaction",
+        "agent": "compaction",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "summary": true,
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_1472f5638001lnjzEFf1lxe4pB",
+        "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "id": "prt_1472f5687001f8A138xyov8zJz",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472f5638001lnjzEFf1lxe4pB"
+        },
+        {
+          "type": "text",
+          "text": "## Summary\nThe user asked to read input.txt (contents: alpha, beta, gamma; 3 lines) and list files with glob (input.txt, notes/plan.md). A follow-up asked which word is longest; the answer was alpha (tied with gamma at 5 letters).\n## Next steps\nNone pending.",
+          "time": {
+            "start": 1792195647114,
+            "end": 1792195647114
+          },
+          "id": "prt_1472f5688001ZfQa7FNNHLQsNu",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472f5638001lnjzEFf1lxe4pB"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_1472f568c001pJHSBlUaCWNuyC",
+          "sessionID": "ses_eb8d6b52fffeC2XYPO9qzTJrOG",
+          "messageID": "msg_1472f5638001lnjzEFf1lxe4pB"
+        }
+      ]
+    }
+  ]
+}

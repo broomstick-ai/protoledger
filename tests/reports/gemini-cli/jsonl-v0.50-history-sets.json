@@ -1,0 +1,32 @@
+{
+  "format": "gemini-cli",
+  "case": "jsonl-v0.50-history-sets",
+  "variant": "session-jsonl",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 52 events",
+  "import_losses": [
+    "rewind-not-applied ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 33,
+    "codex": 41,
+    "opencode": 29
+  },
+  "no_carry_summary": {
+    "claude-code": "score 33; header [header.created_at×1]; missing [file_change×1, text×1, usage×2]; changed [error.body.kind×1, subagent.body.agent×2, subagent.body.outcome×1, subagent.body.result×1, subagent.group×2, text.group×4, usage.body.cache_read×1, usage.body.input×1, usage.body.output×1]",
+    "codex": "score 41; missing [error×1, file_change×1, settings×2, subagent×2, text×1]; changed [text.group×4, tool_call.group-split×2, usage.body.model×3, usage.body.reasoning×4, usage.group-merged×1]",
+    "opencode": "score 29; missing [file_change×1, subagent×2, text×1, title×1]; extra [settings×2, title×1]; changed [text.group×4]"
+  },
+  "errors": {}
+}

@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.3-completion-token-ids-synthetic",
+  "variant": "ATIF-v1.3",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 6 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 3,
+    "codex": 5,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 3; missing [settings×1]; changed [settings.body.effort×1]",
+    "codex": "score 5; missing [settings×2]; changed [usage.body.model×1]",
+    "opencode": "clean: 1 agents, 6 events"
+  },
+  "errors": {}
+}

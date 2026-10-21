@@ -1,0 +1,30 @@
+{
+  "format": "droid",
+  "case": "desktop-fork",
+  "variant": "session-v2",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 3 agents, 71 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 56,
+    "codex": 47,
+    "opencode": 46
+  },
+  "no_carry_summary": {
+    "claude-code": "score 56; header [header.links×1, header.parent×1]; missing [settings×4, text×1, turn×2, usage×3]; changed [compaction.body.tokens_after×1, compaction.body.trigger×1, settings.body.effort×3, settings.body.model×2, settings.body.provider×2]",
+    "codex": "score 47; header [header.parent×1]; missing [settings×4, title×2, usage×2]; extra [title×2]; changed [compaction.body.tokens_after×1, compaction.body.trigger×1, text.audience×1, turn.body.reason×1, usage.body.cache_write×1, usage.body.model×1, usage.body.reasoning×1]",
+    "opencode": "score 46; header [header.links×1, header.parent×1]; missing [settings×3, text×1, usage×3]; extra [usage×1]; changed [compaction.body.tokens_after×1, turn.body.reason×1]"
+  },
+  "errors": {}
+}

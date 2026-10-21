@@ -1,0 +1,223 @@
+{
+  "info": {
+    "id": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+    "slug": "calm-mountain",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Failing shell command",
+    "version": "1.2.21",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "permission": [
+      {
+        "permission": "question",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_enter",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_exit",
+        "pattern": "*",
+        "action": "deny"
+      }
+    ],
+    "time": {
+      "created": 1792195273615,
+      "updated": 1792195273931
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195273628
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_14729a39c001pCCeMHq9n9CjM1",
+        "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Use the bash tool to run exactly `printf 'x\\n'; exit 7` and report the exit code.\"\n",
+          "id": "prt_14729a39d0012BzEj1vDZZLnM0",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a39c001pCCeMHq9n9CjM1"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195273687,
+          "completed": 1792195273890
+        },
+        "parentID": "msg_14729a39c001pCCeMHq9n9CjM1",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls",
+        "id": "msg_14729a3d70013aoTPNw31zbPlt",
+        "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_14729a42e001xbgx5WJVgNGLPo",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a3d70013aoTPNw31zbPlt"
+        },
+        {
+          "type": "tool",
+          "callID": "call_fixture_8",
+          "tool": "bash",
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "printf 'x\\n'; exit 7",
+              "description": "Run command that exits with code 7"
+            },
+            "output": "x\n",
+            "title": "Run command that exits with code 7",
+            "metadata": {
+              "output": "x\n",
+              "exit": 7,
+              "description": "Run command that exits with code 7",
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195273776,
+              "end": 1792195273777
+            }
+          },
+          "id": "prt_14729a42f0016aa5rYOIOTNvjn",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a3d70013aoTPNw31zbPlt"
+        },
+        {
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_14729a433001hkHzwOcJJdtEsL",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a3d70013aoTPNw31zbPlt"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195273891,
+          "completed": 1792195274060
+        },
+        "parentID": "msg_14729a39c001pCCeMHq9n9CjM1",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_14729a4a3001nR9TSR39RhAxAa",
+        "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "id": "prt_14729a4e1001NncNUVmLN7T2TN",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a4a3001nR9TSR39RhAxAa"
+        },
+        {
+          "type": "text",
+          "text": "The command printed `x` and exited with code 7.",
+          "time": {
+            "start": 1792195273955,
+            "end": 1792195273955
+          },
+          "id": "prt_14729a4e20018yHmaa77hqABqJ",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a4a3001nR9TSR39RhAxAa"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_14729a4e3001gktKEBuAqFaEF1",
+          "sessionID": "ses_eb8d65c70ffeGFUt7rf6X3Q31y",
+          "messageID": "msg_14729a4a3001nR9TSR39RhAxAa"
+        }
+      ]
+    }
+  ]
+}

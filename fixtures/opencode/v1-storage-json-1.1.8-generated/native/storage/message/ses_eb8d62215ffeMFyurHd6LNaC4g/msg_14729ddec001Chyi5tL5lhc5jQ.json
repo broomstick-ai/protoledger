@@ -1,0 +1,22 @@
+{
+  "id": "msg_14729ddec001Chyi5tL5lhc5jQ",
+  "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+  "role": "user",
+  "time": {
+    "created": 1792195288557
+  },
+  "summary": {
+    "title": "Fixture session",
+    "diffs": []
+  },
+  "agent": "general",
+  "model": {
+    "providerID": "fixture",
+    "modelID": "fixture-model"
+  },
+  "tools": {
+    "todowrite": false,
+    "todoread": false,
+    "task": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "format": "droid",
+  "case": "compaction-turns",
+  "variant": "session-v2",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 36 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 50,
+    "codex": 31,
+    "opencode": 37
+  },
+  "no_carry_summary": {
+    "claude-code": "score 50; missing [settings×3, text×2, turn×3, usage×2]; changed [compaction.body.tokens_after×1, compaction.body.trigger×1, reasoning.body.sealed×2, settings.body.effort×2, settings.body.model×1, settings.body.provider×1]",
+    "codex": "score 31; missing [settings×3, title×1, usage×1]; extra [title×1]; changed [compaction.body.tokens_after×1, compaction.body.trigger×1, text.audience×2, turn.body.reason×2, usage.body.cache_write×1, usage.body.model×1]",
+    "opencode": "score 37; missing [settings×2, text×2, usage×2]; extra [usage×1]; changed [compaction.body.tokens_after×1, reasoning.body.sealed×2, turn.body.reason×2]"
+  },
+  "errors": {}
+}

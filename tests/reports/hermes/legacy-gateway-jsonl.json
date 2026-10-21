@@ -1,0 +1,30 @@
+{
+  "format": "hermes",
+  "case": "legacy-gateway-jsonl",
+  "variant": "gateway-jsonl",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 5 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 4,
+    "codex": 3,
+    "opencode": 1
+  },
+  "no_carry_summary": {
+    "claude-code": "score 4; missing [settings×1]; extra [settings×1]",
+    "codex": "score 3; missing [settings×1]",
+    "opencode": "score 1; changed [settings.body.tools×1]"
+  },
+  "errors": {}
+}

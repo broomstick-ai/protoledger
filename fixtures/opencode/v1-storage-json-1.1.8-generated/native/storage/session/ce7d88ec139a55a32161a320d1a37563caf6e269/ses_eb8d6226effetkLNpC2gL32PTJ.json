@@ -1,0 +1,16 @@
+{
+  "id": "ses_eb8d6226effetkLNpC2gL32PTJ",
+  "version": "1.1.8",
+  "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+  "directory": "/home/user/project-a",
+  "title": "Subagent plan summary",
+  "time": {
+    "created": 1792195288465,
+    "updated": 1792195288933
+  },
+  "summary": {
+    "additions": 0,
+    "deletions": 0,
+    "files": 0
+  }
+}

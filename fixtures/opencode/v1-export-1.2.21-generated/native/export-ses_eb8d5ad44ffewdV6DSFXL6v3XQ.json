@@ -1,0 +1,223 @@
+{
+  "info": {
+    "id": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+    "slug": "gentle-nebula",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Create notes/out.txt",
+    "version": "1.2.21",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "permission": [
+      {
+        "permission": "question",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_enter",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_exit",
+        "pattern": "*",
+        "action": "deny"
+      }
+    ],
+    "time": {
+      "created": 1792195318459,
+      "updated": 1792195318774
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195318471
+        },
+        "summary": {
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "id": "msg_1472a52c7001oze22aF4gB7Yf1",
+        "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Create the file notes/out.txt containing exactly the word done (followed by a newline). Then reply ok.\"\n",
+          "id": "prt_1472a52c80019luuwBK2iiDmzs",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a52c7001oze22aF4gB7Yf1"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195318528,
+          "completed": 1792195318735
+        },
+        "parentID": "msg_1472a52c7001oze22aF4gB7Yf1",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls",
+        "id": "msg_1472a53000014F32ryvJNwPpY9",
+        "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "id": "prt_1472a5359001Z6eELG9cI4WrE2",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a53000014F32ryvJNwPpY9"
+        },
+        {
+          "type": "tool",
+          "callID": "call_fixture_17",
+          "tool": "write",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/home/user/project-a/notes/out.txt",
+              "content": "done\n"
+            },
+            "output": "Wrote file successfully.",
+            "title": "notes/out.txt",
+            "metadata": {
+              "diagnostics": {},
+              "filepath": "/home/user/project-a/notes/out.txt",
+              "exists": false,
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195318619,
+              "end": 1792195318620
+            }
+          },
+          "id": "prt_1472a535a001GuttVudYqNbl87",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a53000014F32ryvJNwPpY9"
+        },
+        {
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_1472a535e001A030PVJjS8ADtS",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a53000014F32ryvJNwPpY9"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "assistant",
+        "time": {
+          "created": 1792195318736,
+          "completed": 1792195318901
+        },
+        "parentID": "msg_1472a52c7001oze22aF4gB7Yf1",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 132,
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop",
+        "id": "msg_1472a53d0001jzeebZ5gZbBB9z",
+        "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ"
+      },
+      "parts": [
+        {
+          "type": "step-start",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "id": "prt_1472a540d001P0Ng7royBqJpY3",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a53d0001jzeebZ5gZbBB9z"
+        },
+        {
+          "type": "text",
+          "text": "ok",
+          "time": {
+            "start": 1792195318799,
+            "end": 1792195318799
+          },
+          "id": "prt_1472a540e001lq7vPQG74Gp5Y2",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a53d0001jzeebZ5gZbBB9z"
+        },
+        {
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+          "cost": 0,
+          "tokens": {
+            "total": 132,
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          },
+          "id": "prt_1472a540f001mEv9y1axF47gwZ",
+          "sessionID": "ses_eb8d5ad44ffewdV6DSFXL6v3XQ",
+          "messageID": "msg_1472a53d0001jzeebZ5gZbBB9z"
+        }
+      ]
+    }
+  ]
+}

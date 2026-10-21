@@ -1,0 +1,26 @@
+[
+    {
+        "type": "message",
+        "text": "Confirmed, thanks. Log attached.",
+        "user": "U0BOB",
+        "ts": "1714000000.000300",
+        "thread_ts": "1713960000.000100",
+        "parent_user_id": "U0BOB",
+        "files": [
+            {
+                "id": "F0LOG2",
+                "name": "nightly.log",
+                "mimetype": "text\/plain",
+                "url_private": "https:\/\/files.slack.com\/files-pri\/T0EXAMPLE-F0LOG2\/nightly.log"
+            }
+        ]
+    },
+    {
+        "type": "message",
+        "subtype": "channel_topic",
+        "ts": "1714000500.000100",
+        "user": "U0BOB",
+        "text": "set the channel topic: CI",
+        "topic": "CI"
+    }
+]

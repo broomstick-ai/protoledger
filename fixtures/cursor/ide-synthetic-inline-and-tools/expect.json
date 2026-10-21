@@ -1,0 +1,1 @@
+{"self_exact": false, "self_reason": "export writes a fresh state.vscdb holding only the composer and bubble rows (values byte-identical); a user's state.vscdb is not kept whole, since it holds every other conversation and UI state, so SQLite page bytes differ", "requires_features": ["sqlite"]}

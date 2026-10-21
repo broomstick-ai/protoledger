@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "dir-cli-1.0.98-imported",
+  "variant": "session-dir",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 12 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 6,
+    "codex": 7,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 6; header [header.created_at×1]; changed [settings.ts×1, text.turn×1, title.ts×1, tool_call.turn×2]",
+    "codex": "score 7; missing [media×1]; changed [settings.ts×1, tool_result.body.is_error×1]",
+    "opencode": "score 5; missing [title×1]; extra [title×1]; changed [settings.body.git_branch×1, settings.ts×1]"
+  },
+  "errors": {}
+}

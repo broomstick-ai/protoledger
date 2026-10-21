@@ -1,0 +1,32 @@
+{
+  "format": "atif",
+  "case": "v1.7-letta-embedded-subagent",
+  "variant": "ATIF-v1.7",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 10 events",
+  "import_losses": [
+    "tool-arguments-not-object ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 2,
+    "codex": 3,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 2; changed [tool_call.body.input×1, tool_result.body.output×1]",
+    "codex": "score 3; missing [tool_result×1]; changed [tool_result.body.output×1]",
+    "opencode": "score 5; missing [tool_result×1]; extra [settings×2]; changed [tool_result.body.output×1]"
+  },
+  "errors": {}
+}

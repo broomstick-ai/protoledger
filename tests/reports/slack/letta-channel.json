@@ -1,0 +1,32 @@
+{
+  "format": "slack",
+  "case": "letta-channel",
+  "variant": "api-replies",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 7 events",
+  "import_losses": [
+    "file-without-url ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 12,
+    "codex": 11,
+    "opencode": 12
+  },
+  "no_carry_summary": {
+    "claude-code": "score 12; header [header.created_at×1, header.meta×1]; changed [text.group×5, text.meta.slack×5]",
+    "codex": "score 11; header [header.meta×1]; changed [text.group×5, text.meta.slack×5]",
+    "opencode": "score 12; header [header.meta×1]; extra [settings×1]; changed [text.group×5, text.meta.slack×5]"
+  },
+  "errors": {}
+}

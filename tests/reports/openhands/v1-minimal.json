@@ -1,0 +1,30 @@
+{
+  "format": "openhands",
+  "case": "v1-minimal",
+  "variant": "v1-events",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 7 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 5,
+    "codex": 4,
+    "opencode": 3
+  },
+  "no_carry_summary": {
+    "claude-code": "score 5; missing [settings×1]; extra [settings×1]; changed [settings.body.model×1, tool_call.body.tool_type×1]",
+    "codex": "score 4; missing [settings×1]; changed [settings.body.model×1, tool_call.body.tool_type×1]",
+    "opencode": "score 3; missing [settings×1]; changed [tool_call.body.tool_type×1]"
+  },
+  "errors": {}
+}

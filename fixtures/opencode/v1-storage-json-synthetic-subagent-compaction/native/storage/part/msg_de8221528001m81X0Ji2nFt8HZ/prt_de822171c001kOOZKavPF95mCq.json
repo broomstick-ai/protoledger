@@ -1,0 +1,19 @@
+{
+  "id": "prt_de822171c001kOOZKavPF95mCq",
+  "sessionID": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "messageID": "msg_de8221528001m81X0Ji2nFt8HZ",
+  "type": "tool",
+  "callID": "toolu_01SynthGlob",
+  "tool": "glob",
+  "state": {
+    "status": "error",
+    "input": {
+      "pattern": "notes/*"
+    },
+    "error": "Tool execution aborted",
+    "time": {
+      "start": 1777716041500,
+      "end": 1777716041900
+    }
+  }
+}

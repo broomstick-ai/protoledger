@@ -1,0 +1,149 @@
+{
+  "info": {
+    "id": "ses_eb8c9fda6ffe8K98POiCUxPxeJ",
+    "parentID": "ses_eb8d04a5affen0kcF35RycWqNi",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "agent": "general",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 3584,
+      "output": 61,
+      "reasoning": 189,
+      "cache": {
+        "read": 3620,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1792196084372,
+      "updated": 1792196101450,
+      "idle": 1792196101452
+    },
+    "title": "Summarize plan.md in one line",
+    "location": {
+      "directory": "/home/user/project-a"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_147360295002Mp4f0CrJ09TCK6",
+      "time": {
+        "created": 1792196084382
+      },
+      "text": "You are a subagent spawned by another session.\nRead notes/plan.md in the current working directory and summarize its contents in exactly one line. Return only that summary line.",
+      "type": "user"
+    },
+    {
+      "id": "msg_1473602a4001qVEf1pp4HFfz9I",
+      "time": {
+        "created": 1792196084393,
+        "streamed": 1792196097771,
+        "completed": 1792196097795
+      },
+      "type": "assistant",
+      "agent": "general",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "8d9513b8-ccd4-4a4d-9c9e-53d5c9f5ba32",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "/home/user/project-a/notes/plan.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file /home/user/project-a/notes/plan.md, lines 1-5\n1: # Plan\n2: \n3: - Step 1: read input.txt\n4: - Step 2: count the lines\n5: - Step 3: write a short report"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1792196097709,
+            "ran": 1792196097771,
+            "completed": 1792196097774
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 3478,
+        "output": 37,
+        "reasoning": 99,
+        "cache": {
+          "read": 70,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_147363708001nayktH4DN7cepM",
+      "time": {
+        "created": 1792196097805,
+        "streamed": 1792196101412,
+        "completed": 1792196101450
+      },
+      "type": "assistant",
+      "agent": "general",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "A plan to read input.txt, count its lines, and write a short report."
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 106,
+        "output": 24,
+        "reasoning": 90,
+        "cache": {
+          "read": 3550,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14736454c001zBUEcfvqxApN85",
+      "time": {
+        "created": 1792196101452
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

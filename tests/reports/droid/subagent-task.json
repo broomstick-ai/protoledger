@@ -1,0 +1,30 @@
+{
+  "format": "droid",
+  "case": "subagent-task",
+  "variant": "session-v2",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 17 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 14,
+    "codex": 13,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 14; missing [settings×2, turn×1]; extra [settings×2, subagent×2]; changed [settings.body.effort×2]",
+    "codex": "score 13; missing [settings×2, title×2]; extra [title×2]; changed [turn.body.reason×1]",
+    "opencode": "score 2; extra [subagent×1]; changed [turn.body.reason×1]"
+  },
+  "errors": {}
+}

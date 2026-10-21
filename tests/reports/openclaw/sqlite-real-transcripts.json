@@ -1,0 +1,30 @@
+{
+  "format": "openclaw",
+  "case": "sqlite-real-transcripts",
+  "variant": "sqlite",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"agents/main/agent/openclaw-agent.sqlite\"] missing [] extra []; clean: 2 agents, 51 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 14,
+    "codex": 26,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 14; header [header.created_at×2]; missing [settings×1]; changed [settings.ts×2, usage.body.cost_usd×8]",
+    "codex": "score 26; missing [settings×1]; changed [usage.body.cache_write×8, usage.body.cost_usd×8, usage.body.model×8]",
+    "opencode": "score 2; missing [settings×1]"
+  },
+  "errors": {}
+}

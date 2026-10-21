@@ -1,0 +1,30 @@
+{
+  "format": "droid",
+  "case": "windows-todos",
+  "variant": "session-v2",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 29 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 24,
+    "codex": 15,
+    "opencode": 18
+  },
+  "no_carry_summary": {
+    "claude-code": "score 24; missing [settings×1, turn×2, usage×1]; changed [reasoning.body.sealed×2, settings.body.effort×2, settings.body.model×1, settings.body.provider×1]",
+    "codex": "score 15; missing [settings×2, title×1]; extra [title×1]; changed [turn.body.reason×2, usage.body.cache_write×1, usage.body.model×1]",
+    "opencode": "score 18; missing [settings×1, usage×1]; extra [usage×1]; changed [reasoning.body.sealed×2, turn.body.reason×2]"
+  },
+  "errors": {}
+}

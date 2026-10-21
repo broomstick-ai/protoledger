@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.7-kimi-code-copied-context",
+  "variant": "ATIF-v1.7",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 21 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 22,
+    "codex": 21,
+    "opencode": 11
+  },
+  "no_carry_summary": {
+    "claude-code": "score 22; missing [settings×1, usage×1]; changed [reasoning.meta.atif×1, settings.body.effort×1, settings.meta.atif×1, text.meta.atif×4, tool_call.meta.atif×1, tool_result.meta.atif×1, usage.body.cost_usd×2, usage.meta.atif×2]",
+    "codex": "score 21; missing [settings×2]; changed [reasoning.meta.atif×1, text.meta.atif×4, tool_call.meta.atif×1, tool_result.meta.atif×1, usage.body.cost_usd×3, usage.body.model×5, usage.meta.atif×2]",
+    "opencode": "score 11; changed [reasoning.meta.atif×1, settings.meta.atif×1, text.meta.atif×4, tool_call.meta.atif×1, tool_result.meta.atif×1, usage.body.cache_read×1, usage.meta.atif×2]"
+  },
+  "errors": {}
+}

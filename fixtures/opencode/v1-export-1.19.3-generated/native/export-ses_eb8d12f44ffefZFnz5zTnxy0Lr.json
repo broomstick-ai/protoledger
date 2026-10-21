@@ -1,0 +1,238 @@
+{
+  "info": {
+    "id": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+    "slug": "misty-harbor",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "path": "",
+    "title": "Command exit code verification",
+    "agent": "build",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "version": "1.19.3",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 12630,
+      "output": 47,
+      "reasoning": 206,
+      "cache": {
+        "read": 237,
+        "write": 0
+      }
+    },
+    "permission": [
+      {
+        "permission": "question",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_enter",
+        "pattern": "*",
+        "action": "deny"
+      },
+      {
+        "permission": "plan_exit",
+        "pattern": "*",
+        "action": "deny"
+      }
+    ],
+    "time": {
+      "created": 1792195612859,
+      "updated": 1792195708709
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792195612897
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "opencode",
+          "modelID": "big-pickle"
+        },
+        "summary": {
+          "diffs": []
+        },
+        "id": "msg_1472ed0e10016WVrDOj8as0LXR",
+        "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "\"Use the bash tool to run exactly `printf 'x\\n'; exit 7` and report the exit code.\"",
+          "id": "prt_1472ed0e5001fzJgTut0UIBEmX",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472ed0e10016WVrDOj8as0LXR"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_1472ed0e10016WVrDOj8as0LXR",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 6491,
+          "input": 6253,
+          "output": 28,
+          "reasoning": 46,
+          "cache": {
+            "write": 0,
+            "read": 164
+          }
+        },
+        "modelID": "big-pickle",
+        "providerID": "opencode",
+        "time": {
+          "created": 1792195613179,
+          "completed": 1792195690456
+        },
+        "finish": "tool-calls",
+        "id": "msg_1472ed1fb001f2hgqHVTBd7wMT",
+        "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr"
+      },
+      "parts": [
+        {
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "type": "step-start",
+          "id": "prt_1472fff12001Zd9utbSjRaXGku",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472ed1fb001f2hgqHVTBd7wMT"
+        },
+        {
+          "type": "tool",
+          "tool": "bash",
+          "callID": "14bd1233-9d00-44f8-a45f-40ed982d18dc",
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "printf 'x\\n'; exit 7"
+            },
+            "output": "x\n",
+            "metadata": {
+              "output": "x\n",
+              "exit": 7,
+              "truncated": false
+            },
+            "title": "printf 'x\\n'; exit 7",
+            "time": {
+              "start": 1792195690265,
+              "end": 1792195690311
+            }
+          },
+          "id": "prt_1472fff15001KukzISo4fo2NmY",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472ed1fb001f2hgqHVTBd7wMT"
+        },
+        {
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "type": "step-finish",
+          "tokens": {
+            "total": 6491,
+            "input": 6253,
+            "output": 28,
+            "reasoning": 46,
+            "cache": {
+              "write": 0,
+              "read": 164
+            }
+          },
+          "cost": 0,
+          "id": "prt_1472fff92001cyVfi6APILK30X",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472ed1fb001f2hgqHVTBd7wMT"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_1472ed0e10016WVrDOj8as0LXR",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "total": 6629,
+          "input": 6377,
+          "output": 19,
+          "reasoning": 160,
+          "cache": {
+            "write": 0,
+            "read": 73
+          }
+        },
+        "modelID": "big-pickle",
+        "providerID": "opencode",
+        "time": {
+          "created": 1792195690459,
+          "completed": 1792195708703
+        },
+        "finish": "stop",
+        "id": "msg_1472fffdb001YsPsE9uFFI3bfk",
+        "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr"
+      },
+      "parts": [
+        {
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "type": "step-start",
+          "id": "prt_1473045cc00165HnHyPT0dSYWS",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472fffdb001YsPsE9uFFI3bfk"
+        },
+        {
+          "type": "text",
+          "text": "`printf 'x\\n'; echo \"EXIT:$?\"`",
+          "time": {
+            "start": 1792195708370,
+            "end": 1792195708557
+          },
+          "id": "prt_1473045d2001VtqfyKOnU6V8h7",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472fffdb001YsPsE9uFFI3bfk"
+        },
+        {
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "type": "step-finish",
+          "tokens": {
+            "total": 6629,
+            "input": 6377,
+            "output": 19,
+            "reasoning": 160,
+            "cache": {
+              "write": 0,
+              "read": 73
+            }
+          },
+          "cost": 0,
+          "id": "prt_1473046d7001Oq1kGGqBqumryE",
+          "sessionID": "ses_eb8d12f44ffefZFnz5zTnxy0Lr",
+          "messageID": "msg_1472fffdb001YsPsE9uFFI3bfk"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "format": "gemini-cli",
+  "case": "json-real-anonymized-slice",
+  "variant": "session-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 115 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 31,
+    "codex": 55,
+    "opencode": 30
+  },
+  "no_carry_summary": {
+    "claude-code": "score 31; header [header.created_at×1]; missing [file_change×4, text×1]; changed [error.body.kind×1, settings.ts×1, text.group×4, tool_result.body.status×1]",
+    "codex": "score 55; missing [error×1, file_change×4, settings×1, text×1]; changed [text.group×4, tool_result.body.is_error×1, tool_result.body.status×1, usage.body.model×18, usage.body.reasoning×3]",
+    "opencode": "score 30; missing [file_change×4, text×1]; extra [settings×1]; changed [error.ts×1, text.group×4, tool_result.body.status×1]"
+  },
+  "errors": {}
+}

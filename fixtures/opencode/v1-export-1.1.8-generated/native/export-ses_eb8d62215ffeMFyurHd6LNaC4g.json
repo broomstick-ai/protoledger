@@ -1,0 +1,222 @@
+{
+  "info": {
+    "id": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+    "version": "1.1.8",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "parentID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+    "title": "Summarize notes/plan.md (@general subagent)",
+    "permission": [
+      {
+        "permission": "todowrite",
+        "action": "deny",
+        "pattern": "*"
+      },
+      {
+        "permission": "todoread",
+        "action": "deny",
+        "pattern": "*"
+      },
+      {
+        "permission": "task",
+        "action": "deny",
+        "pattern": "*"
+      }
+    ],
+    "time": {
+      "created": 1792195288554,
+      "updated": 1792195288841
+    },
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "id": "msg_14729ddec001Chyi5tL5lhc5jQ",
+        "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+        "role": "user",
+        "time": {
+          "created": 1792195288557
+        },
+        "summary": {
+          "title": "Fixture session",
+          "diffs": []
+        },
+        "agent": "general",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        },
+        "tools": {
+          "todowrite": false,
+          "todoread": false,
+          "task": false
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_14729dded001eKBYydaPAQpxvz",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729ddec001Chyi5tL5lhc5jQ",
+          "type": "text",
+          "text": "Read notes/plan.md and summarize it in one line."
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_14729ddf10015JA296duH5JT2w",
+        "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+        "role": "assistant",
+        "time": {
+          "created": 1792195288561,
+          "completed": 1792195288686
+        },
+        "parentID": "msg_14729ddec001Chyi5tL5lhc5jQ",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "general",
+        "agent": "general",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls"
+      },
+      "parts": [
+        {
+          "id": "prt_14729de1a001SuohrZwnP66khM",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729ddf10015JA296duH5JT2w",
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc"
+        },
+        {
+          "id": "prt_14729de1b001PEKSp2zL76aIDz",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729ddf10015JA296duH5JT2w",
+          "type": "tool",
+          "callID": "call_fixture_16",
+          "tool": "read",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/home/user/project-a/notes/plan.md"
+            },
+            "output": "<file>\n00001| # Plan\n00002| \n00003| - Step 1: read input.txt\n00004| - Step 2: count the lines\n00005| - Step 3: write a short report\n00006| \n\n(End of file - total 6 lines)\n</file>",
+            "title": "notes/plan.md",
+            "metadata": {
+              "preview": "# Plan\n\n- Step 1: read input.txt\n- Step 2: count the lines\n- Step 3: write a short report\n",
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195288604,
+              "end": 1792195288605
+            }
+          }
+        },
+        {
+          "id": "prt_14729de1e0018pgrKx9T7JW6an",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729ddf10015JA296duH5JT2w",
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_14729de70001O0ibeYrl0eVSlw",
+        "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+        "role": "assistant",
+        "time": {
+          "created": 1792195288688,
+          "completed": 1792195288817
+        },
+        "parentID": "msg_14729ddec001Chyi5tL5lhc5jQ",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "general",
+        "agent": "general",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop"
+      },
+      "parts": [
+        {
+          "id": "prt_14729de9f001uAK5WNi9aN5NNf",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729de70001O0ibeYrl0eVSlw",
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc"
+        },
+        {
+          "id": "prt_14729dea10015WMCsiAhg582Cy",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729de70001O0ibeYrl0eVSlw",
+          "type": "text",
+          "text": "A three-step plan: read input.txt, count the lines, write a short report.",
+          "time": {
+            "start": 1792195288738,
+            "end": 1792195288738
+          }
+        },
+        {
+          "id": "prt_14729dea3001LvJxtygB9WMxKQ",
+          "sessionID": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+          "messageID": "msg_14729de70001O0ibeYrl0eVSlw",
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

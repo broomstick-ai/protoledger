@@ -1,0 +1,235 @@
+{
+  "info": {
+    "id": "ses_eb8c84066ffeJdlXfUdayokmeA",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 12277,
+      "output": 868,
+      "reasoning": 114,
+      "cache": {
+        "read": 2681,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1792196198503,
+      "updated": 1792196350740,
+      "idle": 1792196350743
+    },
+    "title": "Create notes/out.txt with done",
+    "location": {
+      "directory": "/home/user/project-a"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_14737c06b001RvQhEWrUX8nPfb",
+      "time": {
+        "created": 1792196198588
+      },
+      "text": "\"Create the file notes/out.txt containing exactly the word done (followed by a newline). Then reply ok.\"",
+      "files": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_14737c0c6001KQsdqNdoo1jSzv",
+      "time": {
+        "created": 1792196198604,
+        "streamed": 1792196235604,
+        "completed": 1792196237221
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user asks: Create the file notes/out.txt containing exactly the word done (followed by a newline). Then reply ok.\n\nLet me just do it. First check if notes directory exists. Simple: use shell or write tool.\n\nThe write tool: writes content. Can I include a trailing newline? Probably yes, content \"done\\n\".\n\nThen reply ok.",
+          "state": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1792196229125,
+            "completed": 1792196235588
+          }
+        },
+        {
+          "type": "tool",
+          "id": "call_d817a27f6c7a412da849e2f3",
+          "name": "write",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "content": "done\n",
+              "path": "notes/out.txt"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Created file successfully: notes/out.txt"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1792196234932,
+            "ran": 1792196235596,
+            "completed": 1792196235622
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+        "files": [
+          "notes/out.txt"
+        ]
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 3344,
+        "output": 93,
+        "reasoning": 0,
+        "cache": {
+          "read": 1664,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1473857b40017oW8EcqK56Nihp",
+      "time": {
+        "created": 1792196237243,
+        "streamed": 1792196284256,
+        "completed": 1792196284322
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Verify content? Could just reply ok. Maybe quickly check the file content to be safe, but the write succeeded. The task says \"exactly the word done (followed by a newline)\". The write tool content \"done\\n\" should have that. Let me verify quickly with shell? That might be overkill but safe. Actually, let me just check to be certain.",
+          "state": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1792196277041,
+            "completed": 1792196284253
+          }
+        },
+        {
+          "type": "tool",
+          "id": "call_6d6343163103483aa4b1b2b5",
+          "name": "shell",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "od -c notes/out.txt"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "0000000    d   o   n   e  \\n                                            \n0000005\n"
+              }
+            ],
+            "metadata": {
+              "status": "completed",
+              "truncated": false,
+              "exit": 0
+            }
+          },
+          "time": {
+            "created": 1792196283677,
+            "ran": 1792196284255,
+            "completed": 1792196284286
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+        "end": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 5111,
+        "output": 90,
+        "reasoning": 0,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_147390fb0001X7jhd1l2dFEBkM",
+      "time": {
+        "created": 1792196284341,
+        "streamed": 1792196350694,
+        "completed": 1792196350740
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "ok"
+        }
+      ],
+      "snapshot": {
+        "start": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+        "end": "3925fff39a8feb5d29d9862a2e4660af6d2eac77",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 3307,
+        "output": 8,
+        "reasoning": 114,
+        "cache": {
+          "read": 1017,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1473a1317001ghq998XtLWvFQT",
+      "time": {
+        "created": 1792196350743
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

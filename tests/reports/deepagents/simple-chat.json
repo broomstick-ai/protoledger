@@ -1,0 +1,30 @@
+{
+  "format": "deepagents",
+  "case": "simple-chat",
+  "variant": "checkpoint-delta",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"sessions.db\"] missing [] extra []; clean: 1 agents, 4 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 4,
+    "codex": 2,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 4; header [header.created_at×1]; extra [settings×1]; changed [settings.body.agent×1, settings.ts×1]",
+    "codex": "score 2; changed [settings.body.agent×1, usage.body.model×1]",
+    "opencode": "clean: 1 agents, 4 events"
+  },
+  "errors": {}
+}

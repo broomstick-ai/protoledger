@@ -1,0 +1,30 @@
+{
+  "format": "openclaw",
+  "case": "tool-calls-thinking",
+  "variant": "session-v3",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 32 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 12,
+    "codex": 26,
+    "opencode": 2
+  },
+  "no_carry_summary": {
+    "claude-code": "score 12; header [header.created_at×1]; missing [settings×1]; changed [settings.ts×1, usage.body.cost_usd×8]",
+    "codex": "score 26; missing [settings×1]; changed [usage.body.cache_write×8, usage.body.cost_usd×8, usage.body.model×8]",
+    "opencode": "score 2; missing [settings×1]"
+  },
+  "errors": {}
+}

@@ -1,0 +1,18 @@
+{
+  "id": "prt_de82178e900150jVB5nAdZkExg",
+  "sessionID": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "messageID": "msg_de82178e8001Ac2xL6AgPh4joh",
+  "type": "file",
+  "mime": "text/plain",
+  "filename": "plan.md",
+  "url": "data:text/plain;base64,IyBQbGFuCgotIFJlYWQgdGhlIGlucHV0LgotIENvdW50IHRoZSBsaW5lcy4K",
+  "source": {
+    "type": "file",
+    "path": "notes/plan.md",
+    "text": {
+      "value": "@notes/plan.md",
+      "start": 0,
+      "end": 14
+    }
+  }
+}

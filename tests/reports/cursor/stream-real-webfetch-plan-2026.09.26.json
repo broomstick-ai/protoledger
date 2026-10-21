@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "stream-real-webfetch-plan-2026.09.26",
+  "variant": "stream-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 6 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 21,
+    "codex": 6,
+    "opencode": 5
+  },
+  "no_carry_summary": {
+    "claude-code": "score 21; missing [tool_call×2, tool_result×2]; extra [tool_call×2, tool_result×2]; changed [settings.body.cwd×1, settings.body.model×1, settings.body.permission_mode×1]",
+    "codex": "score 6; missing [settings×1]; changed [settings.body.model×1, settings.body.permission_mode×1]",
+    "opencode": "score 5; missing [settings×1]; changed [settings.body.permission_mode×1]"
+  },
+  "errors": {}
+}

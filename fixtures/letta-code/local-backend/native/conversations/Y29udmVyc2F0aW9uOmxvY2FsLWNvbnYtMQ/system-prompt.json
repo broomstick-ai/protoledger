@@ -1,0 +1,6 @@
+{
+  "content": "\n\n<memory_metadata>\n- AGENT_ID: agent-local-a7b0cc1b-bc08-4092-b612-fb6f4cf89ee9\n- CONVERSATION_ID: local-conv-1\n- System prompt last recompiled: 2026-10-17 12:44:09 AM UTC+0000\n- 0 previous messages between you and the user are stored in recall memory\n</memory_metadata>",
+  "coreMemory": "<memory_metadata>\n- AGENT_ID: agent-local-a7b0cc1b-bc08-4092-b612-fb6f4cf89ee9\n- CONVERSATION_ID: local-conv-1\n- System prompt last recompiled: 2026-10-17 12:44:09 AM UTC+0000\n- 0 previous messages between you and the user are stored in recall memory\n</memory_metadata>",
+  "compiledAt": "2026-10-17T00:44:09.877Z",
+  "rawSystemHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

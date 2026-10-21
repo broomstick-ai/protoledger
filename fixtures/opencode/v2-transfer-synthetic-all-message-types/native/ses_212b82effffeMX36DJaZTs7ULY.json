@@ -1,0 +1,377 @@
+{
+  "info": {
+    "id": "ses_212b82effffeMX36DJaZTs7ULY",
+    "projectID": "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750",
+    "agent": "build",
+    "model": {
+      "id": "gpt-5.5",
+      "providerID": "openai",
+      "variant": "high"
+    },
+    "cost": 0.0295,
+    "tokens": {
+      "input": 11800,
+      "output": 640,
+      "reasoning": 128,
+      "cache": {
+        "read": 1024,
+        "write": 0
+      }
+    },
+    "outcome": "interrupted",
+    "time": {
+      "created": 1777802400000,
+      "updated": 1777802460000,
+      "idle": 1777802460000
+    },
+    "title": "Count plan lines and run tests",
+    "location": {
+      "directory": "/home/user/project-a"
+    },
+    "metadata": {
+      "ci": {
+        "job": 42
+      }
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_ded47d164001GR5IGR3G28ntUZ",
+      "time": {
+        "created": 1777802400100
+      },
+      "type": "model-switched",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      }
+    },
+    {
+      "id": "msg_ded47d1c80010ZkM0vRCpDHdcd",
+      "time": {
+        "created": 1777802400200
+      },
+      "type": "agent-switched",
+      "agent": "build"
+    },
+    {
+      "id": "msg_ded47d22c001k1i3jIyedoxvrg",
+      "time": {
+        "created": 1777802400300
+      },
+      "type": "system",
+      "text": "You are running in /home/user/project-a. Today is 2026-05-03.",
+      "description": "Environment"
+    },
+    {
+      "id": "msg_ded47d290001Om0r5sMDCJEN1r",
+      "time": {
+        "created": 1777802400400
+      },
+      "type": "skill",
+      "skill": "skill_counting",
+      "name": "counting",
+      "text": "<skill name=\"counting\">Count lines with wc -l.</skill>"
+    },
+    {
+      "id": "msg_ded47d4e80011x1z5T5oMJWrPs",
+      "time": {
+        "created": 1777802401000
+      },
+      "text": "Count the lines of @notes/plan.md with a subagent, then run the tests.",
+      "files": [
+        {
+          "data": "IyBQbGFuCgotIFJlYWQgdGhlIGlucHV0LgotIENvdW50IHRoZSBsaW5lcy4K",
+          "mime": "text/plain",
+          "source": {
+            "type": "uri",
+            "uri": "file:///home/user/project-a/notes/plan.md"
+          },
+          "name": "plan.md",
+          "mention": {
+            "start": 20,
+            "end": 34,
+            "text": "@notes/plan.md"
+          }
+        }
+      ],
+      "agents": [
+        {
+          "name": "general"
+        }
+      ],
+      "type": "user"
+    },
+    {
+      "id": "msg_ded47d54c001blGEsGnGQ5WBo6",
+      "time": {
+        "created": 1777802401100
+      },
+      "text": "Called the read tool with {\"path\":\"notes/plan.md\"}",
+      "description": "Attached file",
+      "type": "synthetic"
+    },
+    {
+      "id": "msg_ded47d8d0001JAj9Z9wBu7h16h",
+      "time": {
+        "created": 1777802402000,
+        "streamed": 1777802429000,
+        "completed": 1777802429500
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Delegate the count, then run tests.",
+          "state": {
+            "openai": {
+              "itemId": "rs_synthetic",
+              "reasoningEncryptedContent": "gAAAAsynthetic"
+            }
+          },
+          "time": {
+            "created": 1777802402100,
+            "completed": 1777802402600
+          }
+        },
+        {
+          "type": "tool",
+          "id": "call_synthSubagent",
+          "name": "subagent",
+          "executed": true,
+          "state": {
+            "status": "completed",
+            "input": {
+              "agent": "general",
+              "description": "Count plan lines",
+              "prompt": "Count the lines in notes/plan.md."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "<subagent sessionID=\"ses_212b7e0dfffeuUt2gV0HQWrKfb\" state=\"completed\">\n4 lines\n</subagent>"
+              }
+            ],
+            "metadata": {
+              "sessionID": "ses_212b7e0dfffeuUt2gV0HQWrKfb",
+              "status": "completed"
+            }
+          },
+          "time": {
+            "created": 1777802403000,
+            "ran": 1777802403100,
+            "completed": 1777802428000
+          }
+        },
+        {
+          "type": "text",
+          "text": "The subagent counted 4 lines."
+        }
+      ],
+      "snapshot": {
+        "start": "snap_start_1",
+        "end": "snap_end_1",
+        "files": [
+          "notes/plan.md"
+        ]
+      },
+      "finish": "stop",
+      "cost": 0.0215,
+      "tokens": {
+        "input": 3200,
+        "output": 260,
+        "reasoning": 128,
+        "cache": {
+          "read": 1024,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_ded484630001kj2ccteV2n2KFT",
+      "time": {
+        "created": 1777802430000,
+        "completed": 1777802431000
+      },
+      "type": "shell",
+      "shellID": "sh_synthetic01",
+      "command": "npm test",
+      "status": "exited",
+      "exit": 7,
+      "output": {
+        "output": "1 failing\n",
+        "cursor": 10,
+        "size": 10,
+        "truncated": false
+      }
+    },
+    {
+      "id": "msg_ded484e00001a1RqQU6oxL4px3",
+      "time": {
+        "created": 1777802432000,
+        "completed": 1777802436000
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "call_synthPatch",
+          "name": "patch",
+          "state": {
+            "status": "error",
+            "input": {
+              "patch": "*** Begin Patch\n*** End Patch"
+            },
+            "error": {
+              "type": "tool.execution",
+              "message": "patch did not apply"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "patch did not apply"
+              }
+            ]
+          },
+          "time": {
+            "created": 1777802433000,
+            "ran": 1777802433010,
+            "completed": 1777802433050
+          }
+        },
+        {
+          "type": "tool",
+          "id": "call_synthImage",
+          "name": "read",
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "plot.png"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Image read successfully"
+              },
+              {
+                "type": "file",
+                "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+                "mime": "image/png",
+                "name": "plot.png"
+              }
+            ]
+          },
+          "time": {
+            "created": 1777802434000,
+            "completed": 1777802434100
+          }
+        }
+      ],
+      "finish": "error",
+      "cost": 0.004,
+      "tokens": {
+        "input": 3600,
+        "output": 80,
+        "reasoning": 0,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      },
+      "error": {
+        "type": "provider.error",
+        "message": "Upstream timeout",
+        "status": 504
+      }
+    },
+    {
+      "id": "msg_ded486188001OZ23DjbTt2SLeI",
+      "time": {
+        "created": 1777802437000
+      },
+      "type": "idle",
+      "outcome": "failed",
+      "error": {
+        "type": "provider.error",
+        "message": "Upstream timeout",
+        "status": 504
+      }
+    },
+    {
+      "id": "msg_ded486d400016M9fjeIyRvZtnA",
+      "time": {
+        "created": 1777802440000
+      },
+      "type": "location-switched",
+      "location": {
+        "directory": "/home/user/project-a/notes"
+      },
+      "subpath": "notes",
+      "previous": {
+        "location": {
+          "directory": "/home/user/project-a"
+        }
+      }
+    },
+    {
+      "type": "compaction",
+      "id": "msg_ded487128001mmA6i9GKnbhEjm",
+      "time": {
+        "created": 1777802441000
+      },
+      "status": "completed",
+      "reason": "auto",
+      "model": {
+        "id": "gpt-5.5",
+        "providerID": "openai",
+        "variant": "high"
+      },
+      "summary": "## Goal\nCount lines in notes/plan.md and run tests.\n## Progress\n- 4 lines; tests fail (exit 7).",
+      "recent": "[User]: Count the lines\n\n[Assistant]: The subagent counted 4 lines.",
+      "cost": 0.002,
+      "tokens": {
+        "input": 5000,
+        "output": 300,
+        "reasoning": 0,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      }
+    },
+    {
+      "type": "compaction",
+      "id": "msg_ded489450001aCiyVTCn8Z4b96",
+      "time": {
+        "created": 1777802450000
+      },
+      "status": "failed",
+      "reason": "manual",
+      "error": {
+        "type": "provider.invalid-request",
+        "message": "Context too long"
+      }
+    },
+    {
+      "id": "msg_ded48bb60001RMrbLFbj912XyU",
+      "time": {
+        "created": 1777802460000
+      },
+      "type": "idle",
+      "outcome": "interrupted"
+    }
+  ]
+}

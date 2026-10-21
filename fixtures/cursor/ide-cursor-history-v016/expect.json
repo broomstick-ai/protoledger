@@ -1,0 +1,1 @@
+{"self_exact": false, "self_reason": "export writes a fresh state.vscdb holding the composers' rows: every row comes back with its key, storage class and bytes (unit test ide_fixtures_self_trip_row_identical), but a user's state.vscdb is not kept whole (it holds the IDE's UI state and other data), so the table schema and SQLite page bytes differ", "requires_features": ["sqlite"]}

@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "ide-synthetic-inline-and-tools",
+  "variant": "ide-state-vscdb",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"state.vscdb\"] missing [] extra []; clean: 2 agents, 15 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 5,
+    "codex": 13,
+    "opencode": 4
+  },
+  "no_carry_summary": {
+    "claude-code": "score 5; missing [settings×1]; extra [settings×1]; changed [reasoning.body.sealed×1]",
+    "codex": "score 13; missing [settings×2, title×2]; extra [title×2]; changed [reasoning.body.sealed×1, settings.body.model×1, tool_result.body.is_error×1]",
+    "opencode": "score 4; missing [settings×1]; extra [settings×1]; changed [reasoning.body.sealed×1]"
+  },
+  "errors": {}
+}

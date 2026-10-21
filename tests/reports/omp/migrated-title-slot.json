@@ -1,0 +1,30 @@
+{
+  "format": "omp",
+  "case": "migrated-title-slot",
+  "variant": "title-slot",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 88 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 50,
+    "codex": 44,
+    "opencode": 27
+  },
+  "no_carry_summary": {
+    "claude-code": "score 50; header [header.created_at×1]; missing [file_change×4, settings×1, turn×1]; extra [settings×1]; changed [error.body.kind×1, error.group×1, settings.body.effort×1, settings.body.model×1, settings.body.provider×1, settings.ts×1, tool_call.body.tool_type×5, usage.body.cost_usd×14]",
+    "codex": "score 44; missing [error×1, settings×1]; changed [settings.body.effort×1, settings.body.model×1, settings.body.provider×1, tool_call.body.tool_type×5, turn.body.reason×1, turn.group×1, usage.body.cost_usd×14, usage.body.model×14]",
+    "opencode": "score 27; missing [file_change×4, settings×1]; changed [tool_call.body.tool_type×5, turn.body.outcome×1, turn.body.reason×1, turn.group×1]"
+  },
+  "errors": {}
+}

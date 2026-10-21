@@ -1,0 +1,18 @@
+{"protoledger":"0.1","agent":{"id":"thread-1","created_at":"2026-05-01T10:00:00Z","meta":{"example.app":{"x":1}}}}
+{"id":"s1","seq":1,"ts":"2026-05-01T10:00:00Z","kind":"settings","body":{"model":"claude-opus","cwd":"/home/user/project","permission_mode":"default"}}
+{"id":"t0","seq":2,"ts":"2026-05-01T10:00:00Z","kind":"text","body":{"role":"system","text":"You are helpful."}}
+{"id":"u1","seq":3,"ts":"2026-05-01T10:00:01Z","kind":"text","turn":"T1","group":"U1","body":{"role":"user","text":"List files then read a.txt"}}
+{"id":"u1#1","seq":4,"ts":"2026-05-01T10:00:01Z","kind":"media","turn":"T1","group":"U1","body":{"role":"user","media_type":"image/png","data":"iVBORw0KGgo="}}
+{"id":"r1","seq":5,"ts":"2026-05-01T10:00:02Z","kind":"reasoning","turn":"T1","group":"A1","body":{"text":"Plan the listing","summary":["Plan"],"sealed":{"vendor":"anthropic","kind":"signature","data":"abc"}}}
+{"id":"a1","seq":6,"ts":"2026-05-01T10:00:02Z","kind":"text","turn":"T1","group":"A1","body":{"role":"assistant","text":"Let me look."}}
+{"id":"c1","seq":7,"ts":"2026-05-01T10:00:02Z","kind":"tool_call","turn":"T1","group":"A1","body":{"call_id":"toolu_1","name":"Bash","input":{"command":"ls"}}}
+{"id":"c2","seq":8,"ts":"2026-05-01T10:00:02Z","kind":"tool_call","turn":"T1","group":"A1","body":{"call_id":"toolu_2","name":"Read","input":{"file_path":"a.txt"}}}
+{"id":"g1","seq":9,"ts":"2026-05-01T10:00:02Z","kind":"usage","turn":"T1","group":"A1","body":{"model":"claude-opus","input":100,"output":20,"cache_read":50,"cache_write":10}}
+{"id":"x1","seq":10,"ts":"2026-05-01T10:00:03Z","kind":"tool_result","turn":"T1","body":{"call_id":"toolu_1","output":"a.txt\nb.txt"}}
+{"id":"x2","seq":11,"ts":"2026-05-01T10:00:03Z","kind":"tool_result","turn":"T1","body":{"call_id":"toolu_2","output":"no such file","is_error":true}}
+{"id":"a2","seq":12,"ts":"2026-05-01T10:00:04Z","kind":"text","turn":"T1","group":"A2","body":{"role":"assistant","text":"a.txt is missing."}}
+{"id":"e1","seq":13,"ts":"2026-05-01T10:00:04Z","kind":"turn","turn":"T1","body":{"phase":"end","outcome":"ok"}}
+{"id":"ti","seq":14,"ts":"2026-05-01T10:00:05Z","kind":"title","body":{"text":"List files"}}
+{"id":"k1","seq":15,"ts":"2026-05-01T10:00:06Z","kind":"compaction","body":{"phase":"summary","trigger":"auto","summary":"We listed files."}}
+{"id":"u2","seq":16,"ts":"2026-05-01T10:00:07Z","kind":"text","turn":"T2","group":"U2","body":{"role":"user","text":"Thanks"}}
+{"id":"er","seq":17,"ts":"2026-05-01T10:00:08Z","kind":"error","body":{"kind":"api","message":"overloaded","retryable":true}}

@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "flat-agent-sessions-small",
+  "variant": "flat-jsonl",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 78 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 114,
+    "codex": 104,
+    "opencode": 93
+  },
+  "no_carry_summary": {
+    "claude-code": "score 114; header [header.created_at×1]; missing [media×1, reasoning×1, settings×5, subagent×2, text×1, tool_call×6, tool_result×3, turn×3, usage×4]; extra [settings×2, text×1, tool_call×6, tool_result×2]; changed [error.body.kind×1, error.body.status×1, reasoning.body.text×1, settings.body.model×1, settings.ts×1, text.turn×1, tool_call.body.input×1, tool_call.turn×1, usage.turn×1]",
+    "codex": "score 104; missing [error×1, media×1, reasoning×1, settings×6, subagent×2, text×1, tool_result×1, usage×1]; changed [compaction.body.tokens_after×1, compaction.body.tokens_before×1, compaction.body.trigger×1, compaction.ts×1, compaction.turn×1, reasoning.body.redacted×1, reasoning.body.sealed×2, reasoning.body.text×1, reasoning.group-split×2, reasoning.ts×3, settings.body.model×1, settings.ts×1, text.group-split×4, text.ts×14, tool_call.ts×6, tool_result.body.is_error×2, tool_result.ts×2, turn.body.reason×1, turn.ts×1, usage.body.model×3, usage.ts×3]",
+    "opencode": "score 93; missing [compaction×1, media×1, settings×3, subagent×2, text×1, tool_result×1, turn×1, usage×1]; changed [reasoning.body.redacted×2, reasoning.body.sealed×1, reasoning.group-split×2, reasoning.ts×4, settings.body.cwd×1, settings.body.git_branch×2, settings.body.model×1, settings.ts×4, text.group-split×4, text.ts×14, tool_call.body.input×1, tool_call.ts×6, tool_result.ts×2, turn.body.outcome×1, turn.body.reason×1, turn.ts×1, usage.ts×3]"
+  },
+  "errors": {}
+}

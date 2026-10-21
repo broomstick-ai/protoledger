@@ -1,0 +1,13 @@
+{
+  "id": "msg_de8221140001V1M0xrxPnHAuxY",
+  "sessionID": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "role": "user",
+  "time": {
+    "created": 1777716040000
+  },
+  "agent": "plan",
+  "model": {
+    "providerID": "anthropic",
+    "modelID": "claude-haiku-4-5"
+  }
+}

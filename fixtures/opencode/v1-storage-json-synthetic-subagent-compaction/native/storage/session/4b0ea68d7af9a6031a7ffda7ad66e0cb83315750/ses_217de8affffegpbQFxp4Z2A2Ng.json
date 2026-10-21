@@ -1,0 +1,15 @@
+{
+  "id": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "version": "1.1.8",
+  "projectID": "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750",
+  "directory": "/home/user/project-a",
+  "title": "Summarise the plan and fix a typo",
+  "time": {
+    "created": 1777716000000,
+    "updated": 1777716060000
+  },
+  "summary": {
+    "additions": 1,
+    "deletions": 1
+  }
+}

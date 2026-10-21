@@ -1,0 +1,33 @@
+{
+  "format": "letta-code",
+  "case": "cleanup",
+  "variant": "transcript",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 8 events",
+  "import_losses": [
+    "malformed-line ×1",
+    "row-native-only ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 2,
+    "codex": 5,
+    "opencode": 3
+  },
+  "no_carry_summary": {
+    "claude-code": "score 2; changed [error.body.kind×1, tool_call.body.tool_type×1]",
+    "codex": "score 5; missing [error×1]; changed [tool_call.body.tool_type×1, tool_result.body.is_error×1]",
+    "opencode": "score 3; extra [settings×1]; changed [text.ts×1, tool_call.body.tool_type×1]"
+  },
+  "errors": {}
+}

@@ -1,0 +1,47 @@
+[
+    {
+        "id": "C0GENERAL",
+        "name": "general",
+        "created": 1713900000,
+        "creator": "U0ALICE",
+        "is_archived": false,
+        "is_general": true,
+        "members": [
+            "U0ALICE",
+            "U0BOB"
+        ],
+        "topic": {
+            "value": "",
+            "creator": "",
+            "last_set": 0
+        },
+        "purpose": {
+            "value": "Everything",
+            "creator": "U0ALICE",
+            "last_set": 1713900000
+        }
+    },
+    {
+        "id": "C0BUILDS",
+        "name": "builds",
+        "created": 1713900100,
+        "creator": "U0BOB",
+        "is_archived": false,
+        "is_general": false,
+        "members": [
+            "U0ALICE",
+            "U0BOB",
+            "U0AGENTAPP"
+        ],
+        "topic": {
+            "value": "CI",
+            "creator": "U0BOB",
+            "last_set": 1713900100
+        },
+        "purpose": {
+            "value": "",
+            "creator": "",
+            "last_set": 0
+        }
+    }
+]

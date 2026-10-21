@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "dir-real-vscode-0.54-e946202d",
+  "variant": "session-dir",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 58 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 61,
+    "codex": 3,
+    "opencode": 38
+  },
+  "no_carry_summary": {
+    "claude-code": "score 61; header [header.created_at×1]; missing [turn×21]; changed [text.turn×1, tool_call.body.input×6, tool_call.turn×1]",
+    "codex": "score 3; changed [tool_result.body.is_error×1, tool_result.turn×2]",
+    "opencode": "score 38; missing [turn×14]; extra [settings×1]; changed [tool_call.body.input×6]"
+  },
+  "errors": {}
+}

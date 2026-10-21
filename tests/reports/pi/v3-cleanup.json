@@ -1,0 +1,32 @@
+{
+  "format": "pi",
+  "case": "v3-cleanup",
+  "variant": "v3",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 12 events",
+  "import_losses": [
+    "malformed-line ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 10,
+    "codex": 9,
+    "opencode": 6
+  },
+  "no_carry_summary": {
+    "claude-code": "score 10; header [header.created_at×1, header.parent×1]; missing [settings×1]; extra [settings×2]; changed [media.group×1, text.group×1, title.ts×1, usage.body.cost_usd×1]",
+    "codex": "score 9; header [header.parent×1]; missing [tool_result×1]; extra [settings×1]; changed [tool_result.body.is_error×1, usage.body.cache_write×1, usage.body.cost_usd×1, usage.body.model×1]",
+    "opencode": "score 6; header [header.parent×1]; missing [tool_result×1]; extra [settings×1]; changed [title.ts×1]"
+  },
+  "errors": {}
+}

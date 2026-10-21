@@ -1,0 +1,30 @@
+{
+  "format": "pi",
+  "case": "v2-hook-message",
+  "variant": "v2",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 18 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 38,
+    "codex": 23,
+    "opencode": 10
+  },
+  "no_carry_summary": {
+    "claude-code": "score 38; header [header.created_at×1]; missing [reasoning×1, settings×2, tool_call×2, tool_result×2]; extra [settings×1, tool_call×2, tool_result×2]; changed [compaction.body.preserved×1, compaction.body.tokens_before×1, settings.ts×1, usage.body.cost_usd×4]",
+    "codex": "score 23; missing [settings×2]; changed [compaction.body.preserved×1, compaction.body.tokens_before×1, reasoning.body.text×1, tool_call.body.tool_type×2, tool_result.body.is_error×1, usage.body.cache_write×4, usage.body.cost_usd×4, usage.body.model×4]",
+    "opencode": "score 10; missing [settings×2]; changed [compaction.body.preserved×1, compaction.body.tokens_before×1, reasoning.body.sealed×1, tool_call.body.tool_type×2]"
+  },
+  "errors": {}
+}

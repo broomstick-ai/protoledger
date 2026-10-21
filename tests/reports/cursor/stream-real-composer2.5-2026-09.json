@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "stream-real-composer2.5-2026-09",
+  "variant": "stream-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 40 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 26,
+    "codex": 27,
+    "opencode": 26
+  },
+  "no_carry_summary": {
+    "claude-code": "score 26; missing [file_change×2, subagent×2]; extra [settings×1]; changed [settings.body.model×1, tool_call.body.tool_type×1, turn.body.outcome×1]",
+    "codex": "score 27; missing [file_change×2, subagent×2]; changed [settings.body.model×1, settings.body.permission_mode×1, tool_call.body.tool_type×1, tool_call.group-split×1, usage.body.cache_write×1]",
+    "opencode": "score 26; missing [file_change×2, subagent×2]; changed [settings.body.permission_mode×1, tool_call.body.tool_type×1, tool_call.group-split×1, turn.body.duration_ms×1]"
+  },
+  "errors": {}
+}

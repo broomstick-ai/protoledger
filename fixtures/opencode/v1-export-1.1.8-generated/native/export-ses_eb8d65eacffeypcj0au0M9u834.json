@@ -1,0 +1,202 @@
+{
+  "info": {
+    "id": "ses_eb8d65eacffeypcj0au0M9u834",
+    "version": "1.1.8",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Failing shell command",
+    "time": {
+      "created": 1792195273043,
+      "updated": 1792195273274
+    },
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "id": "msg_14729a15c001Yq7j4tfdFF8RkN",
+        "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+        "role": "user",
+        "time": {
+          "created": 1792195273052
+        },
+        "summary": {
+          "title": "Failing shell command",
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_14729a15d001hbNqBuoBb0MNdt",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a15c001Yq7j4tfdFF8RkN",
+          "type": "text",
+          "text": "\"Use the bash tool to run exactly `printf 'x\\n'; exit 7` and report the exit code.\"\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_14729a18a001MhNvSChtJcIou5",
+        "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+        "role": "assistant",
+        "time": {
+          "created": 1792195273098,
+          "completed": 1792195273246
+        },
+        "parentID": "msg_14729a15c001Yq7j4tfdFF8RkN",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls"
+      },
+      "parts": [
+        {
+          "id": "prt_14729a1d00011QEbX3HUsppJa9",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a18a001MhNvSChtJcIou5",
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc"
+        },
+        {
+          "id": "prt_14729a1d0002JA9aeV7mSZSmLJ",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a18a001MhNvSChtJcIou5",
+          "type": "tool",
+          "callID": "call_fixture_10",
+          "tool": "bash",
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "printf 'x\\n'; exit 7",
+              "description": "Run command that exits with code 7"
+            },
+            "output": "x\n",
+            "title": "Run command that exits with code 7",
+            "metadata": {
+              "output": "x\n",
+              "exit": 7,
+              "description": "Run command that exits with code 7",
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195273169,
+              "end": 1792195273170
+            }
+          }
+        },
+        {
+          "id": "prt_14729a1d3001Mq8KK8IosBhMym",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a18a001MhNvSChtJcIou5",
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_14729a222001XBgiVoeAX3nTLb",
+        "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+        "role": "assistant",
+        "time": {
+          "created": 1792195273250,
+          "completed": 1792195273401
+        },
+        "parentID": "msg_14729a15c001Yq7j4tfdFF8RkN",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop"
+      },
+      "parts": [
+        {
+          "id": "prt_14729a258001CluUa90lsqXYi3",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a222001XBgiVoeAX3nTLb",
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc"
+        },
+        {
+          "id": "prt_14729a259001oNSPmyeSoCmFAa",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a222001XBgiVoeAX3nTLb",
+          "type": "text",
+          "text": "The command printed `x` and exited with code 7.",
+          "time": {
+            "start": 1792195273321,
+            "end": 1792195273321
+          }
+        },
+        {
+          "id": "prt_14729a26d001hfp0NonnzB4XgK",
+          "sessionID": "ses_eb8d65eacffeypcj0au0M9u834",
+          "messageID": "msg_14729a222001XBgiVoeAX3nTLb",
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

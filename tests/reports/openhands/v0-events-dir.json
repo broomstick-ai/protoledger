@@ -1,0 +1,32 @@
+{
+  "format": "openhands",
+  "case": "v0-events-dir",
+  "variant": "v0-events",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 27 events",
+  "import_losses": [
+    "record-native-only ×6"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 28,
+    "codex": 13,
+    "opencode": 20
+  },
+  "no_carry_summary": {
+    "claude-code": "score 28; header [header.created_at×1]; missing [file_change×2, settings×1, turn×2, usage×1]; extra [settings×1]; changed [title.ts×1, tool_call.body.tool_type×2]",
+    "codex": "score 13; missing [settings×1, usage×1]; changed [tool_call.body.tool_type×2, tool_result.body.is_error×1, turn.body.reason×2]",
+    "opencode": "score 20; missing [file_change×2, turn×1, usage×1]; changed [tool_call.body.tool_type×2, turn.body.reason×1]"
+  },
+  "errors": {}
+}

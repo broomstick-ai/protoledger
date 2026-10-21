@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.7-strands-tool-definitions",
+  "variant": "ATIF-v1.7",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 11 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 12,
+    "codex": 8,
+    "opencode": 3
+  },
+  "no_carry_summary": {
+    "claude-code": "score 12; missing [settings×1, usage×1]; extra [settings×1]; changed [tool_result.body.status×2]",
+    "codex": "score 8; missing [settings×1]; changed [tool_result.body.status×2, usage.body.model×3]",
+    "opencode": "score 3; changed [settings.body.tools×1, tool_result.body.status×2]"
+  },
+  "errors": {}
+}

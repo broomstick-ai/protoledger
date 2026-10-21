@@ -1,0 +1,21 @@
+{
+  "agent:kiloclaw:main": {
+    "sessionId": "7390e73a-b423-49cc-99c1-95b2028e552e",
+    "updatedAt": 1772703735359,
+    "chatType": "direct",
+    "sessionFile": "/root/.openclaw/agents/kiloclaw/sessions/7390e73a-b423-49cc-99c1-95b2028e552e.jsonl",
+    "compactionCount": 0,
+    "modelProvider": "openclaw",
+    "model": "delivery-mirror"
+  },
+  "agent:kiloclaw:telegram:group:-10000000004:topic:1": {
+    "sessionId": "5bea5721-547d-4d18-9924-738b7316ea30",
+    "updatedAt": 1772713110400,
+    "chatType": "group",
+    "sessionFile": "/root/.openclaw/agents/kiloclaw/sessions/5bea5721-547d-4d18-9924-738b7316ea30-topic-1.jsonl",
+    "compactionCount": 0,
+    "modelProvider": "openrouter",
+    "model": "minimax/minimax-m2.5:free",
+    "displayName": "topic 1"
+  }
+}

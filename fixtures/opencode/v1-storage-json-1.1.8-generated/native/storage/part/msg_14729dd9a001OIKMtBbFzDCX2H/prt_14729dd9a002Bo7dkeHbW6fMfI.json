@@ -1,0 +1,7 @@
+{
+  "id": "prt_14729dd9a002Bo7dkeHbW6fMfI",
+  "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+  "messageID": "msg_14729dd9a001OIKMtBbFzDCX2H",
+  "type": "text",
+  "text": "\"Use the task tool (or subagent tool) to launch a general subagent that reads notes/plan.md and summarizes it in one line, then report the summary.\"\n"
+}

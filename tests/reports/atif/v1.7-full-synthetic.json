@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.7-full-synthetic",
+  "variant": "ATIF-v1.7",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 31 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 23,
+    "codex": 28,
+    "opencode": 17
+  },
+  "no_carry_summary": {
+    "claude-code": "score 23; missing [settings×2, usage×2]; extra [settings×1]; changed [media.body.name×1, settings.body.effort×1, subagent.body.agent×2, usage.body.cost_usd×1]",
+    "codex": "score 28; missing [settings×5, subagent×2]; changed [media.body.name×1, usage.body.cost_usd×2, usage.body.model×5]",
+    "opencode": "score 17; missing [compaction×1, subagent×2, usage×1]; changed [settings.body.tools×1]"
+  },
+  "errors": {}
+}

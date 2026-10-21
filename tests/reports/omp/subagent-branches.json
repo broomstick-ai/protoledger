@@ -1,0 +1,32 @@
+{
+  "format": "omp",
+  "case": "subagent-branches",
+  "variant": "title-slot",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 3 agents, 38 events",
+  "import_losses": [
+    "record-native-only ×3"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 50,
+    "codex": 54,
+    "opencode": 49
+  },
+  "no_carry_summary": {
+    "claude-code": "score 50; header [header.created_at×2, header.parent×1]; missing [settings×4, text×1, usage×1]; extra [settings×3, subagent×1, text×1]; changed [compaction.body.reason×1, settings.ts×2, subagent.body.agent×1, subagent.body.agent_type×1, subagent.body.description×1, subagent.body.outcome×1, subagent.body.result×1, title.ts×1, tool_call.body.tool_type×1, usage.body.cost_usd×7, usage.body.input×1, usage.body.output×1]",
+    "codex": "score 54; header [header.parent×1]; missing [settings×4, subagent×1, title×1]; extra [settings×1, title×1]; changed [compaction.body.reason×1, compaction.body.trigger×1, reasoning.body.sealed×1, tool_call.body.tool_type×1, usage.body.cache_write×8, usage.body.cost_usd×8, usage.body.model×8, usage.body.purpose×1]",
+    "opencode": "score 49; header [header.parent×1]; missing [compaction×1, settings×4, subagent×1, text×1, title×2, usage×1]; extra [settings×1, subagent×1, text×1, title×2]; changed [tool_call.body.tool_type×1, usage.body.input×1, usage.body.model×1, usage.body.output×1]"
+  },
+  "errors": {}
+}

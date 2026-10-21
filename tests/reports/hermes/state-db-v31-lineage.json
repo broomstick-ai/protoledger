@@ -1,0 +1,30 @@
+{
+  "format": "hermes",
+  "case": "state-db-v31-lineage",
+  "variant": "state-db",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"state.db\"] missing [] extra []; clean: 3 agents, 25 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 36,
+    "codex": 19,
+    "opencode": 13
+  },
+  "no_carry_summary": {
+    "claude-code": "score 36; header [header.created_at×3, header.links×2]; missing [settings×1, text×2, usage×1]; extra [settings×4]; changed [compaction.body.trigger×1, settings.body.effort×1, settings.body.model×2, settings.body.system_prompt×1, settings.ts×2]",
+    "codex": "score 19; header [header.links×2]; changed [compaction.body.trigger×1, reasoning.body.sealed×1, settings.body.effort×2, settings.body.model×3, text.audience×2, text.group×1, usage.body.cache_write×1, usage.body.cost_usd×1, usage.body.model×4, usage.body.reasoning×1]",
+    "opencode": "score 13; header [header.links×2]; missing [text×2]; changed [settings.body.system_prompt×2, usage.body.cache_write×1, usage.body.reasoning×1, usage.ts×1]"
+  },
+  "errors": {}
+}

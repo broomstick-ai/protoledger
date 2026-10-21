@@ -1,0 +1,12 @@
+{
+  "id": "ses_217de67d7ffeZFihP4MKsPcXsP",
+  "version": "1.1.8",
+  "projectID": "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750",
+  "directory": "/home/user/project-a",
+  "parentID": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "title": "Summarise plan.md (@general subagent)",
+  "time": {
+    "created": 1777716009000,
+    "updated": 1777716015000
+  }
+}

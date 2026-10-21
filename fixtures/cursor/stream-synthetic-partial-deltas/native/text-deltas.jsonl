@@ -1,0 +1,13 @@
+{"type":"system","subtype":"init","session_id":"ses-text-deltas","model":"Auto"}
+{"type":"thinking","subtype":"delta","text":"UX and inter","session_id":"ses-text-deltas","timestamp_ms":1001}
+{"type":"thinking","subtype":"delta","text":"action","session_id":"ses-text-deltas","timestamp_ms":1002}
+{"type":"thinking","subtype":"delta","text":" ","session_id":"ses-text-deltas","timestamp_ms":1003}
+{"type":"thinking","subtype":"delta","text":"plan · with authored punctuation.\n","session_id":"ses-text-deltas","timestamp_ms":1004}
+{"type":"thinking","subtype":"completed","session_id":"ses-text-deltas","timestamp_ms":1005}
+{"type":"tool_call","subtype":"started","call_id":"read-1","tool_call":{"readToolCall":{"args":{"path":"README.md"}}},"session_id":"ses-text-deltas","timestamp_ms":1006}
+{"type":"tool_call","subtype":"completed","call_id":"read-1","tool_call":{"readToolCall":{"result":{"success":{"text":"fixture"}}}},"session_id":"ses-text-deltas","timestamp_ms":1007}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Final"}]},"session_id":"ses-text-deltas","timestamp_ms":1008}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":" answer."}]},"session_id":"ses-text-deltas","timestamp_ms":1009}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Final answer."}]},"session_id":"ses-text-deltas","model_call_id":"model-call-1","timestamp_ms":1010}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Final answer."}]},"session_id":"ses-text-deltas"}
+{"type":"result","subtype":"success","is_error":false,"result":"Final answer.","session_id":"ses-text-deltas","usage":{"inputTokens":100,"outputTokens":20}}

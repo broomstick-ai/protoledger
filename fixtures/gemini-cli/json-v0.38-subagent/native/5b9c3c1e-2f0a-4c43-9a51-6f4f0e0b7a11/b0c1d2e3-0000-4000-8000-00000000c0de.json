@@ -1,0 +1,38 @@
+{
+  "sessionId": "b0c1d2e3-0000-4000-8000-00000000c0de",
+  "projectHash": "9dad1e4e08b0b11cbcd860257e8bdfa6b8e5f01790e10a6a0b1f4870c13e686b",
+  "startTime": "2026-10-16T23:42:00.709Z",
+  "lastUpdated": "2026-10-16T23:42:00.709Z",
+  "messages": [
+    {
+      "id": "ffffcdc1-5513-4232-842a-f88a4ab8f03f",
+      "timestamp": "2026-10-16T23:42:00.709Z",
+      "type": "user",
+      "content": [
+        {
+          "text": "Find the program entry point."
+        }
+      ]
+    },
+    {
+      "id": "af2b45de-0c95-49b7-8e9d-e0456f4d6b6d",
+      "timestamp": "2026-10-16T23:42:00.709Z",
+      "type": "gemini",
+      "content": "The entry point is src/main.rs.",
+      "thoughts": [],
+      "tokens": {
+        "input": 300,
+        "output": 20,
+        "cached": 0,
+        "thoughts": 0,
+        "tool": 0,
+        "total": 320
+      },
+      "model": "gemini-2.5-flash"
+    }
+  ],
+  "directories": [
+    "/home/user/project"
+  ],
+  "kind": "subagent"
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": "ATIF-v1.4",
+  "session_id": "synthetic-v1-4",
+  "agent": {
+    "name": "rl-agent",
+    "version": "1.1.0",
+    "model_name": "example-model"
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "source": "user",
+      "message": "2+2?"
+    },
+    {
+      "step_id": 2,
+      "source": "agent",
+      "message": "4",
+      "model_name": "example-model-mini",
+      "metrics": {
+        "prompt_tokens": 4,
+        "completion_tokens": 1,
+        "prompt_token_ids": [
+          17,
+          10,
+          17,
+          30
+        ],
+        "completion_token_ids": [
+          19
+        ],
+        "logprobs": [
+          -0.001
+        ]
+      }
+    },
+    {
+      "step_id": 3,
+      "source": "user",
+      "message": "And 3+3?"
+    },
+    {
+      "step_id": 4,
+      "source": "agent",
+      "message": "6",
+      "metrics": {
+        "prompt_tokens": 9,
+        "completion_tokens": 1,
+        "prompt_token_ids": [
+          17,
+          10,
+          17,
+          30,
+          19,
+          18,
+          10,
+          18,
+          30
+        ],
+        "completion_token_ids": [
+          21
+        ]
+      }
+    }
+  ]
+}

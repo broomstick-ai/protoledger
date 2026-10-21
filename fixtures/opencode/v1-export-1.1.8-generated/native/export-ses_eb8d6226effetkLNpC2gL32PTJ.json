@@ -1,0 +1,211 @@
+{
+  "info": {
+    "id": "ses_eb8d6226effetkLNpC2gL32PTJ",
+    "version": "1.1.8",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "directory": "/home/user/project-a",
+    "title": "Subagent plan summary",
+    "time": {
+      "created": 1792195288465,
+      "updated": 1792195288933
+    },
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "id": "msg_14729dd9a001OIKMtBbFzDCX2H",
+        "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+        "role": "user",
+        "time": {
+          "created": 1792195288474
+        },
+        "summary": {
+          "title": "Subagent plan summary",
+          "diffs": []
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "fixture",
+          "modelID": "fixture-model"
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_14729dd9a002Bo7dkeHbW6fMfI",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729dd9a001OIKMtBbFzDCX2H",
+          "type": "text",
+          "text": "\"Use the task tool (or subagent tool) to launch a general subagent that reads notes/plan.md and summarizes it in one line, then report the summary.\"\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_14729ddc8001L9P3dA10DKojJ2",
+        "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+        "role": "assistant",
+        "time": {
+          "created": 1792195288520,
+          "completed": 1792195288906
+        },
+        "parentID": "msg_14729dd9a001OIKMtBbFzDCX2H",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "tool-calls"
+      },
+      "parts": [
+        {
+          "id": "prt_14729de0f001lAy9XyiVNlNs0E",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729ddc8001L9P3dA10DKojJ2",
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc"
+        },
+        {
+          "id": "prt_14729de10001N4xEkLZyS7PqwQ",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729ddc8001L9P3dA10DKojJ2",
+          "type": "tool",
+          "callID": "call_fixture_14",
+          "tool": "task",
+          "state": {
+            "status": "completed",
+            "input": {
+              "description": "Summarize notes/plan.md",
+              "prompt": "Read notes/plan.md and summarize it in one line.",
+              "subagent_type": "general"
+            },
+            "output": "A three-step plan: read input.txt, count the lines, write a short report.\n\n<task_metadata>\nsession_id: ses_eb8d62215ffeMFyurHd6LNaC4g\n</task_metadata>",
+            "title": "Summarize notes/plan.md",
+            "metadata": {
+              "summary": [
+                {
+                  "id": "prt_14729de1b001PEKSp2zL76aIDz",
+                  "tool": "read",
+                  "state": {
+                    "status": "completed",
+                    "title": "notes/plan.md"
+                  }
+                }
+              ],
+              "sessionId": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+              "truncated": false
+            },
+            "time": {
+              "start": 1792195288593,
+              "end": 1792195288824
+            }
+          }
+        },
+        {
+          "id": "prt_14729def9001ONxXkQ0Q2QlnDv",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729ddc8001L9P3dA10DKojJ2",
+          "type": "step-finish",
+          "reason": "tool-calls",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_14729df4d001h7ueU4i16U2HtV",
+        "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+        "role": "assistant",
+        "time": {
+          "created": 1792195288909,
+          "completed": 1792195289084
+        },
+        "parentID": "msg_14729dd9a001OIKMtBbFzDCX2H",
+        "modelID": "fixture-model",
+        "providerID": "fixture",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/project-a",
+          "root": "/home/user/project-a"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 120,
+          "output": 12,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop"
+      },
+      "parts": [
+        {
+          "id": "prt_14729df80001O2RxiUkdi3uDUL",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729df4d001h7ueU4i16U2HtV",
+          "type": "step-start",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc"
+        },
+        {
+          "id": "prt_14729df80002qZ8vtE2RkO6dr9",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729df4d001h7ueU4i16U2HtV",
+          "type": "text",
+          "text": "Summary: a three-step plan to read input.txt, count its lines, and write a short report.",
+          "time": {
+            "start": 1792195288961,
+            "end": 1792195288961
+          }
+        },
+        {
+          "id": "prt_14729df82001qp9665P8fREDR8",
+          "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+          "messageID": "msg_14729df4d001h7ueU4i16U2HtV",
+          "type": "step-finish",
+          "reason": "stop",
+          "snapshot": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+          "cost": 0,
+          "tokens": {
+            "input": 120,
+            "output": 12,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

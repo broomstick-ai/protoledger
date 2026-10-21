@@ -1,0 +1,30 @@
+{
+  "format": "pi",
+  "case": "v1-compaction",
+  "variant": "v1",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 57 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 38,
+    "codex": 51,
+    "opencode": 17
+  },
+  "no_carry_summary": {
+    "claude-code": "score 38; header [header.created_at×1, header.links×1]; missing [turn×2]; extra [settings×1]; changed [compaction.body.tokens_before×1, settings.body.effort×1, settings.body.model×1, settings.body.provider×1, settings.ts×1, tool_call.body.tool_type×9, usage.body.cost_usd×13]",
+    "codex": "score 51; changed [compaction.body.tokens_before×1, reasoning.body.sealed×6, settings.body.effort×1, settings.body.model×1, settings.body.provider×1, tool_call.body.tool_type×9, tool_result.body.is_error×2, turn.body.reason×2, turn.group×2, usage.body.cost_usd×13, usage.body.model×13]",
+    "opencode": "score 17; header [header.links×1]; changed [compaction.body.tokens_before×1, tool_call.body.tool_type×9, turn.body.outcome×2, turn.body.reason×2, turn.group×2]"
+  },
+  "errors": {}
+}

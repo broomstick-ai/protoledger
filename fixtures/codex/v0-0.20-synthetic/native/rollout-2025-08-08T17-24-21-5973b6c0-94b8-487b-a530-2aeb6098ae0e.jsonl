@@ -1,0 +1,9 @@
+{"id":"5973b6c0-94b8-487b-a530-2aeb6098ae0e","timestamp":"2025-08-08T17:24:21.120Z","instructions":"Prefer small, reviewed changes.","git":{"commit_hash":"4f2c1a9","branch":"main","repository_url":"https://example.invalid/demo.git"}}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"<environment_context>\n  <cwd>/home/user/demo</cwd>\n</environment_context>"}]}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"Why does the build fail?"}]}
+{"type":"reasoning","id":"rs_68962c1d","summary":[{"type":"summary_text","text":"**Checking the build script**"}],"encrypted_content":"gAAAAABolsynthetic-ciphertext-placeholder=="}
+{"type":"function_call","id":"fc_68962c1e","name":"shell","arguments":"{\"command\":[\"bash\",\"-lc\",\"cargo build\"]}","call_id":"call_K2hJ9"}
+{"type":"function_call_output","call_id":"call_K2hJ9","output":"{\"output\":\"error[E0425]: cannot find value `x`\\n\",\"metadata\":{\"exit_code\":101,\"duration_seconds\":1.4}}"}
+{"record_type":"state"}
+{"type":"message","id":"msg_68962c20","role":"assistant","content":[{"type":"output_text","text":"`x` is used before it is declared in src/main.rs."}]}

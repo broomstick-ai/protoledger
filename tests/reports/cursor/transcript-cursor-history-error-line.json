@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "transcript-cursor-history-error-line",
+  "variant": "agent-transcript",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 3 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 1,
+    "codex": 3,
+    "opencode": 1
+  },
+  "no_carry_summary": {
+    "claude-code": "score 1; changed [error.body.kind×1]",
+    "codex": "score 3; missing [error×1]",
+    "opencode": "score 1; extra [settings×1]"
+  },
+  "errors": {}
+}

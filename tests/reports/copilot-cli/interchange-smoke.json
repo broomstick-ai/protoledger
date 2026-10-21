@@ -1,0 +1,30 @@
+{
+  "format": "copilot-cli",
+  "case": "interchange-smoke",
+  "variant": "interchange",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 11 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 11,
+    "codex": 9,
+    "opencode": 7
+  },
+  "no_carry_summary": {
+    "claude-code": "score 11; header [header.created_at×1]; missing [media×1, settings×1]; extra [settings×1]; changed [text.group×1]",
+    "codex": "score 9; missing [media×1, settings×1]; changed [text.group×1, tool_result.body.is_error×1]",
+    "opencode": "score 7; missing [media×1]; changed [settings.body.git_branch×1, text.group×1]"
+  },
+  "errors": {}
+}

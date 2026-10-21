@@ -1,0 +1,17 @@
+{
+  "id": "msg_1472ca6b9001mhX0O9NmQ7M4A2",
+  "sessionID": "ses_eb8d6b6c3ffe7PBN5Mvaul4Hw8",
+  "role": "user",
+  "time": {
+    "created": 1792195471033
+  },
+  "summary": {
+    "title": "Fixture session",
+    "diffs": []
+  },
+  "agent": "build",
+  "model": {
+    "providerID": "fixture",
+    "modelID": "fixture-model"
+  }
+}

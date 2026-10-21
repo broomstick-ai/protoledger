@@ -1,0 +1,32 @@
+[
+    {
+        "type": "message",
+        "subtype": "channel_join",
+        "ts": "1713900100.000100",
+        "user": "U0BOB",
+        "text": "<@U0BOB> has joined the channel"
+    },
+    {
+        "type": "message",
+        "text": "<@U0AGENTAPP> why did the nightly fail?",
+        "user": "U0BOB",
+        "ts": "1713960000.000100",
+        "thread_ts": "1713960000.000100",
+        "reply_count": 2,
+        "reply_users": [
+            "U0AGENTAPP",
+            "U0BOB"
+        ],
+        "latest_reply": "1714000000.000300"
+    },
+    {
+        "type": "message",
+        "subtype": "bot_message",
+        "bot_id": "B0AGENT",
+        "username": "build-agent",
+        "text": "A timezone assumption in `test_parse`.",
+        "ts": "1713960060.000200",
+        "thread_ts": "1713960000.000100",
+        "parent_user_id": "U0BOB"
+    }
+]

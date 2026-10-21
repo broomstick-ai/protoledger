@@ -1,0 +1,51 @@
+{
+  "schema_version": "ATIF-v1.2",
+  "session_id": "72c28a4c-5dd1-47b8-ba2c-2fc6549b0bb2",
+  "agent": {
+    "name": "goose",
+    "version": "stable",
+    "model_name": "anthropic/claude-sonnet-4-5"
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "source": "user",
+      "message": "Complete the task."
+    },
+    {
+      "step_id": 2,
+      "source": "agent",
+      "message": "Let me check the directory contents.",
+      "reasoning_content": "I need to list files first.",
+      "tool_calls": [
+        {
+          "tool_call_id": "tool-1",
+          "function_name": "shell",
+          "arguments": {
+            "command": "ls /app"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "tool-1",
+            "content": "file1.txt\nfile2.txt"
+          }
+        ]
+      }
+    },
+    {
+      "step_id": 3,
+      "source": "agent",
+      "message": "Task complete."
+    }
+  ],
+  "final_metrics": {
+    "total_prompt_tokens": 1500,
+    "total_steps": 3,
+    "extra": {
+      "total_tokens": 1500
+    }
+  }
+}

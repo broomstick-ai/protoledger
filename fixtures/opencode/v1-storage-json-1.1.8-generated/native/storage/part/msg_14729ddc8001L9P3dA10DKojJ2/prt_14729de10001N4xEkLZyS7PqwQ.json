@@ -1,0 +1,36 @@
+{
+  "id": "prt_14729de10001N4xEkLZyS7PqwQ",
+  "sessionID": "ses_eb8d6226effetkLNpC2gL32PTJ",
+  "messageID": "msg_14729ddc8001L9P3dA10DKojJ2",
+  "type": "tool",
+  "callID": "call_fixture_14",
+  "tool": "task",
+  "state": {
+    "status": "completed",
+    "input": {
+      "description": "Summarize notes/plan.md",
+      "prompt": "Read notes/plan.md and summarize it in one line.",
+      "subagent_type": "general"
+    },
+    "output": "A three-step plan: read input.txt, count the lines, write a short report.\n\n<task_metadata>\nsession_id: ses_eb8d62215ffeMFyurHd6LNaC4g\n</task_metadata>",
+    "title": "Summarize notes/plan.md",
+    "metadata": {
+      "summary": [
+        {
+          "id": "prt_14729de1b001PEKSp2zL76aIDz",
+          "tool": "read",
+          "state": {
+            "status": "completed",
+            "title": "notes/plan.md"
+          }
+        }
+      ],
+      "sessionId": "ses_eb8d62215ffeMFyurHd6LNaC4g",
+      "truncated": false
+    },
+    "time": {
+      "start": 1792195288593,
+      "end": 1792195288824
+    }
+  }
+}

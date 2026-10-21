@@ -1,0 +1,11 @@
+{
+  "id": "prt_de821abb0001HB0XwgdO7YI0I5",
+  "sessionID": "ses_217de67d7ffeZFihP4MKsPcXsP",
+  "messageID": "msg_de8219a1c001ONBiVPe7CfpggS",
+  "type": "text",
+  "text": "The plan reads the input and counts its lines.",
+  "time": {
+    "start": 1777716014000,
+    "end": 1777716014900
+  }
+}

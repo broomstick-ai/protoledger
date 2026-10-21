@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.6-acp-multi-tool-cycles",
+  "variant": "ATIF-v1.6",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 10 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 10,
+    "codex": 6,
+    "opencode": 6
+  },
+  "no_carry_summary": {
+    "claude-code": "score 10; missing [settings×1, usage×1]; extra [settings×1]; changed [usage.body.cost_usd×1]",
+    "codex": "score 6; missing [settings×1]; changed [usage.body.cost_usd×2, usage.body.model×2]",
+    "opencode": "score 6; missing [usage×1]"
+  },
+  "errors": {}
+}

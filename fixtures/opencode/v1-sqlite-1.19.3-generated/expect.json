@@ -1,0 +1,1 @@
+{"self_exact": false, "self_reason": "an SQLite file cannot be reproduced byte for byte; the re-export has identical schema and every table row for row, the tables outside the session model included (checked by formats::opencode::tests::v1_sqlite_1_19_3_store_self_trips_row_identical)", "requires_features": ["sqlite"]}

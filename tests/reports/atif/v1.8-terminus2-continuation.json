@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.8-terminus2-continuation",
+  "variant": "ATIF-v1.8",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 39 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 53,
+    "codex": 67,
+    "opencode": 52
+  },
+  "no_carry_summary": {
+    "claude-code": "score 53; header [header.links×2]; missing [settings×2, subagent×6, usage×2]; changed [settings.meta.atif×1, text.meta.atif×4, usage.body.cost_usd×7]",
+    "codex": "score 67; header [header.links×2]; missing [settings×4, subagent×6, tool_result×7]; changed [text.meta.atif×4, usage.body.cost_usd×9, usage.body.model×9]",
+    "opencode": "score 52; header [header.links×2]; missing [compaction×1, subagent×6, tool_result×7, usage×1]; changed [settings.meta.atif×1, text.meta.atif×4, usage.body.cache_read×1]"
+  },
+  "errors": {}
+}

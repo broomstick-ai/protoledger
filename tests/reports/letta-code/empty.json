@@ -1,0 +1,30 @@
+{
+  "format": "letta-code",
+  "case": "empty",
+  "variant": "transcript-v0",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 0 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 1
+  },
+  "no_carry_summary": {
+    "claude-code": "clean: 1 agents, 0 events",
+    "codex": "clean: 1 agents, 0 events",
+    "opencode": "score 1; extra [settings×1]"
+  },
+  "errors": {}
+}

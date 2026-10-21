@@ -1,0 +1,30 @@
+{
+  "format": "cursor",
+  "case": "transcript-trajectory-cleanup",
+  "variant": "agent-transcript",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 5 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 0,
+    "codex": 1,
+    "opencode": 1
+  },
+  "no_carry_summary": {
+    "claude-code": "clean: 1 agents, 5 events",
+    "codex": "score 1; changed [tool_result.body.is_error×1]",
+    "opencode": "score 1; extra [settings×1]"
+  },
+  "errors": {}
+}

@@ -1,0 +1,24 @@
+{
+  "id": "prt_147294a38002LWjvh07qM0k5Bx",
+  "sessionID": "ses_eb8d6b6c3ffe7PBN5Mvaul4Hw8",
+  "messageID": "msg_147294a0b001VTLN5V1PhJU2cQ",
+  "type": "tool",
+  "callID": "call_fixture_7",
+  "tool": "glob",
+  "state": {
+    "status": "completed",
+    "input": {
+      "pattern": "**/*"
+    },
+    "output": "/home/user/project-a/.git/opencode\n/home/user/project-a/.git/logs/refs/heads/main\n/home/user/project-a/.git/logs/HEAD\n/home/user/project-a/.git/refs/heads/main\n/home/user/project-a/.git/objects/ce/7d88ec139a55a32161a320d1a37563caf6e269\n/home/user/project-a/.git/COMMIT_EDITMSG\n/home/user/project-a/.git/index\n/home/user/project-a/.git/objects/59/41e240b600fcebf8dd43c705d4e726de3428dc\n/home/user/project-a/.git/objects/1d/f70e0ec353ecea96ff08a11a0afeebb4b3b769\n/home/user/project-a/.git/objects/48/dd792b5c488ca919fd3e2ad629300fd63be5ae\n/home/user/project-a/.git/objects/85/c30401ce288f253613cb07ee32e62128089caa\n/home/user/project-a/.git/HEAD\n/home/user/project-a/.git/config\n/home/user/project-a/.git/hooks/push-to-checkout.sample\n/home/user/project-a/.git/hooks/update.sample\n/home/user/project-a/.git/hooks/pre-push.sample\n/home/user/project-a/.git/hooks/pre-applypatch.sample\n/home/user/project-a/.git/hooks/pre-merge-commit.sample\n/home/user/project-a/.git/hooks/post-update.sample\n/home/user/project-a/.git/hooks/prepare-commit-msg.sample\n/home/user/project-a/.git/hooks/pre-receive.sample\n/home/user/project-a/.git/hooks/fsmonitor-watchman.sample\n/home/user/project-a/.git/hooks/applypatch-msg.sample\n/home/user/project-a/.git/hooks/pre-commit.sample\n/home/user/project-a/.git/hooks/sendemail-validate.sample\n/home/user/project-a/.git/hooks/pre-rebase.sample\n/home/user/project-a/.git/hooks/commit-msg.sample\n/home/user/project-a/.git/description\n/home/user/project-a/.git/info/exclude\n/home/user/project-a/notes/plan.md\n/home/user/project-a/input.txt",
+    "title": "",
+    "metadata": {
+      "count": 31,
+      "truncated": false
+    },
+    "time": {
+      "start": 1792195250745,
+      "end": 1792195263988
+    }
+  }
+}

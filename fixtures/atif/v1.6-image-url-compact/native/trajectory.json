@@ -1,0 +1,1 @@
+{"schema_version": "ATIF-v1.6", "session_id": "test-123", "agent": {"name": "test-agent", "version": "1.0"}, "steps": [{"step_id": 1, "source": "agent", "message": "Here's a remote image", "observation": {"results": [{"content": [{"type": "image", "source": {"media_type": "image/png", "path": "https://example.com/images/screenshot.png"}}]}]}}]}

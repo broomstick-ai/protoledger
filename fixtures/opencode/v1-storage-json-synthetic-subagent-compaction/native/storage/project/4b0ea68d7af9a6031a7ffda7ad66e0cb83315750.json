@@ -1,0 +1,10 @@
+{
+  "id": "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750",
+  "worktree": "/home/user/project-a",
+  "vcs": "git",
+  "time": {
+    "created": 1777715940000,
+    "updated": 1777715940000,
+    "initialized": 1777715941000
+  }
+}

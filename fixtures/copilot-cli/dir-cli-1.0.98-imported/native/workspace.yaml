@@ -1,0 +1,12 @@
+id: 96abc7aa-297d-400b-901c-b9aaa1fd3120
+cwd: /tmp
+repository: example/repo
+host_type: github
+branch: main
+client_name: github/cli
+name: Interchange smoke test
+user_named: true
+summary_count: 0
+fork_count: 0
+created_at: 2026-10-16T10:00:00.000Z
+updated_at: 2026-10-16T23:54:04.205Z

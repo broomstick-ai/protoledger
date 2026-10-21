@@ -1,0 +1,462 @@
+{
+  "info": {
+    "id": "ses_eb8d04a5affen0kcF35RycWqNi",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 12123,
+      "output": 951,
+      "reasoning": 322,
+      "cache": {
+        "read": 21168,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1792195671672,
+      "updated": 1792196134955,
+      "idle": 1792196134957
+    },
+    "title": "Plan.md one-line summary",
+    "location": {
+      "directory": "/home/user/project-a"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_1472fb67d0011VdPR0zE33NRuX",
+      "time": {
+        "created": 1792195671773
+      },
+      "text": "\"Use the task tool (or subagent tool) to launch a general subagent that reads notes/plan.md and summarizes it in one line, then report the summary.\"",
+      "files": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_1472fb6e60011eoMFAFHqCL62p",
+      "time": {
+        "created": 1792195671787,
+        "streamed": 1792195747727,
+        "completed": 1792195747772
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "9a6a963a-7d22-41a9-a6e6-df370fc8e9f5",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "error",
+            "input": {
+              "path": "/home/user/project-a",
+              "file": null,
+              "offset": "null",
+              "limit": "null"
+            },
+            "error": {
+              "type": "tool.execution",
+              "message": "Invalid arguments for tool \"read\":\n- offset: Expected number\n- limit: Expected number\n\nArguments provided:\n{\n  \"path\": \"/home/user/project-a\",\n  \"offset\": \"null\",\n  \"limit\": \"null\"\n}\n\nUpdate the arguments and call the tool again."
+            }
+          },
+          "time": {
+            "created": 1792195747528,
+            "ran": 1792195747722,
+            "completed": 1792195747733
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 4131,
+        "output": 44,
+        "reasoning": 82,
+        "cache": {
+          "read": 123,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14730dfc9001KFY3gBOHMFSA7f",
+      "time": {
+        "created": 1792195747792,
+        "streamed": 1792195770572,
+        "completed": 1792195770611
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "aa1c749c-25ae-4627-b272-ae006049bb43",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "error",
+            "input": {
+              "path": "/home/user/project-a",
+              "offset": "null",
+              "limit": "null"
+            },
+            "error": {
+              "type": "tool.execution",
+              "message": "Invalid arguments for tool \"read\":\n- offset: Expected number\n- limit: Expected number\n\nArguments provided:\n{\n  \"path\": \"/home/user/project-a\",\n  \"offset\": \"null\",\n  \"limit\": \"null\"\n}\n\nUpdate the arguments and call the tool again."
+            }
+          },
+          "time": {
+            "created": 1792195770566,
+            "ran": 1792195770569,
+            "completed": 1792195770575
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 135,
+        "output": 35,
+        "reasoning": 0,
+        "cache": {
+          "read": 4256,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14731390600129sMzoOY3cvnRa",
+      "time": {
+        "created": 1792195770642,
+        "streamed": 1792195771844,
+        "completed": 1792195771877
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "640477ca-3512-4058-a329-25e1004696a7",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "/home/user/project-a"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read directory /home/user/project-a, entries 1-3\n.git/\nnotes/\ninput.txt"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1792195771840,
+            "ran": 1792195771843,
+            "completed": 1792195771848
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 98,
+        "output": 27,
+        "reasoning": 0,
+        "cache": {
+          "read": 4426,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_147313deb001BAYV6HOuZOcHZk",
+      "time": {
+        "created": 1792196073673,
+        "streamed": 1792196075156,
+        "completed": 1792196075185
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "51d4f637-eef6-4686-a82a-ac89b4c223b0",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "/home/user/project-a/notes"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read directory /home/user/project-a/notes, entries 1-1\nplan.md"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1792196075152,
+            "ran": 1792196075155,
+            "completed": 1792196075161
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 3570,
+        "output": 29,
+        "reasoning": 0,
+        "cache": {
+          "read": 1017,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14735deb8001gQbdBG0ZSyBTLM",
+      "time": {
+        "created": 1792196075198,
+        "streamed": 1792196076390,
+        "completed": 1792196076428
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "tool",
+          "id": "eb26032b-ddc0-44f1-9217-58f781f52e5c",
+          "name": "read",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "path": "/home/user/project-a/notes/plan.md"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Read file /home/user/project-a/notes/plan.md, lines 1-5\n1: # Plan\n2: \n3: - Step 1: read input.txt\n4: - Step 2: count the lines\n5: - Step 3: write a short report"
+              }
+            ],
+            "metadata": {
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1792196076386,
+            "ran": 1792196076389,
+            "completed": 1792196076396
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 35,
+        "output": 32,
+        "reasoning": 0,
+        "cache": {
+          "read": 4615,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14735e3950011ZKrknERlhcNxX",
+      "time": {
+        "created": 1792196076444,
+        "streamed": 1792196084311,
+        "completed": 1792196101481
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll launch a general subagent to summarize notes/plan.md in one line.\n"
+        },
+        {
+          "type": "tool",
+          "id": "39b504ae-5657-44df-9326-6cabb9c6b848",
+          "name": "subagent",
+          "executed": false,
+          "state": {
+            "status": "completed",
+            "input": {
+              "agent": "general",
+              "description": "Summarize plan.md in one line",
+              "prompt": "Read notes/plan.md in the current working directory and summarize its contents in exactly one line. Return only that summary line."
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "<subagent sessionID=\"ses_eb8c9fda6ffe8K98POiCUxPxeJ\" state=\"completed\">\nA plan to read input.txt, count its lines, and write a short report.\n</subagent>"
+              }
+            ],
+            "metadata": {
+              "sessionID": "ses_eb8c9fda6ffe8K98POiCUxPxeJ",
+              "status": "completed",
+              "truncated": false
+            }
+          },
+          "time": {
+            "created": 1792196084305,
+            "ran": 1792196084309,
+            "completed": 1792196101456
+          }
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "tool-calls",
+      "rawFinish": "tool_calls",
+      "cost": 0,
+      "tokens": {
+        "input": 75,
+        "output": 77,
+        "reasoning": 240,
+        "cache": {
+          "read": 4683,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_147364572001ODwhNodGZcNHNk",
+      "time": {
+        "created": 1792196101494,
+        "streamed": 1792196134932,
+        "completed": 1792196134955
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The subagent completed. Now report the summary.",
+          "state": {
+            "reasoningField": "reasoning_content"
+          },
+          "time": {
+            "created": 1792196132132,
+            "completed": 1792196134929
+          }
+        },
+        {
+          "type": "text",
+          "text": "The subagent has completed its task. Here's the one-line summary it reported:\n\n**\"The plan is to read input.txt, count its lines, and write a short report.\"**"
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 3935,
+        "output": 50,
+        "reasoning": 0,
+        "cache": {
+          "read": 1664,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_14736c82d001P233K444du9yL8",
+      "time": {
+        "created": 1792196134957
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

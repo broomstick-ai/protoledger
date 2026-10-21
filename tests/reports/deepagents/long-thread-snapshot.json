@@ -1,0 +1,30 @@
+{
+  "format": "deepagents",
+  "case": "long-thread-snapshot",
+  "variant": "checkpoint-delta",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"sessions.db\"] missing [] extra []; clean: 1 agents, 53 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 1,
+    "codex": 1,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 1; changed [settings.body.agent×1]",
+    "codex": "score 1; changed [settings.body.agent×1]",
+    "opencode": "clean: 1 agents, 53 events"
+  },
+  "errors": {}
+}

@@ -1,0 +1,88 @@
+{
+  "info": {
+    "id": "ses_eb8d577daffemT7plHSFKatVSE",
+    "projectID": "ce7d88ec139a55a32161a320d1a37563caf6e269",
+    "model": {
+      "id": "big-pickle",
+      "providerID": "opencode",
+      "variant": "default"
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 4079,
+      "output": 261,
+      "reasoning": 0,
+      "cache": {
+        "read": 1792,
+        "write": 0
+      }
+    },
+    "outcome": "succeeded",
+    "time": {
+      "created": 1792195332259,
+      "updated": 1792195405180,
+      "idle": 1792195405182
+    },
+    "title": "hello fixture",
+    "location": {
+      "directory": "/home/user/project-a"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg_1472a88a6001b2hbpRb8L8q8i8",
+      "time": {
+        "created": 1792195332334
+      },
+      "text": "\"Reply with exactly: hello fixture. Do not use tools.\"",
+      "files": [],
+      "type": "user"
+    },
+    {
+      "id": "msg_1472a88f7001e6AaM5ezl9tHhx",
+      "time": {
+        "created": 1792195332347,
+        "streamed": 1792195405157,
+        "completed": 1792195405180
+      },
+      "type": "assistant",
+      "agent": "build",
+      "model": {
+        "id": "big-pickle",
+        "providerID": "opencode",
+        "variant": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "hello fixture"
+        }
+      ],
+      "snapshot": {
+        "start": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "end": "5941e240b600fcebf8dd43c705d4e726de3428dc",
+        "files": []
+      },
+      "finish": "stop",
+      "rawFinish": "stop",
+      "cost": 0,
+      "tokens": {
+        "input": 3573,
+        "output": 4,
+        "reasoning": 0,
+        "cache": {
+          "read": 1792,
+          "write": 0
+        }
+      }
+    },
+    {
+      "id": "msg_1472ba57e002y220WcuiqcvFiq",
+      "time": {
+        "created": 1792195405182
+      },
+      "type": "idle",
+      "outcome": "succeeded"
+    }
+  ]
+}

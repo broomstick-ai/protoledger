@@ -1,0 +1,18 @@
+{
+  "id": "prt_de821b95c001QqizAY5XNYg69e",
+  "sessionID": "ses_217de8affffegpbQFxp4Z2A2Ng",
+  "messageID": "msg_de821b768001kf01kENUsbyKyt",
+  "type": "retry",
+  "attempt": 1,
+  "error": {
+    "name": "APIError",
+    "data": {
+      "message": "Overloaded",
+      "statusCode": 529,
+      "isRetryable": true
+    }
+  },
+  "time": {
+    "created": 1777716017500
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.8-audio-synthetic",
+  "variant": "ATIF-v1.8",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 5 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 8,
+    "codex": 8,
+    "opencode": 0
+  },
+  "no_carry_summary": {
+    "claude-code": "score 8; missing [media×1, settings×1]; extra [settings×1]",
+    "codex": "score 8; missing [media×1, settings×1]; changed [usage.body.model×1]",
+    "opencode": "clean: 1 agents, 5 events"
+  },
+  "errors": {}
+}

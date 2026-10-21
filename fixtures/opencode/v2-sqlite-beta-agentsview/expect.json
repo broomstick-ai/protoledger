@@ -1,0 +1,1 @@
+{"self_exact": false, "self_reason": "an SQLite file cannot be reproduced byte for byte; the re-export has identical schema and rows (checked by formats::opencode::tests::sqlite_fixtures_rows_identical)", "requires_features": ["sqlite"]}

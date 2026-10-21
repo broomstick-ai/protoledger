@@ -1,0 +1,24 @@
+{
+  "id": "prt_1472949b9001xWpjlW6IeTgXfg",
+  "sessionID": "ses_eb8d6b6c3ffe7PBN5Mvaul4Hw8",
+  "messageID": "msg_147294974001ZKMJkT41WaeBX1",
+  "type": "tool",
+  "callID": "call_fixture_5",
+  "tool": "read",
+  "state": {
+    "status": "completed",
+    "input": {
+      "filePath": "/home/user/project-a/input.txt"
+    },
+    "output": "<file>\n00001| alpha\n00002| beta\n00003| gamma\n00004| \n\n(End of file - total 4 lines)\n</file>",
+    "title": "input.txt",
+    "metadata": {
+      "preview": "alpha\nbeta\ngamma\n",
+      "truncated": false
+    },
+    "time": {
+      "start": 1792195250618,
+      "end": 1792195250620
+    }
+  }
+}

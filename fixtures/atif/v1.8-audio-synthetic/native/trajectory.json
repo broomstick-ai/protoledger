@@ -1,0 +1,40 @@
+{
+  "schema_version": "ATIF-v1.8",
+  "session_id": "synthetic-v1-8",
+  "agent": {
+    "name": "voice-agent",
+    "version": "0.1.0",
+    "model_name": "example-audio-model"
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "timestamp": "2026-09-01T08:00:00Z",
+      "source": "user",
+      "message": [
+        {
+          "type": "text",
+          "text": "Answer the question in the recording."
+        },
+        {
+          "type": "audio",
+          "source": {
+            "media_type": "audio/wav",
+            "path": "audio/question.wav",
+            "duration_sec": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "step_id": 2,
+      "timestamp": "2026-09-01T08:00:02Z",
+      "source": "agent",
+      "message": "The capital of France is Paris.",
+      "metrics": {
+        "prompt_tokens": 50,
+        "completion_tokens": 8
+      }
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "schema_version": "ATIF-v1.7",
+  "session_id": "run-77",
+  "trajectory_id": "main-77",
+  "agent": {
+    "name": "example-harness",
+    "version": "4.2.0",
+    "model_name": "example-large",
+    "tool_definitions": [
+      {
+        "type": "function",
+        "function": {
+          "name": "delegate",
+          "description": "Run a subagent",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "task": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "task"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "timestamp": "2026-03-01T12:00:00Z",
+      "source": "system",
+      "message": "You are a coding agent."
+    },
+    {
+      "step_id": 2,
+      "timestamp": "2026-03-01T12:00:01Z",
+      "source": "user",
+      "message": [
+        {
+          "type": "text",
+          "text": "The client gives up too early. See the screenshot."
+        },
+        {
+          "type": "image",
+          "source": {
+            "media_type": "image/png",
+            "path": "images/screen.png"
+          }
+        }
+      ]
+    },
+    {
+      "step_id": 3,
+      "timestamp": "2026-03-01T12:00:04Z",
+      "source": "agent",
+      "reasoning_effort": "high",
+      "message": "I'll delegate the search.",
+      "reasoning_content": "A subagent can grep faster.",
+      "tool_calls": [
+        {
+          "tool_call_id": "d1",
+          "function_name": "delegate",
+          "arguments": {
+            "task": "find retry limit"
+          },
+          "extra": {
+            "timeout_s": 120
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "d1",
+            "content": "Retry limit is 3 in src/net.py:12.",
+            "subagent_trajectory_ref": [
+              {
+                "trajectory_id": "explore-1",
+                "session_id": "run-77",
+                "extra": {
+                  "summary": "Find the retry limit"
+                }
+              }
+            ],
+            "extra": {
+              "exit": "ok"
+            }
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 1200,
+        "completion_tokens": 60,
+        "cached_tokens": 1000,
+        "cost_usd": 0.0031
+      },
+      "llm_call_count": 2
+    },
+    {
+      "step_id": 4,
+      "timestamp": "2026-03-01T12:00:10Z",
+      "source": "system",
+      "message": "Context compaction performed",
+      "observation": {
+        "results": [
+          {
+            "content": "Summary: the retry limit lives in src/net.py:12 and is 3."
+          }
+        ]
+      },
+      "extra": {
+        "context_management": {
+          "type": "compaction",
+          "boundary": "replace"
+        }
+      }
+    },
+    {
+      "step_id": 5,
+      "timestamp": "2026-03-01T12:00:12Z",
+      "source": "agent",
+      "model_name": "example-large-2",
+      "message": "Raising MAX_RETRIES to 5.",
+      "tool_calls": [
+        {
+          "tool_call_id": "e1",
+          "function_name": "edit",
+          "arguments": {
+            "path": "src/net.py",
+            "old": "= 3",
+            "new": "= 5"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "e1",
+            "content": "edited"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 400,
+        "completion_tokens": 30
+      }
+    },
+    {
+      "step_id": 6,
+      "timestamp": "2026-03-01T12:00:13Z",
+      "source": "agent",
+      "message": "",
+      "llm_call_count": 0,
+      "tool_calls": [
+        {
+          "tool_call_id": "t1",
+          "function_name": "run_tests",
+          "arguments": {}
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "t1",
+            "content": "4 passed"
+          }
+        ]
+      }
+    },
+    {
+      "step_id": 7,
+      "timestamp": "2026-03-01T12:00:15Z",
+      "source": "agent",
+      "message": "Done: the client now retries 5 times."
+    }
+  ],
+  "notes": "Synthetic trajectory exercising v1.7 features.",
+  "final_metrics": {
+    "total_prompt_tokens": 1900,
+    "total_completion_tokens": 110,
+    "total_cached_tokens": 1000,
+    "total_cost_usd": 0.0049,
+    "total_steps": 7
+  },
+  "extra": {
+    "harness_build": "abc123"
+  },
+  "subagent_trajectories": [
+    {
+      "schema_version": "ATIF-v1.7",
+      "trajectory_id": "explore-1",
+      "session_id": "run-77",
+      "agent": {
+        "name": "explore-subagent",
+        "version": "1.0.0",
+        "model_name": "example-small"
+      },
+      "steps": [
+        {
+          "step_id": 1,
+          "timestamp": "2026-03-01T12:00:05Z",
+          "source": "user",
+          "message": "Find where the retry limit is set."
+        },
+        {
+          "step_id": 2,
+          "timestamp": "2026-03-01T12:00:06Z",
+          "source": "agent",
+          "message": "",
+          "tool_calls": [
+            {
+              "tool_call_id": "g1",
+              "function_name": "grep",
+              "arguments": {
+                "pattern": "MAX_RETRIES"
+              }
+            }
+          ],
+          "observation": {
+            "results": [
+              {
+                "source_call_id": "g1",
+                "content": "src/net.py:12:MAX_RETRIES = 3"
+              }
+            ]
+          },
+          "metrics": {
+            "prompt_tokens": 300,
+            "completion_tokens": 20
+          }
+        },
+        {
+          "step_id": 3,
+          "timestamp": "2026-03-01T12:00:08Z",
+          "source": "agent",
+          "message": "It is set in src/net.py line 12 (3)."
+        }
+      ],
+      "final_metrics": {
+        "total_prompt_tokens": 300,
+        "total_completion_tokens": 20,
+        "total_steps": 3
+      }
+    }
+  ]
+}

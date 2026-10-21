@@ -1,0 +1,27 @@
+{
+  "id": "prt_1472a4f7b001H8cZy3FYDvpwiR",
+  "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+  "messageID": "msg_1472a4f2e001iNhVbZtokxbUOw",
+  "type": "tool",
+  "callID": "call_fixture_23",
+  "tool": "write",
+  "state": {
+    "status": "completed",
+    "input": {
+      "filePath": "/home/user/project-a/notes/out.txt",
+      "content": "done\n"
+    },
+    "output": "",
+    "title": "notes/out.txt",
+    "metadata": {
+      "diagnostics": {},
+      "filepath": "/home/user/project-a/notes/out.txt",
+      "exists": false,
+      "truncated": false
+    },
+    "time": {
+      "start": 1792195317628,
+      "end": 1792195317630
+    }
+  }
+}

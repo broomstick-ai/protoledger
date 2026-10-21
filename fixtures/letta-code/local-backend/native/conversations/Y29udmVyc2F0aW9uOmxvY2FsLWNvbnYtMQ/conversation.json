@@ -1,0 +1,16 @@
+{
+  "id": "local-conv-1",
+  "agent_id": "agent-local-a7b0cc1b-bc08-4092-b612-fb6f4cf89ee9",
+  "archived": false,
+  "archived_at": null,
+  "created_at": "2026-10-17T00:44:09.876Z",
+  "updated_at": "2026-10-17T00:44:09.884Z",
+  "last_message_at": "2026-10-17T00:44:09.884Z",
+  "summary": null,
+  "in_context_message_ids": [
+    "ui-msg-1",
+    "ui-msg-2",
+    "ui-msg-3",
+    "ui-msg-4"
+  ]
+}

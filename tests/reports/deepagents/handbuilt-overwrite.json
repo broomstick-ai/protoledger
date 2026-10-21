@@ -1,0 +1,30 @@
+{
+  "format": "deepagents",
+  "case": "handbuilt-overwrite",
+  "variant": "checkpoint-full",
+  "self_exact": false,
+  "self_reimport_score": 0,
+  "self_summary": "files differ [\"checkpoint.db\"] missing [] extra []; clean: 3 agents, 16 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": false,
+    "codex": false,
+    "opencode": false
+  },
+  "no_carry_there": {
+    "claude-code": 0,
+    "codex": 1,
+    "opencode": 3
+  },
+  "no_carry_summary": {
+    "claude-code": "clean: 3 agents, 16 events",
+    "codex": "score 1; changed [compaction.body.trigger×1]",
+    "opencode": "score 3; missing [compaction×1]"
+  },
+  "errors": {}
+}

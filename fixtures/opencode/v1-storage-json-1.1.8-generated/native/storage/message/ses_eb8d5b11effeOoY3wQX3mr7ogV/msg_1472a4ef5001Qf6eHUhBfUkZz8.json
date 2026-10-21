@@ -1,0 +1,17 @@
+{
+  "id": "msg_1472a4ef5001Qf6eHUhBfUkZz8",
+  "sessionID": "ses_eb8d5b11effeOoY3wQX3mr7ogV",
+  "role": "user",
+  "time": {
+    "created": 1792195317493
+  },
+  "summary": {
+    "title": "Create notes/out.txt",
+    "diffs": []
+  },
+  "agent": "build",
+  "model": {
+    "providerID": "fixture",
+    "modelID": "fixture-model"
+  }
+}

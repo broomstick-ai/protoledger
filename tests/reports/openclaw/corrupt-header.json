@@ -1,0 +1,32 @@
+{
+  "format": "openclaw",
+  "case": "corrupt-header",
+  "variant": "session-v1",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 32 events",
+  "import_losses": [
+    "invalid-json-line ×1"
+  ],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 10,
+    "codex": 23,
+    "opencode": 3
+  },
+  "no_carry_summary": {
+    "claude-code": "score 10; missing [settings×1]; extra [settings×1]; changed [usage.body.cost_usd×7]",
+    "codex": "score 23; missing [settings×1]; changed [usage.body.cache_write×7, usage.body.cost_usd×7, usage.body.model×7]",
+    "opencode": "score 3; missing [settings×1]; extra [settings×1]"
+  },
+  "errors": {}
+}

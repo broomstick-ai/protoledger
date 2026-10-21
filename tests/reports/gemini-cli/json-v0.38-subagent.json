@@ -1,0 +1,30 @@
+{
+  "format": "gemini-cli",
+  "case": "json-v0.38-subagent",
+  "variant": "session-json",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 2 agents, 28 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 21,
+    "codex": 40,
+    "opencode": 29
+  },
+  "no_carry_summary": {
+    "claude-code": "score 21; header [header.created_at×1]; missing [file_change×1, text×1]; changed [error.body.kind×1, subagent.body.agent×2, subagent.body.outcome×1, subagent.body.result×1, subagent.group×2, text.group×4, title.ts×1]",
+    "codex": "score 40; missing [error×1, file_change×1, settings×2, subagent×2, text×1]; changed [text.group×4, usage.body.model×5, usage.body.reasoning×4]",
+    "opencode": "score 29; missing [file_change×1, subagent×2, text×1, title×1]; extra [settings×2, title×1]; changed [text.group×4]"
+  },
+  "errors": {}
+}

@@ -1,0 +1,8 @@
+{"type":"session","version":1,"externalId":"ledger-test-001","createdAt":"2026-10-16T10:00:00.000Z","updatedAt":"2026-10-16T10:05:00.000Z","title":"Interchange smoke test","source":{"application":"transcript-ledger","version":"0.1.0"},"workspace":{"repository":{"host":"github.com","owner":"example","name":"repo"},"branch":"main","workingDirectory":"/tmp"}}
+{"type":"message","id":"m1","timestamp":"2026-10-16T10:00:01.000Z","role":"user","turnId":"t1","content":[{"type":"text","text":"List files please"},{"type":"attachment","path":"note.txt","mediaType":"text/plain","name":"note.txt"}]}
+{"type":"message","id":"m2","timestamp":"2026-10-16T10:00:02.000Z","role":"assistant","turnId":"t1","model":"gpt-5-mini","content":[{"type":"text","text":"Running ls."}]}
+{"type":"tool-call","id":"c1","timestamp":"2026-10-16T10:00:03.000Z","turnId":"t1","name":"bash","arguments":{"command":"ls","description":"list"}}
+{"type":"tool-result","id":"r1","timestamp":"2026-10-16T10:00:04.000Z","turnId":"t1","toolCallId":"c1","success":true,"content":"a.txt\nb.txt"}
+{"type":"tool-call","id":"c2","timestamp":"2026-10-16T10:00:05.000Z","turnId":"t1","name":"view","arguments":{"path":"/nope"}}
+{"type":"tool-result","id":"r2","timestamp":"2026-10-16T10:00:06.000Z","turnId":"t1","toolCallId":"c2","success":false,"error":{"message":"not found","code":"ENOENT"}}
+{"type":"message","id":"m3","timestamp":"2026-10-16T10:00:07.000Z","role":"assistant","turnId":"t1","content":[{"type":"text","text":"Two files: a.txt, b.txt."}]}

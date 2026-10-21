@@ -1,0 +1,30 @@
+{
+  "format": "atif",
+  "case": "v1.6-terminus2-timeout",
+  "variant": "ATIF-v1.6",
+  "self_exact": true,
+  "self_reimport_score": 0,
+  "self_summary": "clean: 1 agents, 16 events",
+  "import_losses": [],
+  "carry_there": {
+    "claude-code": 0,
+    "codex": 0,
+    "opencode": 0
+  },
+  "carry_back_exact": {
+    "claude-code": true,
+    "codex": true,
+    "opencode": true
+  },
+  "no_carry_there": {
+    "claude-code": 12,
+    "codex": 18,
+    "opencode": 7
+  },
+  "no_carry_summary": {
+    "claude-code": "score 12; missing [settings×1, usage×1]; changed [usage.body.cost_usd×3]",
+    "codex": "score 18; missing [settings×2, tool_result×3]; changed [usage.body.cost_usd×4, usage.body.model×4]",
+    "opencode": "score 7; missing [tool_result×3]; changed [usage.body.cache_read×1]"
+  },
+  "errors": {}
+}
