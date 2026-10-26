@@ -356,7 +356,27 @@ impl Event {
     pub fn str(&self, key: &str) -> Option<&str> {
         self.body.get(key).and_then(Value::as_str)
     }
+
+    /// A tombstone (SPEC §4.1): the newest version of the native record
+    /// `of` names is its deletion by its harness. A `native` event whose body
+    /// is `{"deleted": true}` and whose `native` names the record (format,
+    /// variant, version, id, file) with no `record`.
+    pub fn tombstone(id: impl Into<String>, of: &Native) -> Event {
+        let mut e = Event::new(id, Kind::Native).with(DELETED, true);
+        e.native = Some(Native { part: 0, record: None, raw: None, altered: false, ..of.clone() });
+        e
+    }
+
+    /// Is this event a tombstone ([`Event::tombstone`])?
+    pub fn is_tombstone(&self) -> bool {
+        self.kind == Kind::Native
+            && self.native.as_ref().is_some_and(|n| n.part == 0 && n.record.is_none())
+            && self.body.get(DELETED) == Some(&Value::Bool(true))
+    }
 }
+
+/// The body key of a tombstone ([`Event::tombstone`], SPEC §4.1).
+pub const DELETED: &str = "deleted";
 
 impl Native {
     pub fn new(format: &str, id: Option<String>) -> Self {

@@ -6,7 +6,7 @@ use crate::carry;
 use crate::formats::hermes::db::{columns, insert, rows, schema_of};
 use crate::formats::hermes::pyjson;
 use crate::formats::openclaw::jsonl;
-use crate::formats::{Detection, ExportOptions, Exported, ImportOptions, Imported, Losses, Output};
+use crate::formats::{Detection, ExportOptions, Exported, ImportOptions, Imported, Losses, Output, sqlite_header};
 use crate::ledger::{Ledger, LedgerSet};
 use crate::model::{Agent, Audience, Event, Kind, Native, Obj, Parent, Relation, Source};
 use crate::util;
@@ -370,6 +370,7 @@ pub fn import(input: &Path, opts: &ImportOptions) -> Result<Imported> {
 fn import_store(p: &Path, rel: &str, opts: &ImportOptions, set: &mut LedgerSet, losses: &mut Losses) -> Result<bool> {
     let c = Connection::open_with_flags(p, OpenFlags::SQLITE_OPEN_READ_ONLY).with_context(|| p.display().to_string())?;
     let (schema, tables) = schema_of(&c)?;
+    let header = sqlite_header::read(&c)?;
     let mut other = Map::new();
     for t in tables.iter().filter(|t| *t != "checkpoints" && *t != "writes") {
         let rs = rows(&c, &format!("SELECT * FROM \"{t}\""), &[])?;
@@ -417,14 +418,18 @@ fn import_store(p: &Path, rel: &str, opts: &ImportOptions, set: &mut LedgerSet, 
     let mut first = true;
     for ((thread, ns), (cks, wrs)) in groups {
         let mut l = import_thread(&thread, &ns, cks, wrs, rel, opts, losses, names.get(&thread).filter(|_| ns.is_empty()))?;
-        if first {
-            if let Some(src) = l.agent_mut().source.as_mut()
-                && src.format == FORMAT
-            {
+        if let Some(src) = l.agent_mut().source.as_mut()
+            && src.format == FORMAT
+        {
+            // Every thread names its file's header values, so any subset can write them.
+            if let Some(h) = &header {
+                src.extra.insert(sqlite_header::KEY.into(), h.clone());
+            }
+            if first {
                 src.extra.insert("store".into(), json!({"schema": schema, "tables": other, "task_path": has_path}));
             }
-            first = false;
         }
+        first = false;
         set.insert(l);
     }
     Ok(delta)
@@ -754,7 +759,13 @@ fn native_rows(l: &Ledger) -> Option<(Vec<Value>, Vec<Value>, usize)> {
 
 pub fn export(set: &LedgerSet, opts: &ExportOptions) -> Result<Exported> {
     let mut losses = Losses::default();
-    let store = set.iter().filter_map(|l| l.agent().source.as_ref().filter(|s| s.format == FORMAT)?.extra.get("store").cloned()).next();
+    // Every thread read from a store names its file and the file's header
+    // values; each file's store rides on its first thread's ledger. One file is written.
+    let own: Vec<&Obj> = set.iter().filter_map(|l| l.agent().source.as_ref().filter(|s| s.format == FORMAT)).map(|s| &s.extra).collect();
+    let holder = own.iter().find(|x| x.contains_key("store"));
+    let header =
+        sqlite_header::for_files(own.iter().filter_map(|x| Some((x.get("file")?.as_str()?, *x))), holder.and_then(|x| x.get("file")?.as_str()), &mut losses);
+    let store = holder.and_then(|x| x.get("store")).cloned();
     let file = set
         .iter()
         .filter_map(|l| l.agent().source.as_ref().filter(|s| s.format == FORMAT)?.extra.get("file")?.as_str().map(str::to_string))
@@ -764,6 +775,7 @@ pub fn export(set: &LedgerSet, opts: &ExportOptions) -> Result<Exported> {
     let path = dir.path().join("store.db");
     {
         let c = Connection::open(&path)?;
+        sqlite_header::write(&c, header.as_ref())?;
         match store.as_ref().and_then(|s| s.get("schema")).and_then(Value::as_array) {
             Some(stmts) => {
                 for s in stmts.iter().filter_map(Value::as_str) {

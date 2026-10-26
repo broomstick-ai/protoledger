@@ -57,8 +57,8 @@ if anything but you can reach that address.
   |---|---|
   | 400 | malformed request: bad JSON, a missing field, a bad query parameter, a bad `from` |
   | 404 | unknown agent or binding, unknown endpoint |
-  | 409 | unbinding a binding that is not active |
-  | 422 | the store refused the operation (unknown format, unreadable input, a location already bound, a projection that does not come back as itself, ...) |
+  | 409 | unbinding a binding that is not active; any request naming an agent whose ledger is damaged: subscribing to it, its row, its events, its children, projecting it, an import or attach that reaches its ledger, unbinding a binding of it (the store names the ledger, and refuses every operation on it until it is repaired; the body is the same for each) |
+  | 422 | the store refused the operation for any other reason (unknown format, unreadable input, a location already bound, a projection that does not come back as itself, ...) |
   | 500 | anything else (the index is stale, the engine has stopped, ...) |
 
 - **The resume rule** (stated here only; every other mention points here).
@@ -87,6 +87,15 @@ if anything but you can reach that address.
 
 `source`, `parent` and `links` are as in the ledger header (SPEC §2.1);
 `title` is the text of the newest `title` event.
+
+**Damaged agent** (in a listing, in place of its `Agent`): an agent whose
+ledger is damaged is listed with its id, its ledger and why, and none of the
+counts the index read before the damage (as `protoledger store ls` marks it):
+
+```json
+{"id": "peer-a", "path": "ledgers/peer-a.jsonl",
+ "damaged": "ledger ledgers/peer-a.jsonl (agent peer-a) is damaged and was skipped: …"}
+```
 
 **Binding** (SPEC §9.2):
 
@@ -117,7 +126,8 @@ once `active` is false.
   allowed: its events arrive as it gains them.
 - `from=all`: every agent from its start, and every agent created later.
 - A missing or malformed `from` (no colon, a seq that is not a number, an
-  agent listed twice) is refused with 400 before the upgrade.
+  agent listed twice) is refused with 400 before the upgrade; one naming an
+  agent whose ledger is damaged, with 409 (`from=all` leaves it out).
 
 After the upgrade the server sends one **text frame per published event**
 and nothing else. The client sends nothing (anything it sends is ignored;
@@ -146,10 +156,10 @@ produces them yet.
 
 | request | answer |
 |---|---|
-| `GET /v1/agents` | `[Agent]`, ordered by id |
-| `GET /v1/agents/{id}` | `Agent`; 404 if unknown |
-| `GET /v1/agents/{id}/events?from=<seq>&limit=<n>` | `[Published event]`: up to `limit` (default 1000) of the events the resume rule gives for `from` (default 0), in seq order; `[]` past the end; 404 if the agent is unknown |
-| `GET /v1/agents/{id}/children` | `[Agent]`: direct structural children (agents whose `parent` names it); 404 if unknown |
+| `GET /v1/agents` | `[Agent]`, ordered by id; a damaged agent's entry is a `Damaged agent` |
+| `GET /v1/agents/{id}` | `Agent`; 404 if unknown, 409 if its ledger is damaged |
+| `GET /v1/agents/{id}/events?from=<seq>&limit=<n>` | `[Published event]`: up to `limit` (default 1000) of the events the resume rule gives for `from` (default 0), in seq order; `[]` past the end; 404 if the agent is unknown, 409 if its ledger is damaged |
+| `GET /v1/agents/{id}/children` | `[Agent]`: direct structural children (agents whose `parent` names it), a damaged one as a `Damaged agent`; 404 if unknown, 409 if its ledger is damaged |
 | `GET /v1/bindings` | `[Binding]`, active and ended |
 
 To page through `/events`, pass the last `seq` of one page as the next
@@ -160,11 +170,12 @@ To page through `/events`, pass the last `seq` of one page as the next
 | request | body | answer |
 |---|---|---|
 | `POST /v1/import` | `{"format": "<name>\|auto", "path": "<file or dir>"}` | `{"format", "variant", "created": [id], "extended": [id], "events_appended", "events_skipped", "losses": [{"code", "kind"?, "count", "detail"?}]}` |
-| `POST /v1/project` | `{"agent": "<id>", "format": "<name>", "dir": "<dir>"}` | `Binding` (mode `projection`); 404 if the agent is unknown |
+| `POST /v1/project` | `{"agent": "<id>", "format": "<name>", "dir": "<dir>"}` | `Binding` (mode `projection`); 404 if the agent is unknown, 409 if its ledger is damaged |
 | `POST /v1/attach` | `{"format": "<name>\|auto", "location": "<file or dir>"}` | `{"binding": Binding, "created": [id], "events_appended": n}` |
-| `POST /v1/unbind` | `{"binding": "<id>"}` | `Binding`, now `active: false, ended: "unbound"`; 404 if unknown, 409 if not active |
+| `POST /v1/unbind` | `{"binding": "<id>"}` | `Binding`, now `active: false, ended: "unbound"`; 404 if unknown, 409 if not active or if its agent's ledger is damaged |
 
 These are the library's `Store::import`, `sync::project`, `sync::attach` and
-`sync::unbind` (SPEC §9.2), with the same refusals (422). Every event they
+`sync::unbind` (SPEC §9.2), with the same refusals (422; 409 when the ledger
+an import or attach reaches is damaged). Every event they
 append is published to subscribers like any other append. After project,
 attach and unbind the server follows exactly the active bindings at once.

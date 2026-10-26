@@ -10,7 +10,7 @@
 
 use super::{V_STORE, agent, ai_sdk_events, ms_ts, native, output_text, own, push_record};
 use crate::formats::atif::jsonfmt;
-use crate::formats::{ExportOptions, Exported, ImportOptions, Imported, Losses, Output};
+use crate::formats::{ExportOptions, Exported, ImportOptions, Imported, Losses, Output, sqlite_header};
 use crate::ledger::{Ledger, LedgerSet};
 use crate::model::{Event, Kind, Obj};
 use crate::util::{self, get_str};
@@ -165,6 +165,7 @@ fn import_chat(rel: &str, dir: &Path, single_file: bool, losses: &mut Losses) ->
         }
     }
     let c = rusqlite::Connection::open(tmp.path().join("store.db"))?;
+    let header = sqlite_header::read(&c)?;
     let meta_hex: String = c.query_row("SELECT value FROM meta WHERE key = '0'", [], |r| r.get(0)).context("meta row 0")?;
     let meta_bytes = hex::decode(meta_hex.trim()).map_err(|e| anyhow!("meta is not hex: {e}"))?;
     let meta: Value = serde_json::from_slice(&meta_bytes).context("meta is not JSON")?;
@@ -183,6 +184,9 @@ fn import_chat(rel: &str, dir: &Path, single_file: bool, losses: &mut Losses) ->
     extra.insert("dir".into(), json!(rel));
     extra.insert("meta".into(), meta.clone());
     extra.insert("files".into(), Value::Object(kept));
+    if let Some(h) = header {
+        extra.insert(sqlite_header::KEY.into(), h);
+    }
     let mut a = agent(&agent_id, V_STORE, Some(agent_id.clone()), extra);
     a.created_at = ms_ts(meta.get("createdAt")).or_else(|| chat_json.as_ref().and_then(|j| ms_ts(j.get("createdAtMs"))));
     let mut l = Ledger::new(a);
@@ -515,6 +519,7 @@ fn build(l: &Ledger, extra: &Obj, losses: &mut Losses) -> Result<(Vec<u8>, Vec<u
     let p = tmp.path().join("store.db");
     {
         let c = rusqlite::Connection::open(&p)?;
+        sqlite_header::write(&c, extra.get(sqlite_header::KEY))?;
         c.execute_batch("CREATE TABLE blobs (id TEXT PRIMARY KEY, data BLOB); CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);")?;
         for (id, data) in &blobs {
             c.execute("INSERT INTO blobs (id, data) VALUES (?1, ?2)", rusqlite::params![id, data])?;

@@ -22,10 +22,11 @@
 //! `tests/follow.rs` asserts it directly.
 
 use crate::common::{self, Mark, Paths};
+use crate::modes::Mode;
 use protoledger::formats::{self, ImportOptions};
 use protoledger::store::Store;
 use protoledger::sync;
-use protoledger::{Event, Kind, Ledger};
+use protoledger::{Event, Kind};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap};
 use std::io::Write;
@@ -144,21 +145,30 @@ fn final_usage(lines: &[(String, String)]) -> BTreeMap<String, Value> {
 /// turn, and check the live-sync properties on the ledger.
 #[test]
 fn claude_code_simulated_turn_once_each_exact_within_2s_syncs_mid_line_no_divergence_no_reimport_for_a_1s_poll_after() {
+    claude_code_turn(Mode::Plain);
+}
+
+/// The test above in a store in `m` (retrained, in that mode, once the
+/// session is projected and before the turn).
+fn claude_code_turn(m: Mode) {
     let mut paths = Paths::new();
     let projects = paths.dir("claude/projects/-sim-work");
     let store_dir = paths.root.join("store");
+    m.prepare(&store_dir);
     let mut s = Store::open(&store_dir).unwrap();
     let minimal = common::fixture("protoledger/minimal/native");
     paths.fixture(&minimal);
     paths.fixture(&common::fixture(SOURCE));
     s.import("protoledger", &minimal).unwrap();
     let b = sync::project(&mut s, "hello-1", "claude-code", &projects).unwrap();
+    m.retrain(&mut s);
+    common::live_sealing(m, &mut s);
     let loc = PathBuf::from(&b.location);
     paths.wrote(&loc);
     let session = loc.file_stem().unwrap().to_string_lossy().to_string();
     let pre_bytes = std::fs::read(&loc).unwrap();
     let pre_import = import_ids(&loc, "hello-1");
-    let pre_len = Ledger::read(&s.ledger_path("hello-1").unwrap()).unwrap().events.len();
+    let pre_len = s.reader("hello-1").unwrap().ledger().unwrap().events.len();
     let parent = lines_by_id(&pre_bytes, 0).into_iter().filter(|(id, _)| !id.starts_with('@')).map(|(id, _)| id).next_back().unwrap();
 
     let lines = session_lines(&session, &parent, common::force().as_deref() == Some("old-usage"));
@@ -200,7 +210,7 @@ fn claude_code_simulated_turn_once_each_exact_within_2s_syncs_mid_line_no_diverg
         std::fs::OpenOptions::new().write(true).open(&cut_loc).unwrap().set_len(keep as u64).unwrap();
     };
     let w = common::follow_turn(&mut s, follower.as_mut(), &b.binding, sim, want, diverge);
-    let all = Ledger::read(&s.ledger_path("hello-1").unwrap()).unwrap().events;
+    let all = s.reader("hello-1").unwrap().ledger().unwrap().events;
     // First, before anything reads the location again: no sync up to a poll
     // period past the last event found it diverged or re-imported it whole.
     common::no_divergence_no_reimport(&all, &w, &b.binding, follower.as_ref(), "claude-code");
@@ -262,4 +272,8 @@ fn claude_code_simulated_turn_once_each_exact_within_2s_syncs_mid_line_no_diverg
 
     paths.store(&s);
     paths.assert_isolated("claude-code");
+    drop(s);
+    m.check(&store_dir);
 }
+
+modes_tests!(claude_code_turn);

@@ -703,6 +703,7 @@ dependencies = [
  "clap",
  "hex",
  "notify",
+ "protoledger",
  "rusqlite",
  "serde",
  "serde_json",

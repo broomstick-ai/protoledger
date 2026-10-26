@@ -213,7 +213,10 @@ An `opencode.db` holds more than sessions: an event log (`event`), project
 directories and worktrees, instruction blobs and states, todos, accounts, kv,
 permissions, workspaces, inbox, and in a database 2.0 upgraded in place the
 leftover 1.x tables. Every row of every table is a native record (SPEC §4),
-so a store re-exports row-identical:
+so a store re-exports row-identical, with the file's header values
+(`PRAGMA application_id`, `user_version`, and `encoding` when not UTF-8)
+kept beside the schema in `source.extra.sqlite_header` (a ledger imported
+before this release carries none and exports with SQLite's defaults):
 
 - The session model's rows are what they always were: the session row, its
   messages and parts (events), its project row and its `event_sequence`
@@ -268,13 +271,36 @@ so a store re-exports row-identical:
   rendered from a ledger does not regenerate them. A database written from
   rendered sessions holds the project rows the writer made for them, so
   importing it back gives a store ledger with those rows.
-- Sync appends a new row (an event-log entry) as a new fact; a row rewritten in
-  place (an instruction state) is container bookkeeping and is not versioned
-  on its own (SPEC §4.1 as below: only messages and parts are).
+- Sync appends a new row (an event-log entry) as a new fact. Which records
+  version when opencode changes them (SPEC §4.1): every row that is not a
+  session, message or part (a store row, a todo row) versions when it is
+  rewritten or deleted, as the next two bullets say; a message or part
+  versions only as Sync below says, and one gone from a session, or
+  rewritten so that events read earlier are gone, is divergence (§9.3); a
+  session row versions only on a new session fact.
+- Rewriting a store row (a kv, permission, project or worktree row) or a todo
+  row in place in an attached `opencode.db` (a todo going `pending` →
+  `completed`, which opencode does by writing the session's list again) is a
+  newer version of that row: the next sync compares the row with the newest
+  version the ledger holds and, when it differs, appends one `native` event
+  carrying the row as it now stands, to the ledger that holds it, and keeps
+  following the binding. A row written again unchanged appends nothing.
+  Exports use the newest version, so they write the row as it now stands.
+  The comparison is with the ledger, not the binding's cursor, so a row
+  rewritten while the cursor was lost is still appended.
 - Deleting a store row (a worktree, a project directory, a kv, permission or
-  account row) or a todo row in an attached `opencode.db` currently makes the
-  next sync report divergence and stop following that binding; attach the
-  database again to recover.
+  account row) or a todo row in an attached `opencode.db` is a newer version
+  of that row (SPEC §4.1): the next sync appends one tombstone for it (a
+  `native` event naming the row, body `{"deleted": true}`) to the ledger
+  that holds it, and keeps following the binding. Exports use the newest
+  version of each row, so they leave a deleted row out; a row opencode writes
+  again under the same key comes back as one more version, with its new
+  value. This holds for every row that is not a session, message or part; a
+  message or part gone from a session is still divergence (§9.3).
+  A row deleted while the binding cannot see it is not tombstoned: one
+  deleted between importing the database and attaching it, or after the
+  binding's cursor is lost (the index rebuilt). A later export still writes
+  it; re-import the database to drop it.
 
 ## Mutation caveat (opencode is not append-only)
 
@@ -340,11 +366,13 @@ generic engine, which compares event ids only. It follows SPEC §4.1:
   carries the new version: the same `native.id`, `part: 0`, and the record. A
   settled message or part rewritten in place with no new fact (a completed
   tool's `metadata` updated afterwards) gets one `native` event carrying its
-  newer version. An unchanged record yields nothing. The session record and
-  container bookkeeping (project rows, `event_sequence`, todos, the other store
-  rows) are never versioned on their own: opencode rewrites the session on
-  every message (`time.updated`), and its newer versions ride only on a new
-  session fact (a title, a changed setting).
+  newer version. An unchanged record yields nothing. The session record and the
+  bookkeeping on a session's header (its copy of the project row, its
+  `event_sequence` watermark) are never versioned on their own: opencode
+  rewrites the session on every message (`time.updated`), and its newer
+  versions ride only on a new session fact (a title, a changed setting).
+  Todo rows and store rows (project rows, the other store rows) version
+  whenever opencode rewrites or deletes them (Store rows above).
 - **Export uses the newest version** of each native record: a later version of
   a message or part replaces the earlier one where it stands, so a ledger
   synced through a tool's life exports the tool once, completed.
@@ -403,6 +431,7 @@ Export:
 | `link-dropped`, `parent-outside-set` | links opencode has no field for; a subagent exported without its parent |
 | `unsettled-message-dropped` | a running message left out of a session export |
 | `column-dropped` | a field the target database's schema has no column for (a 1.19 session's agent, model and totals written into the 1.2.0 schema) |
+| `sqlite-header-conflict` | ledgers from databases with different header values (`PRAGMA application_id`, `user_version`, `encoding`) written to one `opencode.db`, which keeps the values of the ledger whose id sorts first |
 
 With carry, everything above comes back on re-import, except a store
 ledger's rows (`native-dropped`), which only an `opencode.db` holds.

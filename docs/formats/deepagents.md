@@ -70,6 +70,17 @@ store from the captured schema text, every other table's rows, and the
 ledger's own `checkpoints` and `writes` rows (kept in
 `agent.source.extra.rows`, blobs byte for byte). Verified with `sqlite3` on
 all six fixtures: identical schema text and identical rows, blobs included.
+The file's header values (`PRAGMA application_id`, `user_version`, and
+`encoding` when not UTF-8) are kept on every thread's ledger, in
+`agent.source.extra.sqlite_header`, and set on the new file, so a subset of
+a store's threads writes them too; several stores exported as one file keep
+the values of the ledger whose id sorts first (`sqlite-header-conflict`).
+The store's schema text and other tables' rows ride on its first thread's
+ledger: a subset without it gets the checkpoint-sqlite DDL and none of
+those rows, and the export names it (`sqlite-store-left-out`; so does a
+second store exported into the same file).
+A ledger imported before this release carries no header values and exports
+with SQLite's defaults (0, 0, `UTF-8`).
 Checkpoints off the latest chain (time travel, `update_state` forks) are kept
 as rows but give no events (`branch-dropped`).
 
@@ -104,6 +115,8 @@ droid reproduced the original droid files exactly with the new turn appended.
 | `media-dropped` | media without data or URL; non-text tool output |
 | `tool-input-text-wrapped` | raw or non-object tool input becomes `{"input": …}` |
 | `compaction-summary-as-human` | a compaction summary becomes a HumanMessage |
+| `sqlite-header-conflict` | stores with different header values (`PRAGMA application_id`, `user_version`, `encoding`) exported as one file, which keeps the values of the ledger whose id sorts first |
+| `sqlite-store-left-out` | threads of a store exported without its first thread, which carries the store's schema text and other tables' rows, or with another store's written instead |
 | `peer-message-fields-dropped` | peer messages are written as SPEC §3.1.6 wrapped text (user when incoming, assistant when outgoing), which the importer turns back into a `peer_message`; this code names the fields beyond direction, peer, network and text that the wrapper cannot hold (a HumanMessage when incoming, an AIMessage when outgoing) |
 | `record-only-text-shown` | text the model did not see becomes a message |
 | `file-change-without-content` | a diff-only file change cannot set file content |

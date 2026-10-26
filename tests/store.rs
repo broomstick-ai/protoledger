@@ -1,8 +1,14 @@
 //! The store (SPEC §9): append → query, reindex equivalence, crash catch-up,
-//! subscribe, one writer per ledger, import.
+//! subscribe, one writer per ledger, import. The reindex tests run in a
+//! plain store (their own names) and in each compressed mode
+//! (`<test>::no_dictionary`, `::passed_dictionary`, `::retrained`).
 #![cfg(feature = "store")]
 
-use protoledger::store::{AgentInfo, BindingRow, EventRow, Published, Since, Store};
+#[macro_use]
+#[path = "modes/mod.rs"]
+mod modes;
+
+use protoledger::store::{AgentInfo, BindingRow, BlockRow, EventRow, Published, Since, Store};
 use protoledger::{Agent, Appender, Event, Kind, Link, Parent, Relation, Source};
 use std::path::{Path, PathBuf};
 
@@ -26,6 +32,8 @@ struct Snapshot {
     agents: Vec<AgentInfo>,
     per_agent: Vec<PerAgent>,
     bindings: Vec<BindingRow>,
+    /// Blocks per dictionary per ledger (SPEC §10.8).
+    dict_usage: Vec<(Option<String>, String, u64)>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -36,6 +44,7 @@ struct PerAgent {
     events: Vec<EventRow>,
     page: Vec<EventRow>,
     at: Vec<Option<Event>>,
+    blocks: Vec<BlockRow>,
 }
 
 fn snapshot(s: &Store) -> Snapshot {
@@ -49,14 +58,21 @@ fn snapshot(s: &Store) -> Snapshot {
             events: s.events(&a.id, 0, usize::MAX).unwrap(),
             page: s.events(&a.id, 2, 2).unwrap(),
             at: (0..=a.last_seq + 1).map(|q| s.event_at(&a.id, q).unwrap()).collect(),
+            blocks: s.blocks(&a.id).unwrap(),
         })
         .collect();
-    Snapshot { agents, per_agent, bindings: s.bindings().unwrap() }
+    Snapshot { agents, per_agent, bindings: s.bindings().unwrap(), dict_usage: s.dictionary_usage().unwrap() }
 }
 
 /// A store with a parent, a subagent, a spawned peer with two links, a fork,
 /// titles, turns, groups, timestamps and an unknown kind.
 fn populated(root: &Path) -> Store {
+    populated_in(root, modes::Mode::Plain)
+}
+
+/// [`populated`], in a store in `m` (retrained, in that mode, once seeded).
+fn populated_in(root: &Path, m: modes::Mode) -> Store {
+    m.prepare(root);
     let mut s = Store::open(root).unwrap();
     let mut a = agent("a");
     a.created_at = Some("2026-10-16T10:00:00Z".into());
@@ -99,6 +115,7 @@ fn populated(root: &Path) -> Store {
     s.append("f", bound_event(&bound("b-gone", Mode::Projection))).unwrap();
     s.append("f", unbound_event("b-gone")).unwrap();
     s.append("p1", bound_event(&bound("b-live", Mode::Attachment))).unwrap();
+    m.retrain(&mut s);
     s
 }
 
@@ -195,9 +212,18 @@ fn create_agent_refuses_a_duplicate_and_a_missing_parent() {
 /// up, and makes the comparison come out unequal), then deleted.
 #[test]
 fn reindex_after_deleting_index_db_reproduces_every_answer() {
+    reindex_after_deleting_index_db(modes::Mode::Plain);
+}
+
+fn reindex_after_deleting_index_db(m: modes::Mode) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
-    let before = snapshot(&populated(root));
+    let before = snapshot(&populated_in(root, m));
+    m.check(root);
+    // In a compressed mode, the index names a dictionary for every sealed block.
+    let rows: usize = before.per_agent.iter().map(|p| p.blocks.len()).sum();
+    assert_eq!(rows > 0, m.compressed(), "{m:?}: {rows} block rows");
+    assert!(before.per_agent.iter().flat_map(|p| &p.blocks).all(|b| b.dict == m.dictionary()), "{m:?}");
     assert_eq!(before.agents.len(), 4);
     assert!(before.per_agent.iter().map(|p| p.events.len()).sum::<usize>() >= 7);
     assert_eq!(before.bindings, seeded_bindings(), "the bindings operand is not empty");
@@ -226,12 +252,19 @@ fn reindex_after_deleting_index_db_reproduces_every_answer() {
     assert_eq!(after, before);
 }
 
+modes_tests!(reindex_after_deleting_index_db, reindex_in_place);
+
 /// Reindex in place throws away everything the ledgers do not say.
 #[test]
 fn reindex_in_place_discards_what_the_ledgers_do_not_say() {
+    reindex_in_place(modes::Mode::Plain);
+}
+
+fn reindex_in_place(m: modes::Mode) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
-    let before = snapshot(&populated(root));
+    let before = snapshot(&populated_in(root, m));
+    m.check(root);
     assert_eq!(before.bindings, seeded_bindings());
     poke_index(
         root,
@@ -239,6 +272,7 @@ fn reindex_in_place_discards_what_the_ledgers_do_not_say() {
          INSERT INTO bindings (binding, agent, format, location, mode, active) VALUES ('b-ghost', 'f', 'x', '/x', 'attachment', 1);
          UPDATE agents SET title = 'SENTINEL', last_seq = 99 WHERE id = 'a';
          UPDATE events SET grp = 'wrong' WHERE agent = 'a';
+         UPDATE blocks SET dict = 'wrong';
          INSERT INTO agents (id, path, size, mtime_ns, last_seq, byte_len, links) VALUES ('ghost', 'ledgers/ghost.jsonl', 0, 0, 0, 0, '[]');",
     );
     let mut s = Store::open(root).unwrap();

@@ -844,6 +844,7 @@ mod sqlite {
 #[cfg(feature = "sqlite")]
 mod sqlite {
     use super::*;
+    use crate::formats::sqlite_header;
     use base64::Engine;
     use rusqlite::types::{Value as Sv, ValueRef};
     use rusqlite::{Connection, OpenFlags};
@@ -1012,6 +1013,9 @@ mod sqlite {
         let mut container_extra = Obj::new();
         container_extra.insert("db".into(), json!(name));
         container_extra.insert("schema".into(), Value::Array(schema.clone()));
+        if let Some(h) = sqlite_header::read(&db)? {
+            container_extra.insert(sqlite_header::KEY.into(), h);
+        }
         if !book.is_empty() {
             container_extra.insert("bookkeeping".into(), Value::Object(book.clone()));
         }
@@ -1197,8 +1201,11 @@ mod sqlite {
         let native = sessions.iter().find(|s| s.src == Some(c));
         let name = native.and_then(|s| s.extra.get("db")).and_then(Value::as_str).unwrap_or("opencode.db").to_string();
         let path = tmp.path().join(&name);
+        // Every ledger read from this container names its file's header values.
+        let header = sqlite_header::pick(sessions.iter().filter(|s| s.src == Some(c)).map(|s| s.extra.get(sqlite_header::KEY)), losses);
         {
             let db = Connection::open(&path)?;
+            sqlite_header::write(&db, header.as_ref())?;
             db.execute_batch("PRAGMA foreign_keys = OFF; PRAGMA journal_mode = DELETE;")?;
             let tx = db.unchecked_transaction()?;
             let stored: Option<Vec<String>> =

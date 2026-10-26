@@ -10,8 +10,19 @@
 //! period between a source append and its events on the wire is one poll
 //! plus the engine's 20 ms tick; every "nothing more" assertion waits 1 s,
 //! ten polls.
+//!
+//! Every test about a store's contents runs in a plain store (its own name)
+//! and in each compressed mode (`<test>::no_dictionary`,
+//! `::passed_dictionary`, `::retrained`; SPEC §10.11): the backlog a
+//! subscriber is sent comes from sealed blocks and the hot tail, and what
+//! the tests read of a ledger they read through the store's reader.
 #![cfg(all(feature = "serve", feature = "cli"))]
 
+#[macro_use]
+#[path = "modes/mod.rs"]
+mod modes;
+
+use modes::Mode;
 use protoledger::LedgerSet;
 use serde_json::{Value, json};
 use std::io::{BufRead, BufReader, Read, Write};
@@ -338,10 +349,30 @@ fn attach(s: &Serve, r: &Rollout) -> (String, String) {
     (b["binding"].as_str().unwrap().to_string(), b["agent"].as_str().unwrap().to_string())
 }
 
-/// Every event id of a ledger in the store, read from the file itself.
+/// Every event id of a ledger in the store, read from its files (in either
+/// form) by the store's reader, not through serve.
 fn ledger_ids(store: &Path, agent: &str) -> Vec<String> {
-    let set = LedgerSet::read_path(&store.join("ledgers")).unwrap();
+    let set = modes::read_set(store);
     set.get(agent).unwrap().events.iter().map(|e| e.id.clone()).collect()
+}
+
+/// Start serve on `store` (in `m`) with the rollout's head attached. In the
+/// retrained mode the head is attached through the library and the store
+/// retrained before serve starts, since a recompression needs the writer
+/// locks serve then holds; otherwise it is attached through serve.
+fn start_attached(m: Mode, store: &Path, r: &Rollout) -> (Serve, String, String) {
+    m.prepare(store);
+    if m == Mode::Retrained {
+        let mut st = protoledger::Store::open(store).unwrap();
+        let (row, _) = protoledger::sync::attach(&mut st, "codex", &r.loc).unwrap();
+        m.retrain(&mut st);
+        drop(st);
+        let s = Serve::start(store);
+        return (s, row.binding, row.agent);
+    }
+    let s = Serve::start(store);
+    let (binding, agent) = attach(&s, r);
+    (s, binding, agent)
 }
 
 // ---- (a) ----
@@ -352,11 +383,14 @@ fn ledger_ids(store: &Path, agent: &str) -> Vec<String> {
 /// and nothing more arrives in the ten polls after.
 #[test]
 fn two_clients_from_different_seqs_get_every_live_sync_event_once_in_order_quiet_past_ten_100ms_polls() {
+    two_clients_from_different_seqs(Mode::Plain);
+}
+
+fn two_clients_from_different_seqs(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
     let r = rollout(dir.path());
-    let s = Serve::start(&store);
-    let (_binding, agent) = attach(&s, &r);
+    let (s, _binding, agent) = start_attached(m, &store, &r);
     let tip = s.last_seq(&agent);
     assert!(tip > 6, "{tip}");
     let before = ledger_ids(&store, &agent);
@@ -389,6 +423,8 @@ fn two_clients_from_different_seqs_get_every_live_sync_event_once_in_order_quiet
     assert_eq!(ledger_ids(&store, &agent), [before, live].concat());
     a.close();
     b.close();
+    drop(s);
+    m.check(&store);
 }
 
 // ---- (b) ----
@@ -398,11 +434,14 @@ fn two_clients_from_different_seqs_get_every_live_sync_event_once_in_order_quiet
 /// none twice, and nothing more in the ten polls after.
 #[test]
 fn reconnect_from_last_seq_gets_exactly_the_missed_events_quiet_past_ten_100ms_polls() {
+    reconnect_from_last_seq(Mode::Plain);
+}
+
+fn reconnect_from_last_seq(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
     let r = rollout(dir.path());
-    let s = Serve::start(&store);
-    let (_binding, agent) = attach(&s, &r);
+    let (s, _binding, agent) = start_attached(m, &store, &r);
     let tip = s.last_seq(&agent);
 
     let c = s.ws(&format!("{agent}:{tip}"));
@@ -431,6 +470,8 @@ fn reconnect_from_last_seq_gets_exactly_the_missed_events_quiet_past_ten_100ms_p
     let firsts: std::collections::HashSet<String> = ids(&first).into_iter().collect();
     assert!(ids(&second).iter().all(|i| !firsts.contains(i)), "an event came twice");
     d.close();
+    drop(s);
+    m.check(&store);
 }
 
 // ---- (c) ----
@@ -441,16 +482,23 @@ fn reconnect_from_last_seq_gets_exactly_the_missed_events_quiet_past_ten_100ms_p
 /// import through serve shows up in the next answer.
 #[test]
 fn http_endpoints_answer_a_seeded_store_and_an_unknown_agent_is_404() {
+    http_endpoints(Mode::Plain);
+}
+
+fn http_endpoints(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
+    m.prepare(&store);
     let st = store.to_str().unwrap();
     run(&["store", "import", st, "protoledger", fixture("protoledger/native-subagent-compaction/native").to_str().unwrap()]);
     run(&["store", "import", st, "protoledger", fixture("protoledger/minimal/native").to_str().unwrap()]);
     let cc = dir.path().join("cc");
     let projected = run(&["project", st, "hello-1", "claude-code", cc.to_str().unwrap()]).trim().to_string();
     assert_eq!(projected.len(), 36, "{projected:?}");
+    m.retrain_at(&store);
+    m.check(&store);
     // What the ledgers say, read from the files.
-    let set = LedgerSet::read_path(&store.join("ledgers")).unwrap();
+    let set = modes::read_set(&store);
     let mut want: Vec<(String, u64)> = set.iter().map(|l| (l.id().to_string(), l.last_seq())).collect();
     want.sort();
     assert_eq!(want.iter().map(|(a, _)| a.as_str()).collect::<Vec<_>>(), ["hello-1", "main-1", "main-1.sub-1"]);
@@ -540,17 +588,26 @@ fn http_endpoints_answer_a_seeded_store_and_an_unknown_agent_is_404() {
     assert_eq!(v.as_array().unwrap().len(), 3 + created.len());
     let (code, v) = s.post("/v1/import", json!({ "format": "protoledger" }));
     assert_eq!(code, 400, "{v}");
+    drop(s);
+    m.check(&store);
 }
 
 /// `from=all` streams every agent from its first event; a malformed cursor
 /// is refused before the upgrade.
 #[test]
 fn subscribe_all_streams_every_agent_from_seq_one_and_a_bad_cursor_is_400() {
+    subscribe_all(Mode::Plain);
+}
+
+fn subscribe_all(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
+    m.prepare(&store);
     let st = store.to_str().unwrap();
     run(&["store", "import", st, "protoledger", fixture("protoledger/native-subagent-compaction/native").to_str().unwrap()]);
-    let set = LedgerSet::read_path(&store.join("ledgers")).unwrap();
+    m.retrain_at(&store);
+    m.check(&store);
+    let set = modes::read_set(&store);
     let total: usize = set.iter().map(|l| l.events.len()).sum();
     let s = Serve::start(&store);
     let w = s.ws("all");
@@ -577,11 +634,14 @@ fn subscribe_all_streams_every_agent_from_seq_one_and_a_bad_cursor_is_400() {
 /// afterwards is not appended (ten polls).
 #[test]
 fn unbind_through_serve_succeeds_while_serve_follows_where_cli_unbind_is_refused_locked() {
+    unbind_through_serve(Mode::Plain);
+}
+
+fn unbind_through_serve(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
     let r = rollout(dir.path());
-    let s = Serve::start(&store);
-    let (binding, agent) = attach(&s, &r);
+    let (s, binding, agent) = start_attached(m, &store, &r);
     let tip = s.last_seq(&agent);
     // It is being followed.
     append(&r.loc, &r.parts[0]);
@@ -616,6 +676,7 @@ fn unbind_through_serve_succeeds_while_serve_follows_where_cli_unbind_is_refused
     let out = bin().args(["unbind", store.to_str().unwrap(), &binding]).output().unwrap();
     let err = String::from_utf8_lossy(&out.stderr);
     assert!(!out.status.success() && err.contains("not active") && !err.contains("locked"), "{:?} {err}", out.status);
+    m.check(&store);
 }
 
 // ---- the seam: a new agent written just before a subscribe ----
@@ -768,10 +829,16 @@ fn a_hundred_clients_subscribing_all_right_after_a_new_agent_get_every_event_onc
 /// missing field 400, and a second projection into the same dir 422.
 #[test]
 fn project_over_http_binds_publishes_its_bound_event_and_refuses_404_422_400() {
+    project_over_http(Mode::Plain);
+}
+
+fn project_over_http(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
+    m.prepare(&store);
     let st = store.to_str().unwrap();
     run(&["store", "import", st, "protoledger", fixture("protoledger/minimal/native").to_str().unwrap()]);
+    m.retrain_at(&store);
     let s = Serve::start(&store);
     let tip = s.last_seq("hello-1");
     let w = s.ws(&format!("hello-1:{tip}"));
@@ -817,6 +884,8 @@ fn project_over_http_binds_publishes_its_bound_event_and_refuses_404_422_400() {
     let (code, v) = s.post("/v1/unbind", json!({ "binding": binding }));
     assert_eq!(code, 200, "{v}");
     assert_eq!((v["active"].as_bool(), v["ended"].as_str()), (Some(false), Some("unbound")), "{v}");
+    drop(s);
+    m.check(&store);
 }
 
 // ---- "not followed after unbind", the sync layer alone ----
@@ -830,11 +899,17 @@ fn project_over_http_binds_publishes_its_bound_event_and_refuses_404_422_400() {
 /// gained.
 #[test]
 fn sync_of_an_unbound_binding_appends_nothing_though_its_location_grew() {
+    sync_of_an_unbound_binding(Mode::Plain);
+}
+
+fn sync_of_an_unbound_binding(m: Mode) {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
     let r = rollout(dir.path());
+    m.prepare(&store);
     let mut st = protoledger::Store::open(&store).unwrap();
     let (row, _) = protoledger::sync::attach(&mut st, "codex", &r.loc).unwrap();
+    m.retrain(&mut st);
 
     append(&r.loc, &r.parts[0]);
     let bound = protoledger::sync::sync(&mut st, &row.binding).unwrap();
@@ -854,7 +929,18 @@ fn sync_of_an_unbound_binding_appends_nothing_though_its_location_grew() {
     assert_eq!(st.agent(&row.agent).unwrap().unwrap().last_seq, before);
     drop(st);
     assert_eq!(ledger_ids(&store, &row.agent).len() as u64, before);
+    m.check(&store);
 }
+
+modes_tests!(
+    two_clients_from_different_seqs,
+    reconnect_from_last_seq,
+    http_endpoints,
+    subscribe_all,
+    unbind_through_serve,
+    project_over_http,
+    sync_of_an_unbound_binding,
+);
 
 // ---- loopback only by default ----
 
@@ -925,5 +1011,237 @@ fn serve_listens_on_loopback_without_the_flag_and_anywhere_with_allow_remote() {
         let (code, v) = http(&ask, "GET", "/v1/agents", None);
         assert_eq!(code, 200, "{listen}: {v}");
         drop(s);
+    }
+}
+
+// ---- a damaged ledger in the store ----
+
+/// A store holding the rollout's head attached (agent and binding returned)
+/// and the minimal protoledger fixture (`hello-1`); with `damaged`, the
+/// attached agent's ledger is then damaged in place (a line that does not
+/// parse), after the index read it.
+fn store_with_a_damaged_attachment(dir: &Path, damaged: bool) -> (PathBuf, Rollout, String, String) {
+    let store = dir.join("store");
+    let r = rollout(dir);
+    let mut st = protoledger::Store::open(&store).unwrap();
+    let (row, _) = protoledger::sync::attach(&mut st, "codex", &r.loc).unwrap();
+    st.import("protoledger", &fixture("protoledger/minimal/native")).unwrap();
+    let path = store.join(&st.agent(&row.agent).unwrap().unwrap().path);
+    drop(st);
+    if damaged {
+        let text = String::from_utf8(std::fs::read(&path).unwrap()).unwrap();
+        let mut lines: Vec<&str> = text.lines().collect();
+        lines[3] = "{this line is not json";
+        std::fs::write(&path, lines.join("\n") + "\n").unwrap();
+    }
+    (store, r, row.binding, row.agent)
+}
+
+/// serve with a damaged ledger: it says so on stderr, once; a subscription
+/// to every agent gets every other ledger's events and none of its; one
+/// naming it is refused with 409, naming it, and so is every HTTP request
+/// naming it (its row, its events, its children), with the same body; the
+/// agent listing marks its row damaged and carries none of the counts the
+/// index read before the damage. Opposed: the healthy agent beside it is
+/// served (200, 101), requests that fail for any other reason keep their
+/// own status (unknown agent 404, a bad `from` 400, an agent not in the
+/// store yet 101); and healthy, the attached agent is served everywhere and
+/// listed unmarked.
+#[test]
+fn serve_names_a_damaged_ledger_leaves_it_out_of_the_all_agents_feed_and_refuses_a_subscription_to_it() {
+    for damaged in [true, false] {
+        let dir = tempfile::tempdir().unwrap();
+        let (store, r, _binding, agent) = store_with_a_damaged_attachment(dir.path(), damaged);
+        // stderr: started, then stopped once it says where it listens.
+        let mut child = bin()
+            .args(["serve", "--store", store.to_str().unwrap(), "--listen", "127.0.0.1:0", "--no-watcher"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap()).read_line(&mut line).unwrap();
+        assert!(line.starts_with("listening on "), "{line:?}");
+        let _ = child.kill();
+        let _ = child.wait();
+        let mut err = String::new();
+        child.stderr.take().unwrap().read_to_string(&mut err).unwrap();
+        let named = err.lines().filter(|l| l.contains("is damaged and was skipped") && l.contains(&format!("(agent {agent})"))).count();
+        assert_eq!(named, usize::from(damaged), "damaged: {damaged}: {err}");
+
+        let s = Serve::start(&store);
+        let w = s.ws("all");
+        let got = w.quiet(QUIET);
+        let agents: std::collections::BTreeSet<&str> = got.iter().filter_map(|m| m["agent"].as_str()).collect();
+        if damaged {
+            assert_eq!(agents.into_iter().collect::<Vec<_>>(), ["hello-1"], "{:?}", summary(&got));
+            let refused: Value = match tungstenite::connect(format!("ws://{}/v1/subscribe?from={agent}:0", s.addr)) {
+                Ok(_) => panic!("a subscription to the damaged ledger was served"),
+                Err(tungstenite::Error::Http(resp)) => {
+                    let body = String::from_utf8_lossy(resp.body().as_deref().unwrap_or_default()).into_owned();
+                    assert!(body.contains("damaged") && body.contains(&agent), "{} {body}", resp.status());
+                    assert_eq!(resp.status().as_u16(), 409, "{body}");
+                    serde_json::from_str(&body).unwrap()
+                }
+                Err(e) => panic!("{e}"),
+            };
+            // Every request naming it: 409, the subscription's body.
+            for path in [format!("/v1/agents/{agent}"), format!("/v1/agents/{agent}/events"), format!("/v1/agents/{agent}/children")] {
+                let (st, body) = s.get(&path);
+                assert_eq!((st, &body), (409, &refused), "GET {path}");
+            }
+            let (st, body) = s.post("/v1/project", json!({"agent": agent, "format": "codex", "dir": dir.path().join("proj")}));
+            assert_eq!((st, &body), (409, &refused), "POST /v1/project");
+            // Import and attach that reach it: 409, naming it; any other refusal keeps 422.
+            // The attach is of a copy of its rollout (with more of it) at a location not bound yet.
+            let copy = dir.path().join("copy").join(r.loc.file_name().unwrap());
+            std::fs::create_dir_all(copy.parent().unwrap()).unwrap();
+            std::fs::write(&copy, r.head.clone() + &r.parts[0]).unwrap();
+            for (path, req) in [("/v1/import", json!({"format": "codex", "path": r.loc})), ("/v1/attach", json!({"format": "codex", "location": copy}))] {
+                let (st, body) = s.post(path, req);
+                let msg = body["error"].as_str().unwrap_or_default();
+                assert!(st == 409 && msg.contains("is damaged") && msg.contains(&agent), "POST {path}: {st} {body}");
+            }
+            let (st, body) = s.post("/v1/import", json!({"format": "no-such-format", "path": r.loc}));
+            assert_eq!(st, 422, "{body}");
+            let (st, body) = s.post("/v1/attach", json!({"format": "codex", "location": r.loc}));
+            assert!(st == 422 && body["error"].as_str().unwrap_or_default().contains("already bound"), "{st} {body}");
+            // The listing marks it, without the stale counts.
+            let (st, list) = s.get("/v1/agents");
+            assert_eq!(st, 200, "{list}");
+            let row = list.as_array().unwrap().iter().find(|a| a["id"] == agent.as_str()).unwrap_or_else(|| panic!("not listed: {list}"));
+            let mark = row["damaged"].as_str().unwrap_or_else(|| panic!("not marked: {row}"));
+            assert!(mark.contains("damaged") && mark.contains(&agent), "{row}");
+            assert!(row.get("last_seq").is_none() && row.get("byte_len").is_none() && row.get("size").is_none(), "stale counts: {row}");
+            let hello = list.as_array().unwrap().iter().find(|a| a["id"] == "hello-1").unwrap();
+            assert!(hello.get("damaged").is_none() && hello["last_seq"] == 2, "{hello}");
+            // Beside it: the healthy agent is served, and other failures keep their own status.
+            assert_eq!(s.get("/v1/agents/hello-1").0, 200);
+            let (st, evs) = s.get("/v1/agents/hello-1/events");
+            assert_eq!((st, evs.as_array().map(Vec::len)), (200, Some(2)), "{evs}");
+            assert_eq!(s.get("/v1/agents/nobody").0, 404);
+            assert_eq!(s.get("/v1/agents/nobody/events").0, 404);
+            match tungstenite::connect(format!("ws://{}/v1/subscribe?from={agent}", s.addr)) {
+                Err(tungstenite::Error::Http(resp)) => assert_eq!(resp.status().as_u16(), 400),
+                other => panic!("a bad from: {:?}", other.map(|(_, r)| r.status())),
+            }
+            let one = s.ws("hello-1:0");
+            assert_eq!(seqs(&one.take(2)), [1, 2]);
+            one.close();
+            s.ws("nobody:0").close();
+        } else {
+            assert!(agents.contains("hello-1") && agents.contains(agent.as_str()), "{:?}", summary(&got));
+            let one = s.ws(&format!("{agent}:0"));
+            assert!(!one.take(1).is_empty());
+            one.close();
+            let (st, a) = s.get(&format!("/v1/agents/{agent}"));
+            assert!(st == 200 && a.get("damaged").is_none() && a["last_seq"].as_u64() > Some(0), "{st} {a}");
+            let (st, evs) = s.get(&format!("/v1/agents/{agent}/events"));
+            assert!(st == 200 && !evs.as_array().unwrap().is_empty(), "{st} {evs}");
+            assert_eq!(s.get(&format!("/v1/agents/{agent}/children")).0, 200);
+            let (_, list) = s.get("/v1/agents");
+            assert!(list.as_array().unwrap().iter().all(|a| a.get("damaged").is_none() && a["last_seq"].as_u64().is_some()), "{list}");
+        }
+        w.close();
+    }
+}
+
+/// Sync with a damaged ledger bound: the binding is not read (deferred,
+/// naming the ledger) and nothing fails; the ledger is left as it was.
+/// Opposed: healthy, the same sync appends what the location gained.
+#[test]
+fn sync_of_a_binding_whose_ledger_is_damaged_defers_it_naming_it_and_stops_nothing() {
+    for damaged in [true, false] {
+        let dir = tempfile::tempdir().unwrap();
+        let (store, r, binding, agent) = store_with_a_damaged_attachment(dir.path(), damaged);
+        let mut st = protoledger::Store::open(&store).unwrap();
+        let path = store.join(&st.agent(&agent).unwrap().unwrap().path);
+        let before = std::fs::read(&path).unwrap();
+        append(&r.loc, &r.parts[0]);
+        let all = protoledger::sync::sync_all(&mut st).unwrap_or_else(|e| panic!("damaged: {damaged}: sync_all failed: {e:#}"));
+        let s = all.iter().find(|s| s.binding == binding).expect("the binding was synced");
+        if damaged {
+            let d = s.deferred.as_deref().unwrap_or_else(|| panic!("not deferred: {s:?}"));
+            assert!(d.contains("damaged") && d.contains(path.file_name().unwrap().to_str().unwrap()), "{d}");
+            assert!(s.appended.is_empty(), "{s:?}");
+            drop(st);
+            assert!(std::fs::read(&path).unwrap() == before, "the damaged ledger changed");
+        } else {
+            assert!(s.deferred.is_none(), "{s:?}");
+            let ids: Vec<String> = s.appended.iter().map(|p| p.event.id.clone()).collect();
+            assert_eq!(ids, r.part_ids[0], "{s:?}");
+        }
+    }
+}
+
+/// An import or attach that reaches a damaged ledger is refused naming the
+/// damage, whether the index still holds the ledger's rows or not (`store
+/// reindex` drops them; the file and its readable header are still there):
+/// the CLI's error says so, and serve answers 409. Opposed: a new agent is
+/// still created beside it (200); creating an agent a healthy ledger already
+/// holds keeps its own refusal; and healthy, the same import and attach
+/// succeed.
+#[test]
+fn import_and_attach_reaching_a_damaged_ledger_are_refused_by_name_indexed_or_not() {
+    for (damaged, reindexed) in [(true, false), (true, true), (false, false)] {
+        let case = format!("damaged: {damaged}, reindexed: {reindexed}");
+        let dir = tempfile::tempdir().unwrap();
+        let (store, r, _binding, agent) = store_with_a_damaged_attachment(dir.path(), damaged);
+        let st = store.to_str().unwrap();
+        if reindexed {
+            run(&["store", "reindex", st]);
+            let s = protoledger::Store::open(&store).unwrap();
+            assert!(s.agent(&agent).unwrap().is_none(), "{case}: the reindex kept its row");
+            assert!(s.damaged_agent(&agent).is_some(), "{case}: not named damaged");
+        }
+        // A copy of its rollout, with more of it, at a location not bound yet.
+        let copy = dir.path().join("copy").join(r.loc.file_name().unwrap());
+        std::fs::create_dir_all(copy.parent().unwrap()).unwrap();
+        std::fs::write(&copy, r.head.clone() + &r.parts[0]).unwrap();
+        let copy2 = dir.path().join("copy2").join(r.loc.file_name().unwrap());
+        std::fs::create_dir_all(copy2.parent().unwrap()).unwrap();
+        std::fs::write(&copy2, r.head.clone() + &r.parts[0]).unwrap();
+
+        // The CLI: its error (not the line naming what the store skipped) names the damage.
+        let out = bin().args(["store", "import", st, "codex", copy.to_str().unwrap()]).output().unwrap();
+        let err = String::from_utf8_lossy(&out.stderr).into_owned();
+        let error = err.split_once("Error:").map(|(_, e)| e.to_string()).unwrap_or_default();
+        if damaged {
+            assert!(!out.status.success(), "{case}: store import succeeded");
+            assert!(error.contains("is damaged") && error.contains(&agent) && !error.contains("already exists"), "{case}: store import: {err}");
+        } else {
+            assert!(out.status.success(), "{case}: store import: {err}");
+        }
+
+        // Library: an agent a healthy ledger holds keeps its own refusal.
+        {
+            let mut s = protoledger::Store::open(&store).unwrap();
+            let id = "hello-1";
+            let e = s
+                .create_agent(protoledger::model::Agent {
+                    id: id.into(),
+                    created_at: None,
+                    source: None,
+                    parent: None,
+                    links: vec![],
+                    meta: Default::default(),
+                })
+                .unwrap_err();
+            assert!(e.downcast_ref::<protoledger::store::DamagedLedger>().is_none() && format!("{e:#}").contains("already in the store"), "{case}: {e:#}");
+        }
+
+        let s = Serve::start(&store);
+        for (path, req) in [("/v1/import", json!({"format": "codex", "path": copy})), ("/v1/attach", json!({"format": "codex", "location": copy2}))] {
+            let (status, body) = s.post(path, req);
+            let msg = body["error"].as_str().unwrap_or_default();
+            if damaged {
+                assert!(status == 409 && msg.contains("is damaged") && msg.contains(&agent), "{case}: POST {path}: {status} {body}");
+            } else {
+                assert_eq!(status, 200, "{case}: POST {path}: {body}");
+            }
+        }
+        // A new agent beside it is created.
+        let (status, body) = s.post("/v1/import", json!({"format": "protoledger", "path": fixture("protoledger/native-subagent-compaction/native")}));
+        assert_eq!(status, 200, "{case}: {body}");
     }
 }

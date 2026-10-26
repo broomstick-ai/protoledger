@@ -170,12 +170,37 @@ fn serve_cmd(store: PathBuf, listen: &str, allow_remote: bool, debounce_ms: u64,
     use std::io::Write;
     use std::time::Duration;
     let follow = FollowOptions { debounce: Duration::from_millis(debounce_ms), poll: Duration::from_millis(poll_ms), watcher: !no_watcher };
+    report_damaged(&store);
     let server = Server::start(&store, resolve_listen(listen, allow_remote)?, ServeOptions { follow, allow_remote })?;
     let mut out = std::io::stdout().lock();
     writeln!(out, "listening on {}", server.addr())?;
     out.flush()?;
     drop(out);
     server.wait()
+}
+
+/// Open the store at `root`, and say on stderr which ledgers it could not
+/// read: each is skipped, and every operation on it fails naming it.
+/// Say on stderr which ledgers of the store at `root` cannot be read, for a
+/// command that does not open it as [`open_store`] does: found without
+/// writing anything. A store that cannot be read at all is the command's
+/// own error to report.
+#[cfg(feature = "store")]
+fn report_damaged(root: &std::path::Path) {
+    if let Ok(ds) = protoledger::Store::damaged_at(root) {
+        for d in ds {
+            eprintln!("protoledger: {d}");
+        }
+    }
+}
+
+#[cfg(feature = "store")]
+fn open_store(root: &std::path::Path) -> Result<protoledger::Store> {
+    let s = protoledger::Store::open(root)?;
+    for d in s.damaged() {
+        eprintln!("protoledger: {d}");
+    }
+    Ok(s)
 }
 
 #[cfg(feature = "sync")]
@@ -195,34 +220,36 @@ fn print_synced(trigger: &str, s: &protoledger::sync::Synced) -> Result<()> {
     if let Some(d) = &s.diverged {
         eprintln!("binding {} diverged and is no longer followed: {d}", s.binding);
     }
+    if let Some(d) = &s.deferred {
+        eprintln!("binding {} not read: {d}", s.binding);
+    }
     Ok(())
 }
 
 #[cfg(feature = "sync")]
 fn sync_cmd(cmd: Cmd) -> Result<()> {
-    use protoledger::Store;
     use protoledger::sync::{self, FollowOptions, Follower, Trigger};
     use std::time::{Duration, Instant};
     match cmd {
         Cmd::Project { store, agent, format, dir } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let b = sync::project(&mut s, &agent, &format, &dir)?;
             eprintln!("projected {agent} as {} {} → {}", b.format, b.variant.as_deref().unwrap_or(""), b.location);
             println!("{}", b.binding);
         }
         Cmd::Attach { store, format, location } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let (b, r) = sync::attach(&mut s, &format, &location)?;
             eprintln!("attached {} {} as agent {}: {} agents created, {} events appended", b.format, b.location, b.agent, r.created.len(), r.appended.len());
             println!("{}", b.binding);
         }
         Cmd::Unbind { store, binding } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             sync::unbind(&mut s, &binding)?;
             eprintln!("unbound {binding}");
         }
         Cmd::Reproject { store, binding } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let r = sync::reproject(&mut s, &binding)?;
             let fact = match r.fact {
                 Some(at) => format!("protoledger/projected appended at seq {}", at.seq),
@@ -237,7 +264,7 @@ fn sync_cmd(cmd: Cmd) -> Result<()> {
             println!("{}", serde_json::to_string(&r.projected)?);
         }
         Cmd::Watch { store, debounce_ms, poll_ms, no_watcher } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             // Catch up with whatever happened while nobody was watching.
             for r in sync::sync_all(&mut s)? {
                 print_synced("start", &r)?;
@@ -354,7 +381,8 @@ enum StoreCmd {
         /// `clock` lines name which, per ledger).
         #[arg(long)]
         older_than: Option<String>,
-        /// Ledger file larger than this: 1500, 10K (KiB), 10KB, 5M, 1G.
+        /// Ledger larger than this, measured on its decompressed stream (a
+        /// compressed ledger's size is its plain form's): 1500, 10K (KiB), 10KB, 5M, 1G.
         #[arg(long)]
         larger_than: Option<String>,
         /// Archived: the ledger's newest protoledger/archived|unarchived app event is archived.
@@ -394,6 +422,10 @@ enum DictCmd {
 #[cfg(feature = "store")]
 fn dict_cmd(cmd: DictCmd) -> Result<()> {
     use protoledger::Store;
+    match &cmd {
+        DictCmd::Add { store, .. } | DictCmd::Train { store, .. } | DictCmd::Rm { store, .. } => report_damaged(store),
+        DictCmd::Ls { .. } => {} // opens the store, which says
+    }
     match cmd {
         DictCmd::Add { store, file } => {
             let bytes = std::fs::read(&file).with_context(|| format!("reading {}", file.display()))?;
@@ -401,7 +433,7 @@ fn dict_cmd(cmd: DictCmd) -> Result<()> {
         }
         DictCmd::Train { store, size } => println!("{}", Store::train_dictionary(&store, size)?),
         DictCmd::Ls { store } => {
-            for d in Store::open(&store)?.dictionaries()? {
+            for d in open_store(&store)?.dictionaries()? {
                 println!("{}\tsize={}\tdefault={}\tblocks={}", d.id, d.size, if d.default { "yes" } else { "no" }, d.blocks());
                 for (agent, n) in &d.ledgers {
                     println!("\t{agent}\tblocks={n}");
@@ -421,12 +453,18 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
     use protoledger::Store;
     match cmd {
         StoreCmd::Init { store } => {
-            let s = Store::open(&store)?;
+            let s = open_store(&store)?;
             eprintln!("{}: {} agents", store.display(), s.agents()?.len());
         }
         StoreCmd::Ls { store } => {
-            let s = Store::open(&store)?;
+            let s = open_store(&store)?;
             for a in s.agents()? {
+                // A damaged ledger's row is what the index read before the
+                // damage; say so beside it.
+                if s.damaged_agent(&a.id).is_some() {
+                    println!("{}\tdamaged (the index row predates it; every operation on it is refused)", a.id);
+                    continue;
+                }
                 let parent = a.parent.as_ref().map(|p| format!(" parent={}", p.agent)).unwrap_or_default();
                 let source = a.source.as_ref().map(|s| format!(" source={}", s.format)).unwrap_or_default();
                 let title = a.title.as_deref().map(|t| format!(" title={t:?}")).unwrap_or_default();
@@ -434,7 +472,7 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
             }
         }
         StoreCmd::Show { store, agent, from, limit } => {
-            let s = Store::open(&store)?;
+            let s = open_store(&store)?;
             if s.agent(&agent)?.is_none() {
                 bail!("no agent {agent:?} in {}", store.display());
             }
@@ -444,12 +482,12 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
             }
         }
         StoreCmd::Reindex { store } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let r = s.reindex()?;
             eprintln!("{}: reindexed {} agents, {} events", store.display(), r.agents, r.events);
         }
         StoreCmd::Config { store, compression, seal_bytes, dictionary } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             if let Some(n) = seal_bytes {
                 s.set_seal_bytes(n)?;
             }
@@ -484,7 +522,7 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
                 Some("none") => DictChoice::None,
                 Some(id) => DictChoice::Id(id.to_string()),
             };
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let r = s.recompress(choice, &agents)?;
             for a in &r.recompressed {
                 eprintln!("recompressed\t{a}");
@@ -511,21 +549,29 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
             // Before the store is opened: opening writes to index.db.
             policy.check()?;
             let now = std::time::SystemTime::now();
-            let plan = if yes { Store::open(&store)?.gc(&policy, now)? } else { Store::gc_dry_run(&store, &policy, now)? };
+            let plan = if yes {
+                open_store(&store)?.gc(&policy, now)?
+            } else {
+                let plan = Store::gc_dry_run(&store, &policy, now)?;
+                for d in &plan.damaged {
+                    eprintln!("protoledger: {d}");
+                }
+                plan
+            };
             print!("{}", plan.render());
         }
         StoreCmd::Redact { store, agent, events, reason } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let at = s.redact(&agent, &events, &reason)?;
             eprintln!("{agent}: {} events redacted (protoledger/redacted at seq {})", events.len(), at.seq);
         }
         StoreCmd::Unredact { store, agent, events } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let at = s.unredact(&agent, &events)?;
             eprintln!("{agent}: {} events unredacted (protoledger/unredacted at seq {})", events.len(), at.seq);
         }
         StoreCmd::Import { store, format: name, input } => {
-            let mut s = Store::open(&store)?;
+            let mut s = open_store(&store)?;
             let r = s.import(&name, &input)?;
             report_losses("import", &r.losses);
             eprintln!(
@@ -667,12 +713,11 @@ fn main() -> Result<()> {
         Cmd::Store { cmd } => store_cmd(cmd)?,
         #[cfg(feature = "store")]
         Cmd::Cat { store, agent } => {
-            let s = protoledger::Store::open(&store)?;
-            if s.agent(&agent)?.is_none() {
-                bail!("no agent {agent:?} in {}", store.display());
-            }
+            let s = open_store(&store)?;
+            // The reader refuses a damaged ledger, naming it.
+            let reader = s.reader(&agent).with_context(|| format!("in {}", store.display()))?;
             let mut out = std::io::stdout().lock();
-            s.reader(&agent)?.copy_to(&mut out)?;
+            reader.copy_to(&mut out)?;
             std::io::Write::flush(&mut out)?;
         }
         #[cfg(feature = "sync")]

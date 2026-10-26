@@ -33,6 +33,16 @@
 //! over by binding id, and it is lost only with `index.db` itself, which
 //! costs one rescan (the next sync re-reads the location and re-baselines).
 
+/// A point at which a test can act ([`testing`]): with the `test-hooks`
+/// feature, runs the hook set for `$point` on this thread, and an error it
+/// returns stops the operation there; without the feature, nothing at all.
+macro_rules! hook {
+    ($point:ident, $path:expr) => {
+        #[cfg(feature = "test-hooks")]
+        $crate::store::testing::fire($crate::store::testing::Point::$point, $path)?;
+    };
+}
+
 pub mod bindings;
 mod blocks;
 mod config;
@@ -41,6 +51,7 @@ pub mod gc;
 mod index;
 mod layout;
 mod reader;
+#[cfg(feature = "test-hooks")]
 #[doc(hidden)]
 pub mod testing;
 mod writer;
@@ -167,6 +178,68 @@ pub enum DictChoice {
     Id(String),
 }
 
+/// A ledger the index could not read when it last caught up: damage
+/// (SPEC §10.6), or a plain ledger that does not parse. One damaged ledger
+/// never stops a store from opening: catch-up skips it and names it here
+/// ([`Store::damaged`]), and every operation on it fails, naming it, until
+/// it is repaired by hand. Nothing in it is changed or deleted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Damaged {
+    /// The ledger's plain path relative to the store root
+    /// (`ledgers/<name>.jsonl`), which names it in either form.
+    pub ledger: String,
+    /// Its agent, when the index or the ledger's header says.
+    pub agent: Option<String>,
+    /// Why, as the read that failed said it.
+    pub reason: String,
+}
+
+impl std::fmt::Display for Damaged {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.agent {
+            Some(a) => write!(f, "ledger {} (agent {a}) is damaged and was skipped: {}", self.ledger, self.reason),
+            None => write!(f, "ledger {} is damaged and was skipped: {}", self.ledger, self.reason),
+        }
+    }
+}
+
+/// The error of an operation refused because its ledger is damaged
+/// ([`Store::damaged`]): a caller can tell it apart with
+/// `anyhow::Error::downcast_ref::<DamagedLedger>()`.
+#[derive(Debug, Clone)]
+pub struct DamagedLedger(pub Damaged);
+
+impl std::fmt::Display for DamagedLedger {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}; repair it by hand (nothing in it was changed)", self.0)
+    }
+}
+
+impl std::error::Error for DamagedLedger {}
+
+/// An error reading a ledger during catch-up: the ledger is damaged, not
+/// the store.
+#[derive(Debug)]
+struct Unreadable(String);
+
+impl std::fmt::Display for Unreadable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for Unreadable {}
+
+/// `e`, naming `reader`'s ledger unless its message already starts with it.
+fn named(reader: &LedgerReader, e: anyhow::Error) -> anyhow::Error {
+    let path = reader.to_string();
+    if format!("{e:#}").starts_with(&path) { e } else { e.context(path) }
+}
+
+fn unreadable(e: anyhow::Error) -> anyhow::Error {
+    anyhow::Error::new(Unreadable(format!("{e:#}")))
+}
+
 struct Subscriber {
     tx: Sender<Published>,
     /// `None` = every agent.
@@ -179,6 +252,8 @@ pub struct Store {
     writers: HashMap<String, Writer>,
     subs: Mutex<Vec<Subscriber>>,
     config: Config,
+    /// What the last catch-up could not read.
+    damaged: Mutex<Vec<Damaged>>,
 }
 
 pub const LEDGERS: &str = "ledgers";
@@ -186,14 +261,68 @@ pub const INDEX: &str = "index.db";
 
 impl Store {
     /// Open the store at `root`, creating `ledgers/` and `index.db` if needed,
-    /// and bring the index up to date with the ledgers.
+    /// and bring the index up to date with the ledgers. A damaged ledger does
+    /// not stop it: the index skips it, and [`Store::damaged`] names it.
     pub fn open(root: impl AsRef<Path>) -> Result<Store> {
         let root = root.as_ref().to_path_buf();
         fs::create_dir_all(root.join(LEDGERS)).with_context(|| format!("creating {}", root.join(LEDGERS).display()))?;
         let db = index::open(&root.join(INDEX))?;
         let config = Config::read(&root)?;
-        let store = Store { root, db, writers: HashMap::new(), subs: Mutex::new(Vec::new()), config };
+        let store = Store { root, db, writers: HashMap::new(), subs: Mutex::new(Vec::new()), config, damaged: Mutex::new(Vec::new()) };
         store.catch_up().context("bringing the index up to date")?;
+        Ok(store)
+    }
+
+    /// The ledgers the index could not read when it last caught up (on
+    /// open, [`Store::refresh`], [`Store::reindex`], ...), each once, in
+    /// path order. Every operation on one of them fails, naming it.
+    pub fn damaged(&self) -> Vec<Damaged> {
+        self.damaged.lock().expect("damaged lock").clone()
+    }
+
+    /// `agent`'s ledger, when the last catch-up found it damaged: named by
+    /// its agent, its index row's path, or the path its id would have.
+    pub fn damaged_agent(&self, agent: &str) -> Option<Damaged> {
+        let plain = format!("{LEDGERS}/{}.jsonl", file_safe(agent));
+        let row = index::agent(&self.db, agent).ok().flatten().map(|a| a.path);
+        self.damaged
+            .lock()
+            .expect("damaged lock")
+            .iter()
+            .find(|d| d.agent.as_deref() == Some(agent) || d.ledger == plain || row.as_deref() == Some(d.ledger.as_str()))
+            .cloned()
+    }
+
+    /// Refuse `agent` when the last catch-up found its ledger damaged.
+    fn refuse_damaged(&self, agent: &str) -> Result<()> {
+        match self.damaged_agent(agent) {
+            Some(d) => Err(anyhow::Error::new(DamagedLedger(d))),
+            None => Ok(()),
+        }
+    }
+
+    /// The ledgers of the store at `root` that a catch-up cannot read
+    /// ([`Store::damaged`]), found without writing anything, not even to
+    /// `index.db`: the index is caught up in memory, as a dry run of
+    /// [`Store::gc`] does.
+    pub fn damaged_at(root: impl AsRef<Path>) -> Result<Vec<Damaged>> {
+        Ok(Store::in_memory(root.as_ref())?.damaged())
+    }
+
+    /// The store at `root` with its index copied into memory from a
+    /// read-only view of `index.db` (or, if that cannot be read, rebuilt in
+    /// memory from the ledgers) and caught up there exactly as
+    /// [`Store::open`] would catch it up. Writes nothing.
+    pub(crate) fn in_memory(root: &Path) -> Result<Store> {
+        let root = root.to_path_buf();
+        let db = index::open(Path::new(":memory:"))?;
+        if gc::copy_index(&db, &root.join(INDEX)).is_err() {
+            // Nothing usable to copy: the ledgers alone rebuild it.
+            index::reset(&db)?;
+        }
+        let config = Config::read(&root)?;
+        let store = Store { root, db, writers: Default::default(), subs: Default::default(), config, damaged: Default::default() };
+        store.catch_up().context("reading the ledgers")?;
         Ok(store)
     }
 
@@ -214,13 +343,14 @@ impl Store {
     /// §10.1), whatever form the ledger is stored in. Every read the store
     /// makes of a ledger goes through one.
     pub fn reader(&self, agent: &str) -> Result<LedgerReader> {
+        self.refuse_damaged(agent)?;
         let info = self.agent(agent)?.ok_or_else(|| anyhow!("no agent {agent:?} in the store"))?;
         Ok(self.reader_of(&info.path))
     }
 
     /// The reader of the ledger at `rel` (relative to the store root),
     /// told where the index last saw its sealed blocks.
-    fn reader_of(&self, rel: &str) -> LedgerReader {
+    pub(crate) fn reader_of(&self, rel: &str) -> LedgerReader {
         let r = LedgerReader::plain(self.root.join(rel));
         match self.db.query_row("SELECT id FROM agents WHERE path = ?1", [rel], |r| r.get::<_, String>(0)) {
             Ok(id) => r.with_hints(index::blocks(&self.db, &id).unwrap_or_default().iter().map(BlockRow::located).collect()),
@@ -298,13 +428,27 @@ impl Store {
     /// the default dictionary for new blocks. The id must name a dictionary
     /// in the store whose bytes match it. Existing blocks are not touched;
     /// this store's writers seal with it from their next seal.
+    ///
+    /// The check and the write of `store.json` are one step under the
+    /// store's dictionary lock, held shared (as a seal holds it): `store dict
+    /// rm` holds it exclusively while it reads the default and deletes, so
+    /// it either deletes first (and the check here fails) or finds this
+    /// dictionary the default (and refuses). The default never names a
+    /// dictionary that is not in the store.
     pub fn set_dictionary(&mut self, id: Option<&str>) -> Result<()> {
-        if let Some(id) = id {
-            if !dicts::is_id(id) {
-                bail!("{id:?} is not a dictionary id (64 lowercase hex digits)");
+        let _held = match id {
+            None => None,
+            Some(id) => {
+                if !dicts::is_id(id) {
+                    bail!("{id:?} is not a dictionary id (64 lowercase hex digits)");
+                }
+                let ds = dicts::Dicts::of_store(&self.root);
+                let held = ds.lock_shared()?;
+                ds.load(id).map_err(|e| anyhow!("{e}: it is not a dictionary in this store"))?;
+                hook!(DictDefaulting, &ds.path(id));
+                Some(held)
             }
-            dicts::Dicts::of_store(&self.root).load(id).map_err(|e| anyhow!("{e}: it is not a dictionary in this store"))?;
-        }
+        };
         let mut c = self.config.clone();
         c.compression.dictionary = id.map(str::to_string);
         c.write(&self.root)?;
@@ -340,8 +484,12 @@ impl Store {
         }
         ledgers.sort_by(|a, b| b.cmp(a));
         let mut streams = Vec::with_capacity(ledgers.len());
+        // A ledger that cannot be read (it is damaged: [`Store::damaged`]
+        // names it) is no sample; the rest of the store trains.
         for (_, p) in &ledgers {
-            streams.push(LedgerReader::plain(p).stream()?);
+            if let Ok(s) = LedgerReader::plain(p).stream() {
+                streams.push(s);
+            }
         }
         let dict = dicts::train(&dicts::sample(&streams, size), size)?;
         dicts::Dicts::of_store(root).add(&dict)
@@ -440,6 +588,9 @@ impl Store {
     /// Create a new agent's ledger (header only). Its structural parent, if
     /// any, must already be in the store (SPEC §2.1).
     pub fn create_agent(&mut self, agent: Agent) -> Result<()> {
+        // A damaged ledger of this id is refused by name, indexed or not
+        // (`store reindex` drops its rows; its file is still there).
+        self.refuse_damaged(&agent.id)?;
         if index::agent(&self.db, &agent.id)?.is_some() {
             bail!("agent {:?} is already in the store", agent.id);
         }
@@ -569,6 +720,7 @@ impl Store {
         if self.writers.contains_key(agent) {
             return Ok(());
         }
+        self.refuse_damaged(agent)?;
         let info = self.agent(agent)?.ok_or_else(|| anyhow!("no agent {agent:?} in the store"))?;
         let ap = Writer::open(&self.files(&info.path), self.opts())?;
         let fresh = self.catch_up_file(&info.path, Some(info.clone()))?;
@@ -681,15 +833,26 @@ impl Store {
         files.dedup();
         let known: HashMap<String, AgentInfo> = index::agents(&self.db)?.into_iter().map(|a| (a.path.clone(), a)).collect();
         let mut fresh = Vec::new();
+        let mut damaged = Vec::new();
         for rel in &files {
             let prev = known.get(rel).cloned();
-            if let Some(p) = &prev
-                && p.fingerprint() == Fingerprint::of(&self.files(rel))?
-            {
-                continue;
+            let caught = match Fingerprint::of(&self.files(rel)).map_err(unreadable) {
+                Ok(fp) if prev.as_ref().is_some_and(|p| p.fingerprint() == fp) => continue,
+                Ok(_) => self.catch_up_file(rel, prev.clone()),
+                Err(e) => Err(e),
+            };
+            match caught {
+                Ok(f) => fresh.extend(f),
+                // A damaged ledger is skipped and named; the rest of the
+                // store is indexed. Its rows (if any) stay as they were.
+                Err(e) if e.downcast_ref::<Unreadable>().is_some() => {
+                    let agent = prev.map(|p| p.id).or_else(|| self.reader_of(rel).header().ok().flatten().map(|h| h.agent.id));
+                    damaged.push(Damaged { ledger: rel.clone(), agent, reason: format!("{e:#}") });
+                }
+                Err(e) => return Err(e),
             }
-            fresh.extend(self.catch_up_file(rel, prev)?);
         }
+        *self.damaged.lock().expect("damaged lock") = damaged;
         let present: HashSet<&String> = files.iter().collect();
         let tx = self.db.unchecked_transaction()?;
         index::put_dicts(&tx, &dicts::Dicts::of_store(&self.root).list()?)?;
@@ -703,29 +866,37 @@ impl Store {
     }
 
     /// Index what one ledger holds past `prev.byte_len` (or all of it), and
-    /// its block rows from its block file's meta frames.
+    /// its block rows from its block file's meta frames. An error reading
+    /// the ledger (it is damaged) is an [`Unreadable`]; anything else is the
+    /// index's.
     fn catch_up_file(&self, rel: &str, prev: Option<AgentInfo>) -> Result<Vec<Published>> {
         let files = self.files(rel);
         let reader = self.reader_of(rel);
         // Stat before reading: a line appended after the stat leaves the
         // recorded fingerprint behind the files, so the next catch-up sees it.
-        let fp = Fingerprint::of(&files)?;
+        let fp = Fingerprint::of(&files).map_err(unreadable)?;
+        // Appends and seals only ever grow a ledger's main file (the plain
+        // file, or the block file). One that changed without growing was
+        // rewritten (a recompression, or damage made in place): what the
+        // index read of it before is not to be trusted, so read it whole.
+        let grew_or_untouched = |p: &AgentInfo| p.compressed == fp.compressed && (fp.size > p.size || fp.mtime_ns == p.mtime_ns);
         if let Some(p) = &prev
             && p.byte_len > 0
-            && reader.len().with_context(|| reader.to_string())? >= p.byte_len
+            && grew_or_untouched(p)
+            && reader.len().map_err(|e| named(&reader, e)).map_err(unreadable)? >= p.byte_len
         {
-            let (evs, end) = reader.tail(p.byte_len).with_context(|| reader.to_string())?;
+            let (evs, end) = reader.tail(p.byte_len).map_err(|e| named(&reader, e)).map_err(unreadable)?;
             if evs.first().is_none_or(|(_, e)| e.seq == p.last_seq + 1) {
-                let blocks = block_rows(&p.id, &files)?;
+                let blocks = block_rows(&p.id, &files).map_err(unreadable)?;
                 return self.index_events(&p.id, rel, evs, end, fp, &blocks, None);
             }
         }
         // New to the index, or not a clean continuation: read it whole.
-        let Some(header) = reader.header()? else {
+        let Some(header) = reader.header().map_err(unreadable)? else {
             return Ok(Vec::new()); // no complete header line yet
         };
-        let (evs, end) = reader.tail(0).with_context(|| reader.to_string())?;
-        let blocks = block_rows(&header.agent.id, &files)?;
+        let (evs, end) = reader.tail(0).map_err(|e| named(&reader, e)).map_err(unreadable)?;
+        let blocks = block_rows(&header.agent.id, &files).map_err(unreadable)?;
         self.index_events(&header.agent.id, rel, evs, end, fp, &blocks, Some((&header.agent, prev)))
     }
 
@@ -760,7 +931,7 @@ impl Store {
         starts.push(end);
         for (i, (offset, e)) in evs.into_iter().enumerate() {
             if e.seq != last_seq + 1 {
-                bail!("{rel}: seq {} at offset {offset} where {} was expected", e.seq, last_seq + 1);
+                return Err(unreadable(anyhow!("{rel}: seq {} at offset {offset} where {} was expected", e.seq, last_seq + 1)));
             }
             last_seq = e.seq;
             let row = EventRow::of(agent, offset, starts[i + 1] - offset, &e);
@@ -849,9 +1020,15 @@ impl Store {
         let fresh = self.catch_up()?;
         publish(&mut subs, fresh);
         let (tx, rx) = channel();
+        // A damaged ledger is left out of every agent's subscription (the
+        // store names it, [`Store::damaged`]), and a subscription naming one
+        // is refused, naming it.
         let (targets, filter) = match since {
-            Since::All => (index::agents(&self.db)?.into_iter().map(|a| (a.id, 0)).collect::<Vec<_>>(), None),
+            Since::All => (index::agents(&self.db)?.into_iter().filter(|a| self.damaged_agent(&a.id).is_none()).map(|a| (a.id, 0)).collect::<Vec<_>>(), None),
             Since::Agents(v) => {
+                for (a, _) in &v {
+                    self.refuse_damaged(a)?;
+                }
                 let filter = v.iter().map(|(a, _)| a.clone()).collect();
                 (v, Some(filter))
             }

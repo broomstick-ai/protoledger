@@ -47,6 +47,11 @@ sync = ["store", "dep:notify"]
 # `protoledger serve`: the store over HTTP and a WebSocket (docs/SERVE.md).
 # The only feature that pulls in tokio.
 serve = ["sync", "dep:tokio", "dep:axum"]
+# Points inside the store's compressed-ledger code at which a test can act
+# (`protoledger::store::testing`). Never on by default: without it the module
+# does not exist and the points compile to nothing. The crate's own tests
+# turn it on through the dev-dependency on itself below.
+test-hooks = ["store"]
 
 [dependencies]
 anyhow = "1"
@@ -70,5 +75,9 @@ walkdir = "2"
 zstd = { version = "0.13", optional = true }
 
 [dev-dependencies]
+# The crate itself, with the test hooks: its tests (tests/compress.rs,
+# tests/dict.rs) drive crashes and races through them. A dev-dependency
+# reaches only test builds, so `cargo build` never has the feature.
+protoledger = { path = ".", default-features = false, features = ["test-hooks"] }
 # A blocking WebSocket client for tests/serve.rs (no tokio in the tests).
 tungstenite = "0.26"

@@ -16,7 +16,6 @@ use super::blocks::{self, Located};
 use super::dicts::Dicts;
 use super::layout::{self, Files, Form, Ident};
 use super::reader;
-use super::testing::{self, Point};
 use crate::Ledger;
 use crate::ledger::{Appended, Appender, redaction_event};
 use crate::model::{Agent, Event};
@@ -73,7 +72,7 @@ fn load_opt(files: &Files, id: Option<&str>) -> Result<Option<Loaded>> {
 fn with_dict_on_disk<T>(files: &Files, dict: Option<&Loaded>, durable: impl FnOnce() -> Result<T>) -> Result<T> {
     let Some(d) = dict else { return durable() };
     let ds = Dicts::of_ledgers_dir(files.dir());
-    testing::fire(Point::DictLocking, &ds.path(&d.id))?;
+    hook!(DictLocking, &ds.path(&d.id));
     let _held = ds.lock_shared()?;
     ds.ensure(&d.id, &d.bytes).with_context(|| format!("{}: writing dictionary {} back", files.plain.display(), d.id))?;
     durable()
@@ -150,7 +149,7 @@ impl Writer {
                 Form::Absent => bail!("{}: the ledger has no files", files.plain.display()),
                 Form::Plain => {
                     let Some(f) = open_rw(&files.plain, false)? else { continue };
-                    testing::fire(Point::WriterLocking, &files.plain)?;
+                    hook!(WriterLocking, &files.plain);
                     lock(&f, &files.plain)?;
                     // Under the lock: is this still the ledger's one file?
                     if !is_at(&f, &files.plain)? || files.form()? != Form::Plain {
@@ -162,7 +161,7 @@ impl Writer {
                 Form::Compressed => {
                     let existed = layout::exists(&files.tail)?;
                     let Some(t) = open_rw(&files.tail, true)? else { continue };
-                    testing::fire(Point::WriterLocking, &files.tail)?;
+                    hook!(WriterLocking, &files.tail);
                     lock(&t, &files.tail)?;
                     let here = is_at(&t, &files.tail)?;
                     if !here || layout::exists(&files.plain)? {
@@ -182,7 +181,7 @@ impl Writer {
                 Form::Both => {
                     let Some(pf) = open_rw(&files.plain, false)? else { continue };
                     let Some(tf) = open_rw(&files.tail, true)? else { continue };
-                    testing::fire(Point::WriterLocking, &files.plain)?;
+                    hook!(WriterLocking, &files.plain);
                     lock(&pf, &files.plain)?;
                     lock(&tf, &files.tail)?;
                     if !is_at(&pf, &files.plain)? || !is_at(&tf, &files.tail)? {
@@ -422,14 +421,14 @@ impl Packed {
             }
             Ok((zf, p0))
         })?;
-        testing::fire(Point::SealWritten, &self.files.zst)?;
+        hook!(SealWritten, &self.files.zst);
         // 2. Read it back: whole, and the tail's bytes exactly.
         if !self.reads_back(p0, &meta, bytes.len() as u64, &data)? {
             zf.set_len(p0)?;
             zf.sync_all()?;
             return Ok(false);
         }
-        testing::fire(Point::SealChecked, &self.files.tail)?;
+        hook!(SealChecked, &self.files.tail);
         // 3. Only now is the tail emptied.
         self.tail.set_len(0)?;
         self.tail.sync_all()?;
@@ -509,7 +508,7 @@ fn check_copy(files: &Files, tmp: &std::path::Path, stream: &[u8], dict: Option<
 
 fn to_compressed(files: &Files, recompress_bytes: u64, dictionary: Option<&str>) -> Result<Migrated> {
     let Some(f) = open_rw(&files.plain, false)? else { return Ok(Migrated::NotNeeded) };
-    testing::fire(Point::WriterLocking, &files.plain)?;
+    hook!(WriterLocking, &files.plain);
     if let Err(e) = lock(&f, &files.plain) {
         return Ok(Migrated::Skipped(e.to_string()));
     }
@@ -527,7 +526,7 @@ fn to_compressed(files: &Files, recompress_bytes: u64, dictionary: Option<&str>)
     // 1. The blocks, under the temporary name.
     let tmp = files.zst_tmp();
     write_synced(&tmp, &blocks_of(files, &stream, recompress_bytes, 0, dict.as_ref())?)?;
-    testing::fire(Point::MigrationWritten, &tmp)?;
+    hook!(MigrationWritten, &tmp);
     // 2. Check: read back from disk, decompressed, byte for byte.
     check_copy(files, &tmp, &stream, dict.as_ref())?;
     // 3. Rename into place, its dictionary on disk first.
@@ -535,7 +534,7 @@ fn to_compressed(files: &Files, recompress_bytes: u64, dictionary: Option<&str>)
         fs::rename(&tmp, &files.zst).with_context(|| format!("renaming {} into place", tmp.display()))?;
         layout::sync_dir(files.dir())
     })?;
-    testing::fire(Point::MigrationRenamed, &files.zst)?;
+    hook!(MigrationRenamed, &files.zst);
     // 4. The plain file goes.
     layout::remove_if_present(&files.plain)?;
     layout::sync_dir(files.dir())?;
@@ -558,7 +557,7 @@ fn keeping_files(files: &Files, t: &File, existed: bool, body: impl FnOnce() -> 
 fn to_plain(files: &Files) -> Result<Migrated> {
     let existed = layout::exists(&files.tail)?;
     let Some(t) = open_rw(&files.tail, true)? else { return Ok(Migrated::NotNeeded) };
-    testing::fire(Point::WriterLocking, &files.tail)?;
+    hook!(WriterLocking, &files.tail);
     if let Err(e) = lock(&t, &files.tail) {
         return Ok(Migrated::Skipped(e.to_string()));
     }
@@ -577,7 +576,7 @@ fn to_plain(files: &Files) -> Result<Migrated> {
         // 1. The plain file, under the temporary name.
         let tmp = files.plain_tmp();
         write_synced(&tmp, &stream)?;
-        testing::fire(Point::MigrationWritten, &tmp)?;
+        hook!(MigrationWritten, &tmp);
         // 2. Check.
         let back = fs::read(&tmp)?;
         if back != stream {
@@ -592,7 +591,7 @@ fn to_plain(files: &Files) -> Result<Migrated> {
         // 3. Rename into place.
         fs::rename(&tmp, &files.plain).with_context(|| format!("renaming {} into place", tmp.display()))?;
         layout::sync_dir(files.dir())?;
-        testing::fire(Point::MigrationRenamed, &files.plain)?;
+        hook!(MigrationRenamed, &files.plain);
         // 4. The compressed files go.
         layout::remove_if_present(&files.zst)?;
         layout::remove_if_present(&files.tail)?;
@@ -614,7 +613,7 @@ pub(crate) fn recompress(files: &Files, dictionary: Option<&str>, recompress_byt
     }
     let existed = layout::exists(&files.tail)?;
     let Some(t) = open_rw(&files.tail, true)? else { return Ok(Migrated::NotNeeded) };
-    testing::fire(Point::WriterLocking, &files.tail)?;
+    hook!(WriterLocking, &files.tail);
     if let Err(e) = lock(&t, &files.tail) {
         return Ok(Migrated::Skipped(e.to_string()));
     }
@@ -647,16 +646,16 @@ pub(crate) fn recompress(files: &Files, dictionary: Option<&str>, recompress_byt
         // 1. The new block file, under the temporary name.
         let tmp = files.zst_tmp();
         write_synced(&tmp, &blocks_of(files, &stream, recompress_bytes, generation, dict.as_ref())?)?;
-        testing::fire(Point::RecompressWritten, &tmp)?;
+        hook!(RecompressWritten, &tmp);
         // 2. Check: read back from disk, every block whole, byte for byte.
         check_copy(files, &tmp, &stream, dict.as_ref())?;
-        testing::fire(Point::RecompressChecked, &tmp)?;
+        hook!(RecompressChecked, &tmp);
         // 3. Rename over the block file, its dictionary on disk first.
         with_dict_on_disk(files, dict.as_ref(), || {
             fs::rename(&tmp, &files.zst).with_context(|| format!("renaming {} into place", tmp.display()))?;
             layout::sync_dir(files.dir())
         })?;
-        testing::fire(Point::RecompressRenamed, &files.zst)?;
+        hook!(RecompressRenamed, &files.zst);
         // 4. The hot tail's lines are in the blocks now.
         w.tail.set_len(0)?;
         w.tail.sync_all()?;

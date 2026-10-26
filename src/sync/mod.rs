@@ -38,7 +38,13 @@
 //! gone, or they no longer come in the same order, the location's earlier
 //! content changed in a way that is not an append; sync appends one
 //! `protoledger/diverged` event, the binding stops being followed, and nothing
-//! else is appended.
+//! else is appended. Except **deletions** (SPEC §4.1, the private `deleted`
+//! module): an id gone because the harness deleted a record it owns (an
+//! opencode store or todo row) is a newer version of that record, and sync
+//! appends a tombstone for it instead. Such a record rewritten in place (a
+//! todo going `pending` → `completed`) keeps its id, so the test above sees
+//! nothing; the same module compares it with the newest version the ledger
+//! holds and appends the newer version when it changed.
 //!
 //! **Re-projection** (SPEC §11.2, [`reproject`]): a projection binding whose
 //! location is a single file its harness only appends to (Claude Code's and
@@ -77,9 +83,13 @@
 //! **The cursor** is the one binding column not read from a ledger
 //! ([`crate::store`]). Lost with `index.db`, it costs one rescan: the next
 //! sync re-reads the location, appends what the ledger lacks (nothing, if
-//! nothing changed) and re-baselines; only a divergence that happened while
-//! the cursor was gone goes unnoticed.
+//! nothing changed) and re-baselines; what happened while the cursor was
+//! gone and is measured against it goes unnoticed: a divergence, and the
+//! deletion of a record the harness owns (no tombstone is appended, and an
+//! export still writes the record). A rewrite of such a record is measured
+//! against the ledger, not the cursor, and is still appended.
 
+mod deleted;
 mod follow;
 mod inplace;
 mod reproject;
@@ -470,6 +480,12 @@ pub fn sync_with(store: &mut Store, binding: &str, follows: &mut Follows) -> Res
         out.deferred = Some(format!("not followed ({})", row.ended.as_deref().unwrap_or("inactive")));
         return Ok(out);
     }
+    // The agent's ledger is damaged: nothing is read or appended until it
+    // is repaired, and the other bindings sync as ever.
+    if let Some(d) = store.damaged_agent(&row.agent) {
+        out.deferred = Some(d.to_string());
+        return Ok(out);
+    }
     let loc = PathBuf::from(&row.location);
     if !loc.exists() {
         out.deferred = Some(format!("{} is missing", loc.display()));
@@ -509,6 +525,26 @@ pub fn sync_with(store: &mut Store, binding: &str, follows: &mut Follows) -> Res
         }
         None => (f.import(&loc, &opts).with_context(|| format!("re-reading {}", loc.display()))?, None),
     };
+    // The follow state is kept when the read saw the file as it stands: the
+    // same file, the length it had before and after the read. That is
+    // checked, and the file's ends taken, right after the read: what comes
+    // next writes only to the store, and the file growing while the store
+    // takes the events (a compressed store seals as it goes) does not make
+    // the read any less whole. A location gone (or unreadable) by now keeps
+    // no state: what the read found is still taken, and the next sync finds
+    // the location missing and waits for it.
+    let kept = state.and_then(|state| {
+        let ends = || -> Result<Option<_>> {
+            let after = std::fs::metadata(&loc)?;
+            let len = state.len();
+            if !(len > 0 && len == before.len() && len == after.len() && file_id(&before) == file_id(&after)) {
+                return Ok(None);
+            }
+            let from = len.saturating_sub(TAIL);
+            Ok(Some((len, read_range(&loc, 0, len.min(TAIL))?, read_range(&loc, from, len)?, file_id(&after), others_stamp(&loc)?)))
+        };
+        ends().ok().flatten().map(|(len, head, tail, id, others)| (state, len, head, tail, id, others))
+    });
     let prev = store.cursor(binding)?.and_then(|c| Cursor::parse(&c));
     // A re-projectable projection binding with `protoledger/projected`
     // facts is measured against them (SPEC §11.2); every other binding, and
@@ -534,7 +570,7 @@ pub fn sync_with(store: &mut Store, binding: &str, follows: &mut Follows) -> Res
             facts.facts.iter().map(|f| format!("{} bytes", f.data.bytes)).collect::<Vec<_>>().join(", "),
             std::fs::metadata(&loc).map(|m| m.len()).unwrap_or(0)
         )),
-        _ => prev.as_ref().and_then(|prev| divergence(prev, &imported.set)),
+        _ => prev.as_ref().and_then(|prev| divergence(prev, &imported.set, &|agent, missing| deleted::excused(store, f.name(), agent, missing, &imported.set))),
     };
     if let Some(detail) = verdict {
         store.append(&row.agent, bindings::diverged_event(binding, &row.agent, &detail))?;
@@ -542,6 +578,8 @@ pub fn sync_with(store: &mut Store, binding: &str, follows: &mut Follows) -> Res
         return Ok(out);
     }
     apply(store, f.name(), &imported.set, &mut out)?;
+    // Records the harness deleted (or wrote again): a newer version each (SPEC §4.1).
+    deleted::apply(store, f.name(), &imported.set, prev.as_ref(), &mut out)?;
     let mut cursor = Cursor::of(&imported.set, st);
     if let Some(prev) = &prev {
         cursor.past = prev.past.clone();
@@ -553,25 +591,8 @@ pub fn sync_with(store: &mut Store, binding: &str, follows: &mut Follows) -> Res
         cursor.matched = Some(m.fact);
     }
     store.set_cursor(binding, &cursor.text())?;
-    // Keep the state when it read the file as it stands: the same file, the
-    // length it had before and after the read.
-    if let Some(state) = state {
-        let after = std::fs::metadata(&loc)?;
-        let len = state.len();
-        if len > 0 && len == before.len() && len == after.len() && file_id(&before) == file_id(&after) {
-            let from = len.saturating_sub(TAIL);
-            let following = Following {
-                head: read_range(&loc, 0, len.min(TAIL))?,
-                tail: read_range(&loc, from, len)?,
-                location: loc.clone(),
-                state,
-                len,
-                id: file_id(&after),
-                others: others_stamp(&loc)?,
-                cursor,
-            };
-            follows.by_binding.insert(binding.to_string(), following);
-        }
+    if let Some((state, len, head, tail, id, others)) = kept {
+        follows.by_binding.insert(binding.to_string(), Following { head, tail, location: loc.clone(), state, len, id, others, cursor });
     }
     Ok(out)
 }
@@ -592,18 +613,22 @@ pub fn sync_all(store: &mut Store) -> Result<Vec<Synced>> {
 }
 
 /// Why `now` is not a continuation of what `prev` saw, if it is not: every
-/// id seen before must still be there, in the same order.
-fn divergence(prev: &Cursor, now: &LedgerSet) -> Option<String> {
+/// id seen before must still be there, in the same order, except those
+/// `excused` (given an agent and its missing ids) names: events of a record
+/// the harness deleted, which is a newer version of it (SPEC §4.1).
+fn divergence(prev: &Cursor, now: &LedgerSet, excused: &dyn Fn(&str, &[&str]) -> HashSet<String>) -> Option<String> {
     for (agent, seen) in &prev.seen {
         let Some(l) = now.get(agent) else {
             return Some(format!("agent {agent} is no longer at the location"));
         };
         let mut it = l.events.iter().map(|e| e.id.as_str());
-        let missing: Vec<&str> = seen.iter().map(String::as_str).filter(|id| !l.contains(id)).collect();
+        let mut missing: Vec<&str> = seen.iter().map(String::as_str).filter(|id| !l.contains(id)).collect();
+        let deleted = if missing.is_empty() { HashSet::new() } else { excused(agent, &missing) };
+        missing.retain(|id| !deleted.contains(*id));
         if !missing.is_empty() {
             return Some(format!("agent {agent}: {} of {} events read earlier are gone (first: {})", missing.len(), seen.len(), missing[0]));
         }
-        if !seen.iter().all(|id| it.any(|x| x == id)) {
+        if !seen.iter().filter(|id| !deleted.contains(*id)).all(|id| it.any(|x| x == id)) {
             return Some(format!("agent {agent}: events read earlier are no longer in the same order"));
         }
     }

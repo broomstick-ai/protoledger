@@ -176,8 +176,23 @@ fn dump(s: &Store) -> IndexDump {
     for a in s.agents().unwrap() {
         rows.extend(s.blocks(&a.id).unwrap());
     }
-    let dicts = s.dictionaries().unwrap().into_iter().map(|d| (d.id, d.size, d.default, d.ledgers)).collect();
-    (rows, dicts, s.dictionary_usage().unwrap())
+    // The dictionary rows as index.db holds them, read without bringing the
+    // index up to date first (`Store::dictionaries` would, rewriting them
+    // from dicts/ before reading them).
+    let db = rusqlite::Connection::open_with_flags(s.root().join("index.db"), rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    let mut st = db.prepare("SELECT id, size FROM dicts ORDER BY id").unwrap();
+    let table: Vec<(String, u64)> = st.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, i64>(1)? as u64))).unwrap().map(|r| r.unwrap()).collect();
+    let usage = s.dictionary_usage().unwrap();
+    let default = s.config().compression.dictionary.clone();
+    let dicts = table
+        .into_iter()
+        .map(|(id, size)| {
+            let ledgers = usage.iter().filter(|(d, _, _)| d.as_deref() == Some(id.as_str())).map(|(_, a, n)| (a.clone(), *n)).collect();
+            let is_default = default.as_deref() == Some(id.as_str());
+            (id, size, is_default, ledgers)
+        })
+        .collect();
+    (rows, dicts, usage)
 }
 
 // ---- the core property ----
@@ -694,6 +709,51 @@ fn config_dictionary_refuses_an_id_not_in_the_store_and_none_clears_it() {
     assert_eq!(protoledger::store::Config::read(root).unwrap().compression.dictionary.as_deref(), Some(d.as_str()));
     s.set_dictionary(None).unwrap();
     assert_eq!(protoledger::store::Config::read(root).unwrap().compression.dictionary, None);
+}
+
+/// `store config --dictionary <id>` checks the dictionary and writes the
+/// default under the dictionary lock: a `dict rm` of that dictionary staged
+/// between the check and the write is refused ("try again"), the default is
+/// written naming a dictionary that is still there, and a compressed writer
+/// opens and seals with it. Opposed in the same test: once the default is
+/// cleared, the same `dict rm` deletes it.
+#[test]
+fn config_dictionary_holds_the_lock_so_a_dict_rm_between_its_check_and_its_write_is_refused() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().to_path_buf();
+    let mut s = compressed(&root, 1);
+    s.create_agent(agent("a")).unwrap();
+    s.append("a", fixed(10)).unwrap();
+    let d = Store::add_dictionary(&root, &passed_dict()).unwrap();
+    // Not the default yet, and no block uses it: an rm now would delete it.
+    let rm: std::rc::Rc<std::cell::RefCell<Option<String>>> = Default::default();
+    let (r, id) = (rm.clone(), d.clone());
+    let at = root.clone();
+    testing::set(Point::DictDefaulting, move |_| {
+        *r.borrow_mut() = Some(match Store::remove_dictionary(&at, &id) {
+            Ok(()) => "removed".to_string(),
+            Err(e) => format!("{e:#}"),
+        });
+        Ok(())
+    });
+    s.set_dictionary(Some(&d)).unwrap();
+    testing::clear();
+    let rm = rm.borrow().clone().expect("sentinel: the rm was staged between the check and the write");
+    assert!(rm.contains("try again"), "a dict rm between the check and the write was not refused: {rm}");
+    assert!(dict_path(&root, &d).is_file(), "the default names a dictionary that was deleted");
+    assert_eq!(protoledger::store::Config::read(&root).unwrap().compression.dictionary.as_deref(), Some(d.as_str()));
+    drop(s);
+    // Every compressed writer still opens, and seals with it.
+    let mut s = Store::open(&root).unwrap();
+    s.append("a", fixed(11)).unwrap();
+    assert_eq!(s.blocks("a").unwrap().last().unwrap().dict.as_deref(), Some(d.as_str()));
+    // Opposed: with the default cleared and no block using it after a
+    // recompression with none, the same rm deletes it.
+    s.set_dictionary(None).unwrap();
+    s.recompress(DictChoice::None, &[]).unwrap();
+    drop(s);
+    Store::remove_dictionary(&root, &d).unwrap();
+    assert!(!dict_path(&root, &d).exists());
 }
 
 // ---- seals and migrations re-check their dictionary ----

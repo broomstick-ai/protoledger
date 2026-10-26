@@ -258,7 +258,12 @@ fn store_rows(l: &Ledger, target: Container, losses: &mut Losses) -> OutSession 
     let src = l.agent().source.as_ref().filter(|s| s.format == FORMAT);
     let mut order: Vec<String> = Vec::new();
     let mut rows: HashMap<String, OutItem> = HashMap::new();
+    // A row whose newest version is a tombstone was deleted (SPEC §4.1).
+    let gone = super::deleted_records(&l.events);
     for e in &l.events {
+        if e.is_tombstone() || e.native.as_ref().is_some_and(|n| n.format == FORMAT && n.id.as_ref().is_some_and(|i| gone.contains(i))) {
+            continue;
+        }
         let native = e.native.as_ref().filter(|n| n.format == FORMAT && n.part == 0);
         let c = native.and_then(|n| n.variant.as_deref()).and_then(Container::from_variant);
         match (native, c, native.and_then(|n| n.record_json())) {
@@ -358,6 +363,8 @@ struct Builder<'a, 'b> {
     pending: Vec<Event>,
     cur: Option<usize>,
     extras: Vec<OutItem>,
+    /// The native id of each of `extras`.
+    extra_ids: Vec<String>,
     msg_index: HashMap<String, usize>,
     /// native record id (message or part) → message index
     record_msg: HashMap<String, usize>,
@@ -474,6 +481,7 @@ impl<'a, 'b> Builder<'a, 'b> {
             pending: Vec::new(),
             cur: None,
             extras: Vec::new(),
+            extra_ids: Vec::new(),
             msg_index: HashMap::new(),
             record_msg: HashMap::new(),
             open_assistant: None,
@@ -536,7 +544,13 @@ impl<'a, 'b> Builder<'a, 'b> {
         // Native records that cannot move to the target container (no id where
         // the target needs one): their events are rendered instead.
         let mut rendered_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
+        // A record whose newest version is a tombstone was deleted by
+        // opencode (SPEC §4.1): none of its versions is written.
+        let gone = super::deleted_records(&self.l.events);
         for (e, on) in events.into_iter().zip(on) {
+            if e.is_tombstone() || e.native.as_ref().is_some_and(|n| n.format == FORMAT && n.id.as_ref().is_some_and(|i| gone.contains(i))) {
+                continue;
+            }
             if !on {
                 // Filed like any event with no message of its own, so order holds.
                 self.file_event(e);
@@ -672,7 +686,14 @@ impl<'a, 'b> Builder<'a, 'b> {
                 self.record_msg.insert(native_id.to_string(), i);
                 self.cur = None;
             }
-            Extra => self.extras.push(item),
+            // The newest version of a row replaces an earlier one (SPEC §4.1).
+            Extra => match self.extra_ids.iter().position(|i| !native_id.is_empty() && i == native_id) {
+                Some(k) => self.extras[k] = item,
+                None => {
+                    self.extra_ids.push(native_id.to_string());
+                    self.extras.push(item);
+                }
+            },
         }
     }
 

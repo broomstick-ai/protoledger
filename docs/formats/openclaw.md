@@ -73,8 +73,17 @@ ids are entry ids (`#n` parts), or `@<byte offset>` for id-less lines.
   created last so OpenClaw's triggers do not fire on restored rows.
   Verified with `sqlite3`: identical schema and rows in every table; FTS5
   content identical, but FTS5's internal segment blocks (`*_fts_data`,
-  `*_fts_idx`) can be laid out differently. A ledger with events added after
-  import is written as JSONL instead.
+  `*_fts_idx`) can be laid out differently. The file's header values
+  (`PRAGMA application_id`, `user_version`, and `encoding` when not UTF-8)
+  are kept in the captured store (`sqlite_header`) and set on the rebuilt
+  file. A ledger whose events no longer stand for its rows (events added,
+  removed or not OpenClaw's own) is written as JSONL instead. The captured
+  store rides on the store's first session only, so when that session is
+  changed this way or is not in the exported set, the store file cannot be
+  rebuilt: its sessions are written as JSONL and the export names it, header
+  values included (`sqlite-store-not-rebuilt`).
+  A ledger imported before this release carries no header values and its
+  store exports with SQLite's defaults (0, 0, `UTF-8`).
 
 ## Export of foreign ledgers
 
@@ -117,6 +126,7 @@ droid files were reproduced byte for byte).
 | `error-dropped` | an error with no assistant message to hold it |
 | `subagent-flattened` | a subagent whose parent is not in the set |
 | `subagent-marker-dropped`, `file-change-dropped`, `app-dropped`, `foreign-native-dropped` | no pi entry exists |
+| `sqlite-store-not-rebuilt` | a SQLite store whose first session, which carries the store, is not exported or has events added, removed or not OpenClaw's own since import: its sessions are written as JSONL and the store file, with its other tables' rows and its header values (`PRAGMA application_id`, `user_version`, `encoding`), is not written |
 
 Text with `audience: record` is written as a `custom` entry
 (`customType: protoledger.record-text`), which pi keeps out of the model's

@@ -4,13 +4,15 @@
 //! JSON object (`native.record`, column order preserved; REAL values keep a
 //! decimal point, BLOBs are `{"$blob": base64}`). The schema text, every row
 //! of the other tables and `sqlite_sequence` ride on the first session's
-//! ledger, so export rebuilds a row-identical database. FTS tables are
+//! ledger, so export rebuilds a row-identical database, with the file's
+//! header values (`application_id`, `user_version`, `encoding`;
+//! [`sqlite_header`]), which every session's ledger carries. FTS tables are
 //! rebuilt by hermes' own triggers.
 
 use super::{FORMAT, JSON_PREFIX, json_col, message_events, pyjson, session_events};
 use crate::carry;
 use crate::formats::openclaw::jsonl;
-use crate::formats::{ExportOptions, ImportOptions, Losses, Output};
+use crate::formats::{ExportOptions, ImportOptions, Losses, Output, sqlite_header};
 use crate::ledger::{Ledger, LedgerSet};
 use crate::model::{Agent, Audience, Event, Kind, Native, Obj, Relation};
 use crate::util;
@@ -180,6 +182,7 @@ pub fn import(p: &Path, rel: &str, opts: &ImportOptions, losses: &mut Losses) ->
     let version = c.query_row("SELECT max(version) FROM schema_version", [], |r| r.get::<_, i64>(0)).ok();
     let vtag = version.map(|v| format!("schema-v{v}"));
     let (schema, tables) = schema_of(&c)?;
+    let header = sqlite_header::read(&c)?;
     let mut table_rows = Map::new();
     for t in tables.iter().filter(|t| *t != "sessions" && *t != "messages") {
         let rs = rows(&c, &format!("SELECT * FROM \"{t}\""), &[])?;
@@ -208,6 +211,10 @@ pub fn import(p: &Path, rel: &str, opts: &ImportOptions, losses: &mut Losses) ->
             extra.insert("model_config".into(), mc.clone());
         }
         extra.insert("session_source".into(), srow.get("source").cloned().unwrap_or(Value::Null));
+        // Every session names its file's header values, so any subset can write them.
+        if let Some(h) = &header {
+            extra.insert(sqlite_header::KEY.into(), h.clone());
+        }
         if si == 0 {
             extra.insert("store".into(), json!({"schema": schema, "tables": table_rows, "sqlite_sequence": seq, "schema_version": version}));
         }
@@ -238,10 +245,13 @@ pub fn import(p: &Path, rel: &str, opts: &ImportOptions, losses: &mut Losses) ->
                 if let Some(mut a) = agent {
                     // Keep the store facts this file carries for a later self export.
                     if let (Some(src), Some(st)) = (a.source.as_mut(), l.agent().source.as_ref())
-                        && si == 0
                         && src.format == FORMAT
                     {
-                        src.extra.insert("store".into(), st.extra["store"].clone());
+                        for k in ["store", sqlite_header::KEY] {
+                            if let Some(v) = st.extra.get(k) {
+                                src.extra.insert(k.into(), v.clone());
+                            }
+                        }
                     }
                     l.header.agent = a;
                 }
@@ -314,14 +324,26 @@ struct Target {
     tables: Map<String, Value>,
     seq: Vec<Value>,
     version: Option<i64>,
+    header: Option<Value>,
 }
 
-fn target(set: &LedgerSet) -> Target {
+fn target(set: &LedgerSet, losses: &mut Losses) -> Target {
+    // Every session read from a state.db names its file and the file's header
+    // values; each file's store rides on its first session's ledger.
+    let db: Vec<(&str, &Obj)> = set
+        .iter()
+        .filter_map(|l| l.agent().source.as_ref().filter(|s| s.format == FORMAT && s.variant.as_deref() == Some("state-db")))
+        .map(|s| (s.extra.get("file").and_then(Value::as_str).unwrap_or("state.db"), &s.extra))
+        .collect();
+    let holder = set.iter().filter_map(|l| l.agent().source.as_ref().filter(|s| s.format == FORMAT)).find(|s| s.extra.contains_key("store"));
+    let file = |s: &crate::model::Source| s.extra.get("file").and_then(Value::as_str).unwrap_or("state.db").to_string();
+    let header = sqlite_header::for_files(db.iter().copied(), holder.map(file).as_deref(), losses);
     for l in set.iter() {
         let Some(src) = l.agent().source.as_ref().filter(|s| s.format == FORMAT) else { continue };
         if let Some(st) = src.extra.get("store") {
             return Target {
-                file: src.extra.get("file").and_then(Value::as_str).unwrap_or("state.db").to_string(),
+                header,
+                file: file(src),
                 schema: st["schema"].as_array().map(|a| a.iter().filter_map(|s| s.as_str().map(str::to_string)).collect()).unwrap_or_default(),
                 tables: st["tables"].as_object().cloned().unwrap_or_default(),
                 seq: st["sqlite_sequence"].as_array().cloned().unwrap_or_default(),
@@ -329,7 +351,8 @@ fn target(set: &LedgerSet) -> Target {
             };
         }
     }
-    Target { file: "state.db".into(), schema: vec![], tables: Map::new(), seq: vec![], version: Some(31) }
+    let file = db.first().map_or("state.db", |(f, _)| f).to_string();
+    Target { file, schema: vec![], tables: Map::new(), seq: vec![], version: Some(31), header }
 }
 
 pub(crate) fn insert(c: &Connection, table: &str, row: &Map<String, Value>, cols: &HashSet<String>) -> Result<()> {
@@ -349,11 +372,12 @@ pub(crate) fn columns(c: &Connection, table: &str) -> HashSet<String> {
 }
 
 pub fn export(set: &LedgerSet, all: &LedgerSet, opts: &ExportOptions, out: &mut Output, losses: &mut Losses) -> Result<()> {
-    let t = target(set);
+    let t = target(set, losses);
     let dir = tempfile::tempdir()?;
     let path = dir.path().join("state.db");
     {
         let c = Connection::open(&path)?;
+        sqlite_header::write(&c, t.header.as_ref())?;
         // Sessions are written in set order; a child may precede its parent.
         c.execute_batch("PRAGMA foreign_keys = OFF;")?;
         if t.schema.is_empty() {

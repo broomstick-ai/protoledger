@@ -1,8 +1,12 @@
 //! Points inside the store's compressed-ledger code at which a test can act:
 //! corrupt a file between a write and its check, run a seal while a reader is
 //! between two steps, or stop an operation as a crash would. Hooks are per
-//! thread, so tests running in parallel do not see each other's. With no
-//! hook set, each point costs one thread-local lookup.
+//! thread, so tests running in parallel do not see each other's.
+//!
+//! This module exists only with the non-default `test-hooks` feature, which
+//! the crate's own tests turn on (a dev-dependency of the crate on itself).
+//! Without it there is no module, and every hook point compiles to nothing:
+//! not even a thread-local lookup.
 
 use anyhow::Result;
 use std::cell::RefCell;
@@ -42,6 +46,10 @@ pub enum Point {
     /// is about to take the store's dictionary lock and make sure the
     /// dictionary is on disk (SPEC §10.7). The path is the dictionary file.
     DictLocking,
+    /// `store config --dictionary` has checked that the dictionary is in the
+    /// store, before it writes `store.json` (SPEC §10.10). The path is the
+    /// dictionary file.
+    DictDefaulting,
     /// A reader has taken `L` from the block file, before reading the hot
     /// tail (SPEC §10.5). The path is the block file.
     ReaderBeforeTail,

@@ -1,7 +1,16 @@
 //! `protoledger store gc` (SPEC §9.5): whole ledgers removed by an
 //! explicit policy, dry run by default, never an edit to a ledger. Plus the
 //! roundtrip summary's `altered` count.
+//!
+//! Every gc test runs in a plain store (its own name) and in each compressed
+//! mode (`<test>::no_dictionary`, `::passed_dictionary`, `::retrained`;
+//! SPEC §10.11): a compressed ledger is all of its files, its size is its
+//! decompressed stream's, and its mtime the newest of its files'.
 #![cfg(all(feature = "store", feature = "cli"))]
+
+#[macro_use]
+#[path = "modes/mod.rs"]
+mod modes;
 
 use protoledger::store::bindings::{Bound, Mode, bound_event, unbound_event};
 use protoledger::store::gc::{Policy, archived_event, unarchived_event};
@@ -85,10 +94,12 @@ fn bound(id: &str, location: &Path, mode: Mode) -> Bound {
 /// Twelve agents of different ages and sizes: archived, archived-then-not,
 /// parents with children (an old parent with a young child, a young parent
 /// with an old child), a `spawned-by` peer of an old agent, and an old agent
-/// with a projection and an attachment whose native files exist.
-fn seed() -> Seeded {
+/// with a projection and an attachment whose native files exist. The store
+/// is in `mode` (retrained, in that mode, once it is seeded).
+fn seed(mode: modes::Mode) -> Seeded {
     let dir = tempfile::tempdir().unwrap();
     let store = dir.path().join("store");
+    mode.prepare(&store);
     let native = dir.path().join("native");
     std::fs::create_dir_all(&native).unwrap();
     let projection = native.join("projected.jsonl");
@@ -111,7 +122,8 @@ fn seed() -> Seeded {
             s.create_agent(a).unwrap();
             let n = if seed.big { 40 } else { 2 };
             for i in 0..n {
-                let body = if seed.big { "x".repeat(300) } else { format!("hello {i}") };
+                // A big ledger is ~120 KiB of stream, and compresses to a few KiB.
+                let body = if seed.big { "x".repeat(3000) } else { format!("hello {i}") };
                 s.append(seed.id, aged(text(&format!("{}-{i}", seed.id), &body), seed.age_days)).unwrap();
             }
         }
@@ -124,14 +136,16 @@ fn seed() -> Seeded {
         s.append("proj", aged(bound_event(&bound("b-attach", &attachment, Mode::Attachment)), age("proj"))).unwrap();
         s.append("keep", aged(bound_event(&bound("b-keep", &native.join("keep.jsonl"), Mode::Projection)), age("keep"))).unwrap();
         s.set_cursor("b-keep", "cursor-of-keep").unwrap();
+        mode.retrain(&mut s);
     }
-    let now = SystemTime::now();
     for seed in SEEDS {
-        let f = std::fs::File::options().write(true).open(store.join("ledgers").join(format!("{}.jsonl", seed.id))).unwrap();
-        f.set_modified(now - Duration::from_secs(seed.age_days * DAY)).unwrap();
+        set_age(&store, seed.id, seed.age_days);
     }
     // Bring the index up to the new mtimes, then leave the store at rest.
     drop(Store::open(&store).unwrap());
+    // The cell's guard: the store is in its mode.
+    let found = mode.check(&store);
+    assert_eq!(found.plain + found.compressed, SEEDS.len(), "{found:?}");
     Seeded { _dir: dir, store, projection, attachment }
 }
 
@@ -173,17 +187,39 @@ fn hashes(root: &Path) -> BTreeMap<String, String> {
     m
 }
 
-fn ledger(id: &str) -> String {
-    format!("ledgers/{id}.jsonl")
+/// Every file `id`'s ledger may be stored in, relative to the store: its
+/// plain file, or its block file and hot tail (SPEC §10.2).
+fn ledger(id: &str) -> Vec<String> {
+    modes::ledger_files(id)
+}
+
+/// `id`'s ledger in `h` (a [`hashes`] map): each of its possible files'
+/// hash, or `None` where that file is absent.
+fn of<'a>(h: &'a BTreeMap<String, String>, id: &str) -> Vec<Option<&'a String>> {
+    ledger(id).iter().map(|f| h.get(f)).collect()
+}
+
+/// No file of `id`'s ledger is in `h`.
+fn gone(h: &BTreeMap<String, String>, id: &str) -> bool {
+    of(h, id).iter().all(Option::is_none)
+}
+
+/// Some file of `id`'s ledger is in `h`.
+fn present(h: &BTreeMap<String, String>, id: &str) -> bool {
+    !gone(h, id)
 }
 
 // ---- (a) a dry run changes nothing ----
 
 #[test]
 fn gc_dry_run_changes_nothing_and_yes_does() {
-    let s = seed();
+    dry_run_changes_nothing_and_yes_does(modes::Mode::Plain);
+}
+
+fn dry_run_changes_nothing_and_yes_does(m: modes::Mode) {
+    let s = seed(m);
     let before = hashes(&s.store);
-    assert!(before.contains_key("index.db") && before.contains_key(&ledger("old")), "{before:?}");
+    assert!(before.contains_key("index.db") && present(&before, "old"), "{before:?}");
     let native_before = hashes(s.projection.parent().unwrap());
 
     let out = gc(&s.store, &["--older-than", "30d", "--remove-projections"]);
@@ -203,7 +239,7 @@ fn gc_dry_run_changes_nothing_and_yes_does() {
     let after = hashes(&s.store);
     assert_ne!(after, before, "--yes changed nothing");
     for id in &expected {
-        assert!(!after.contains_key(&ledger(id)), "{id} is still on disk");
+        assert!(gone(&after, id), "{id} is still on disk");
     }
     assert!(!s.projection.exists(), "--remove-projections left the projected file");
     assert!(s.attachment.exists(), "an attachment's native file is never removed");
@@ -211,7 +247,11 @@ fn gc_dry_run_changes_nothing_and_yes_does() {
 
 #[test]
 fn gc_without_a_policy_refuses_and_changes_nothing() {
-    let s = seed();
+    without_a_policy_refuses_and_changes_nothing(modes::Mode::Plain);
+}
+
+fn without_a_policy_refuses_and_changes_nothing(m: modes::Mode) {
+    let s = seed(m);
     let before = hashes(&s.store);
     for flags in [&["--yes"][..], &["--remove-projections", "--yes"][..], &[][..]] {
         let mut args = vec!["store", "gc", s.store.to_str().unwrap()];
@@ -230,6 +270,10 @@ fn gc_without_a_policy_refuses_and_changes_nothing() {
 
 #[test]
 fn gc_each_policy_selects_exactly_its_agents_and_survivors_are_untouched() {
+    each_policy_selects_exactly_its_agents_and_survivors_are_untouched(modes::Mode::Plain);
+}
+
+fn each_policy_selects_exactly_its_agents_and_survivors_are_untouched(m: modes::Mode) {
     let cases: &[(&[&str], &[&str])] = &[
         (&["--older-than", "30d"], &["old", "old-big", "arch-old", "p-old", "p-old.sub", "keep.sub", "proj"]),
         (&["--larger-than", "4K"], &["old-big", "big"]),
@@ -240,7 +284,7 @@ fn gc_each_policy_selects_exactly_its_agents_and_survivors_are_untouched() {
         (&["--older-than", "200d"], &[]),
     ];
     for (flags, want) in cases {
-        let s = seed();
+        let s = seed(m);
         let want = set(want);
         let before = hashes(&s.store);
         let dry = gc(&s.store, flags);
@@ -251,12 +295,12 @@ fn gc_each_policy_selects_exactly_its_agents_and_survivors_are_untouched() {
         assert_eq!(planned(&out), want, "{flags:?}:\n{out}");
         let after = hashes(&s.store);
         for seed in SEEDS {
-            let f = ledger(seed.id);
             if want.contains(seed.id) {
-                assert!(!after.contains_key(&f), "{flags:?}: {} was selected but survives", seed.id);
+                assert!(gone(&after, seed.id), "{flags:?}: {} was selected but survives", seed.id);
             } else {
                 // (d) gc never edits a ledger.
-                assert_eq!(after.get(&f), before.get(&f), "{flags:?}: surviving ledger {} changed", seed.id);
+                assert!(present(&before, seed.id), "{flags:?}: sentinel: {} is on disk", seed.id);
+                assert_eq!(of(&after, seed.id), of(&before, seed.id), "{flags:?}: surviving ledger {} changed", seed.id);
             }
         }
         let s2 = Store::open(&s.store).unwrap();
@@ -268,7 +312,11 @@ fn gc_each_policy_selects_exactly_its_agents_and_survivors_are_untouched() {
 
 #[test]
 fn gc_child_goes_with_its_parent_but_not_the_reverse() {
-    let s = seed();
+    child_goes_with_its_parent_but_not_the_reverse(modes::Mode::Plain);
+}
+
+fn child_goes_with_its_parent_but_not_the_reverse(m: modes::Mode) {
+    let s = seed(m);
     let out = gc(&s.store, &["--older-than", "30d", "--yes"]);
     assert!(out.contains("agent\tp-old.sub\tchild of p-old"), "{out}");
     assert!(out.contains("agent\tkeep.sub\tselected"), "{out}");
@@ -284,7 +332,11 @@ fn gc_child_goes_with_its_parent_but_not_the_reverse() {
 
 #[test]
 fn gc_without_remove_projections_keeps_projected_files() {
-    let s = seed();
+    without_remove_projections_keeps_projected_files(modes::Mode::Plain);
+}
+
+fn without_remove_projections_keeps_projected_files(m: modes::Mode) {
+    let s = seed(m);
     let out = gc(&s.store, &["--older-than", "30d", "--yes"]);
     assert!(out.contains(&format!("projection\t{}\tkeep", s.projection.display())), "{out}");
     assert!(s.projection.exists() && s.attachment.exists());
@@ -335,7 +387,11 @@ fn queries(store: &Path) -> String {
 
 #[test]
 fn gc_then_reindex_reproduces_every_answer_and_removed_agents_appear_nowhere() {
-    let s = seed();
+    then_reindex_reproduces_every_answer_and_removed_agents_appear_nowhere(modes::Mode::Plain);
+}
+
+fn then_reindex_reproduces_every_answer_and_removed_agents_appear_nowhere(m: modes::Mode) {
+    let s = seed(m);
     let removed = set(&["old", "old-big", "arch-old", "p-old", "p-old.sub", "keep.sub", "proj"]);
     let pre = dump(&s.store);
     assert!(pre["bindings"].iter().any(|r| r.contains("b-proj")), "sentinel: the seeded bindings are in the dump");
@@ -384,6 +440,38 @@ fn gc_then_reindex_reproduces_every_answer_and_removed_agents_appear_nowhere() {
     assert!(after_gc["bindings"].iter().any(|r| r.contains("b-keep")));
 }
 
+// ---- the size gc measures ----
+
+/// A compressed ledger's size is its decompressed stream's length (SPEC
+/// §9.5), so `--larger-than` selects the same ledgers in every mode, and the
+/// plan prints that length. Sentinel: in a compressed store the selected
+/// ledgers' files are smaller than the bound on disk (in a plain one,
+/// larger), so a gc that measured the files would select nothing.
+#[test]
+fn gc_larger_than_measures_the_decompressed_stream() {
+    larger_than_measures_the_decompressed_stream(modes::Mode::Plain);
+}
+
+fn larger_than_measures_the_decompressed_stream(m: modes::Mode) {
+    let s = seed(m);
+    const BOUND: u64 = 32 * 1024;
+    let out = gc(&s.store, &["--larger-than", "32K"]);
+    assert_eq!(planned(&out), set(&["old-big", "big"]), "{m:?}: {out}");
+    let st = Store::open(&s.store).unwrap();
+    for id in ["old-big", "big", "keep"] {
+        let stream = st.reader(id).unwrap().stream().unwrap().len() as u64;
+        let on_disk: u64 = ledger(id).iter().map(|f| std::fs::metadata(s.store.join(f)).map(|x| x.len()).unwrap_or(0)).sum();
+        if id != "keep" {
+            assert!(out.contains(&format!("file\tledgers/{id}.jsonl\t{stream} bytes")), "{m:?}: {id}'s size is its stream's, {stream}: {out}");
+            assert!(stream > BOUND, "{m:?}: {id}: {stream}");
+            // Sentinel: the files themselves are on the other side of the bound when compressed.
+            assert_eq!(on_disk < BOUND, m.compressed(), "{m:?}: {id}: {on_disk} bytes on disk, {stream} in its stream");
+        } else {
+            assert!(stream < BOUND && on_disk < BOUND, "{m:?}: keep");
+        }
+    }
+}
+
 // ---- (e) roundtrip summary: altered files are counted apart ----
 
 #[test]
@@ -423,9 +511,18 @@ fn roundtrip_summary_counts_altered_files_in_the_denominator() {
 
 /// Set `id`'s ledger's modification time `days` ago (the clock gc ages a
 /// ledger by when no event carries a `ts` and its header no `created_at`).
+/// In either form: every file of the ledger.
 fn set_age(store: &Path, id: &str, days: u64) {
-    let f = std::fs::File::options().write(true).open(store.join(ledger(id))).unwrap();
-    f.set_modified(SystemTime::now() - Duration::from_secs(days * DAY)).unwrap();
+    let mut n = 0;
+    for x in ["", ".zst", ".tail"] {
+        let p = store.join(format!("ledgers/{id}.jsonl{x}"));
+        if p.exists() {
+            let f = std::fs::File::options().write(true).open(p).unwrap();
+            f.set_modified(SystemTime::now() - Duration::from_secs(days * DAY)).unwrap();
+            n += 1;
+        }
+    }
+    assert!(n > 0, "{id} has no ledger file");
 }
 
 /// `--remove-projections` deletes a removed agent's projected file only
@@ -433,7 +530,11 @@ fn set_age(store: &Path, id: &str, days: u64) {
 /// names the same file.
 #[test]
 fn gc_remove_projections_never_deletes_a_file_another_binding_names() {
-    let s = seed();
+    remove_projections_never_deletes_a_file_another_binding_names(modes::Mode::Plain);
+}
+
+fn remove_projections_never_deletes_a_file_another_binding_names(m: modes::Mode) {
+    let s = seed(m);
     let native = s.projection.parent().unwrap().to_path_buf();
     let keep_file = native.join("keep.jsonl");
     let only = native.join("only.jsonl");
@@ -476,7 +577,11 @@ fn gc_remove_projections_never_deletes_a_file_another_binding_names() {
 /// `spawned-by` peer of a removed agent survives byte for byte.
 #[test]
 fn gc_removes_structural_children_but_never_a_spawned_by_peer() {
-    let s = seed();
+    removes_structural_children_but_never_a_spawned_by_peer(modes::Mode::Plain);
+}
+
+fn removes_structural_children_but_never_a_spawned_by_peer(m: modes::Mode) {
+    let s = seed(m);
     {
         let mut st = Store::open(&s.store).unwrap();
         let mut f = agent("old.fork");
@@ -501,10 +606,10 @@ fn gc_removes_structural_children_but_never_a_spawned_by_peer() {
     assert!(!planned(&out).contains("spawned"), "{out}");
     let after = hashes(&s.store);
     for id in ["old", "old.fork", "p-old.sub"] {
-        assert!(!after.contains_key(&ledger(id)), "{id} survives");
+        assert!(gone(&after, id), "{id} survives");
     }
-    assert!(after.contains_key(&ledger("spawned")), "the spawned-by peer was removed");
-    assert_eq!(after.get(&ledger("spawned")), before.get(&ledger("spawned")), "the spawned-by peer's ledger changed");
+    assert!(present(&after, "spawned"), "the spawned-by peer was removed");
+    assert_eq!(of(&after, "spawned"), of(&before, "spawned"), "the spawned-by peer's ledger changed");
     let st = Store::open(&s.store).unwrap();
     assert_eq!(st.agent("spawned").unwrap().unwrap().links, spawned.links);
 }
@@ -514,7 +619,11 @@ fn gc_removes_structural_children_but_never_a_spawned_by_peer() {
 /// gained a child the plan does not remove; the rest of the plan goes.
 #[test]
 fn gc_apply_keeps_what_changed_between_planning_and_locking() {
-    let s = seed();
+    apply_keeps_what_changed_between_planning_and_locking(modes::Mode::Plain);
+}
+
+fn apply_keeps_what_changed_between_planning_and_locking(m: modes::Mode) {
+    let s = seed(m);
     let policy = Policy { older_than: Some(Duration::from_secs(30 * DAY)), ..Default::default() };
     let mut st = Store::open(&s.store).unwrap();
     let plan = st.gc_plan(&policy, SystemTime::now()).unwrap();
@@ -550,11 +659,11 @@ fn gc_apply_keeps_what_changed_between_planning_and_locking() {
     drop(st);
     let after = hashes(&s.store);
     for id in ["keep.sub", "old-big", "proj"] {
-        assert!(!after.contains_key(&ledger(id)), "{id} survives");
+        assert!(gone(&after, id), "{id} survives");
     }
     for id in ["arch-old", "arch-old.late", "old", "p-old", "p-old.sub"] {
-        assert!(after.contains_key(&ledger(id)), "{id} was removed");
-        assert_eq!(after.get(&ledger(id)), before.get(&ledger(id)), "{id} changed");
+        assert!(present(&after, id), "{id} was removed");
+        assert_eq!(of(&after, id), of(&before, id), "{id} changed");
     }
     let st = Store::open(&s.store).unwrap();
     assert_eq!(st.agent("arch-old.late").unwrap().unwrap().parent.unwrap().agent, "arch-old");
@@ -564,17 +673,23 @@ fn gc_apply_keeps_what_changed_between_planning_and_locking() {
 /// them, not even the writer's torn-tail repair on one it locked first.
 #[test]
 fn gc_that_cannot_lock_every_ledger_leaves_a_torn_tail_alone() {
-    let s = seed();
+    that_cannot_lock_every_ledger_leaves_a_torn_tail_alone(modes::Mode::Plain);
+}
+
+fn that_cannot_lock_every_ledger_leaves_a_torn_tail_alone(m: modes::Mode) {
+    let s = seed(m);
+    // The file a writer appends to and locks: the plain file, or the hot tail.
+    let old = modes::locked_file(m, &s.store, "old");
     {
         use std::io::Write;
-        let mut f = std::fs::File::options().append(true).open(s.store.join(ledger("old"))).unwrap();
+        let mut f = std::fs::File::options().append(true).open(&old).unwrap();
         f.write_all(b"{\"torn").unwrap();
     }
     drop(Store::open(&s.store).unwrap());
     let before = hashes(&s.store.join("ledgers"));
-    assert!(std::fs::read(s.store.join(ledger("old"))).unwrap().ends_with(b"{\"torn"), "sentinel: the torn tail is there");
+    assert!(std::fs::read(&old).unwrap().ends_with(b"{\"torn"), "sentinel: the torn tail is there");
     // `old` is locked before `proj` (same depth, by id).
-    let held = std::fs::File::open(s.store.join(ledger("proj"))).unwrap();
+    let held = std::fs::File::open(modes::locked_file(m, &s.store, "proj")).unwrap();
     held.try_lock().unwrap();
     let out = run(&["store", "gc", s.store.to_str().unwrap(), "--older-than", "30d", "--yes"]);
     let err = String::from_utf8_lossy(&out.stderr);
@@ -583,14 +698,19 @@ fn gc_that_cannot_lock_every_ledger_leaves_a_torn_tail_alone() {
     drop(held);
     // Oppose: once the lock is free, the same gc removes them.
     let out = gc(&s.store, &["--older-than", "30d", "--yes"]);
-    assert!(planned(&out).contains("old") && !s.store.join(ledger("old")).exists() && !s.store.join(ledger("proj")).exists(), "{out}");
+    let after = hashes(&s.store);
+    assert!(planned(&out).contains("old") && gone(&after, "old") && gone(&after, "proj"), "{out}");
 }
 
 /// A relative binding location is never resolved (against the cwd or
 /// anything else) and never deleted.
 #[test]
 fn gc_never_resolves_or_deletes_a_relative_projection_location() {
-    let s = seed();
+    never_resolves_or_deletes_a_relative_projection_location(modes::Mode::Plain);
+}
+
+fn never_resolves_or_deletes_a_relative_projection_location(m: modes::Mode) {
+    let s = seed(m);
     let cwd = tempfile::tempdir().unwrap();
     std::fs::create_dir_all(cwd.path().join("rel")).unwrap();
     let rel_file = cwd.path().join("rel/relative.jsonl");
@@ -619,8 +739,13 @@ fn gc_never_resolves_or_deletes_a_relative_projection_location() {
 /// projection is still deleted (opposes keep-everything).
 #[test]
 fn gc_apply_keeps_a_projection_attached_between_plan_and_apply() {
+    apply_keeps_a_projection_attached_between_plan_and_apply(modes::Mode::Plain);
+}
+
+fn apply_keeps_a_projection_attached_between_plan_and_apply(m: modes::Mode) {
     let d = tempfile::tempdir().unwrap();
     let store = d.path().join("store");
+    m.prepare(&store);
     let p = d.path().join("native/p.jsonl");
     let q = d.path().join("native/q.jsonl");
     std::fs::create_dir_all(p.parent().unwrap()).unwrap();
@@ -634,7 +759,9 @@ fn gc_apply_keeps_a_projection_attached_between_plan_and_apply() {
         }
         s.append("a", aged(bound_event(&bound("b-a", &p, Mode::Projection)), 100)).unwrap();
         s.append("c", aged(bound_event(&bound("b-c", &q, Mode::Projection)), 100)).unwrap();
+        m.retrain(&mut s);
     }
+    m.check(&store);
     let policy = Policy { older_than: Some(Duration::from_secs(30 * DAY)), remove_projections: true, ..Default::default() };
     let mut st = Store::open(&store).unwrap();
     let plan = st.gc_plan(&policy, SystemTime::now()).unwrap();
@@ -686,7 +813,11 @@ fn touch_all(root: &Path) {
 /// nothing), and never the one whose newest event is recent.
 #[test]
 fn gc_on_a_copied_store_still_collects_a_ledger_whose_newest_event_is_old() {
-    let s = seed();
+    on_a_copied_store_still_collects_a_ledger_whose_newest_event_is_old(modes::Mode::Plain);
+}
+
+fn on_a_copied_store_still_collects_a_ledger_whose_newest_event_is_old(m: modes::Mode) {
+    let s = seed(m);
     let copy_dir = tempfile::tempdir().unwrap();
     let copy = copy_dir.path().join("store");
     for e in walkdir::WalkDir::new(&s.store) {
@@ -717,7 +848,8 @@ fn gc_on_a_copied_store_still_collects_a_ledger_whose_newest_event_is_old() {
     // And --yes on the copy removes exactly what the dry run named.
     let done = gc(&copy, &["--older-than", "30d", "--yes"]);
     assert_eq!(planned(&done), planned(&out));
-    assert!(!copy.join(ledger("old")).exists() && copy.join(ledger("keep")).exists());
+    let after = hashes(&copy);
+    assert!(gone(&after, "old") && present(&after, "keep"));
 }
 
 /// A ledger whose file is old but whose newest event is recent is NOT
@@ -725,8 +857,13 @@ fn gc_on_a_copied_store_still_collects_a_ledger_whose_newest_event_is_old() {
 /// ledger whose newest event is old and whose file is new, which is.
 #[test]
 fn gc_does_not_collect_an_old_file_with_a_recent_newest_event() {
+    does_not_collect_an_old_file_with_a_recent_newest_event(modes::Mode::Plain);
+}
+
+fn does_not_collect_an_old_file_with_a_recent_newest_event(m: modes::Mode) {
     let d = tempfile::tempdir().unwrap();
     let store = d.path().join("store");
+    m.prepare(&store);
     {
         let mut s = Store::open(&store).unwrap();
         s.create_agent(agent("fresh")).unwrap();
@@ -737,7 +874,9 @@ fn gc_does_not_collect_an_old_file_with_a_recent_newest_event() {
         s.create_agent(agent("stale")).unwrap();
         s.append("stale", aged(text("stale-0", "a"), 200)).unwrap();
         s.append("stale", aged(text("stale-1", "b"), 100)).unwrap();
+        m.retrain(&mut s);
     }
+    m.check(&store);
     set_age(&store, "fresh", 100);
     drop(Store::open(&store).unwrap());
     let out = gc(&store, &["--older-than", "30d"]);
@@ -753,8 +892,13 @@ fn gc_does_not_collect_an_old_file_with_a_recent_newest_event() {
 /// that it keeps, so a rung that always selects or never selects fails).
 #[test]
 fn gc_falls_back_to_created_at_then_mtime_and_names_the_clock() {
+    falls_back_to_created_at_then_mtime_and_names_the_clock(modes::Mode::Plain);
+}
+
+fn falls_back_to_created_at_then_mtime_and_names_the_clock(m: modes::Mode) {
     let d = tempfile::tempdir().unwrap();
     let store = d.path().join("store");
+    m.prepare(&store);
     let with_created = |id: &str, days: u64| {
         let mut a = agent(id);
         a.created_at = Some(days_ago(days));
@@ -780,7 +924,9 @@ fn gc_falls_back_to_created_at_then_mtime_and_names_the_clock() {
         // A ts that is not a time is no clock: the next rung decides.
         s.create_agent(with_created("bad-ts", 100)).unwrap();
         s.append("bad-ts", text("bad-ts-0", "x").ts(Some("yesterday"))).unwrap();
+        m.retrain(&mut s);
     }
+    m.check(&store);
     set_age(&store, "created-young", 100);
     set_age(&store, "mtime-old", 100);
     drop(Store::open(&store).unwrap());
@@ -801,3 +947,22 @@ fn gc_falls_back_to_created_at_then_mtime_and_names_the_clock() {
     assert_eq!(labels, want, "{out}");
     assert_eq!(planned(&out), set(&["ev-old", "created-old", "bad-ts", "mtime-old"]), "{out}");
 }
+
+modes_tests!(
+    dry_run_changes_nothing_and_yes_does,
+    without_a_policy_refuses_and_changes_nothing,
+    each_policy_selects_exactly_its_agents_and_survivors_are_untouched,
+    child_goes_with_its_parent_but_not_the_reverse,
+    without_remove_projections_keeps_projected_files,
+    then_reindex_reproduces_every_answer_and_removed_agents_appear_nowhere,
+    remove_projections_never_deletes_a_file_another_binding_names,
+    removes_structural_children_but_never_a_spawned_by_peer,
+    apply_keeps_what_changed_between_planning_and_locking,
+    that_cannot_lock_every_ledger_leaves_a_torn_tail_alone,
+    never_resolves_or_deletes_a_relative_projection_location,
+    apply_keeps_a_projection_attached_between_plan_and_apply,
+    on_a_copied_store_still_collects_a_ledger_whose_newest_event_is_old,
+    does_not_collect_an_old_file_with_a_recent_newest_event,
+    falls_back_to_created_at_then_mtime_and_names_the_clock,
+    larger_than_measures_the_decompressed_stream,
+);

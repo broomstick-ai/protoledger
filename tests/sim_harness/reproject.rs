@@ -17,10 +17,11 @@
 //! from the re-projected file's last line, followed by the same follower.
 
 use crate::common::{self, Mark, Paths};
+use crate::modes::Mode;
+use protoledger::Event;
 use protoledger::formats::{self, ImportOptions};
 use protoledger::store::Store;
 use protoledger::sync;
-use protoledger::{Event, Ledger};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
@@ -120,16 +121,26 @@ fn run_turn(
 
 #[test]
 fn claude_code_api_error_is_redacted_and_reprojected_out_ledger_keeps_it_next_turn_once_no_divergence_for_a_1s_poll_after() {
+    reprojected_turns(Mode::Plain);
+}
+
+/// The test above in a store in `m` (retrained, in that mode, once the
+/// session is projected and before the first turn).
+fn reprojected_turns(m: Mode) {
     let mut paths = Paths::new();
     let projects = paths.dir("claude/projects/-sim-reproject");
     let src = common::fixture(LEDGER);
     for f in [src.clone(), common::fixture(ERROR_TURN), common::fixture(NEXT_TURN)] {
         paths.fixture(&f);
     }
-    let mut s = Store::open(paths.root.join("store")).unwrap();
+    let store_dir = paths.root.join("store");
+    m.prepare(&store_dir);
+    let mut s = Store::open(&store_dir).unwrap();
     s.import("claude-code", &src).unwrap();
     let agent = s.agents().unwrap()[0].id.clone();
     let b = sync::project(&mut s, &agent, "claude-code", &projects).unwrap();
+    m.retrain(&mut s);
+    common::live_sealing(m, &mut s);
     let loc = PathBuf::from(&b.location);
     paths.wrote(&loc);
     let session = loc.file_stem().unwrap().to_string_lossy().to_string();
@@ -137,9 +148,9 @@ fn claude_code_api_error_is_redacted_and_reprojected_out_ledger_keeps_it_next_tu
 
     // Turn 1: Claude Code appends the API-error line; sync ingests it.
     let leaf0 = chain(&std::fs::read(&loc).unwrap(), "the projection")[0].clone();
-    let pre_len = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap().events.len();
+    let pre_len = s.reader(&agent).unwrap().ledger().unwrap().events.len();
     let (w1, wanted1) = run_turn(&mut s, follower.as_mut(), &b.binding, &loc, &agent, turn(ERROR_TURN, ERROR_SESSION, &session, &leaf0));
-    let all = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap();
+    let all = s.reader(&agent).unwrap().ledger().unwrap();
     common::no_divergence(&all.events, &w1, "turn 1 (the API error)");
     common::once_each(&all.events[pre_len..], &wanted1, "turn 1 (the API error)", |_| false);
     common::within_bound(&wanted1, &w1, "turn 1 (the API error)");
@@ -152,7 +163,7 @@ fn claude_code_api_error_is_redacted_and_reprojected_out_ledger_keeps_it_next_tu
     let ids: Vec<String> = error.iter().map(|e| e.id.clone()).collect();
     let n = all.events.len();
     s.redact(&agent, &ids, "simulated: an API error Claude Code appended").unwrap();
-    let held = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap();
+    let held = s.reader(&agent).unwrap().ledger().unwrap();
     assert_eq!(held.events.len(), n + 1, "the redaction is one appended event");
     assert_eq!(&held.events[..n], &all.events[..], "nothing before it changed");
     let r = sync::reproject(&mut s, &b.binding).unwrap();
@@ -163,7 +174,7 @@ fn claude_code_api_error_is_redacted_and_reprojected_out_ledger_keeps_it_next_tu
     assert!(left.is_empty(), "the file Claude Code resumes from still holds the error line: {left:?}");
     let resumed = chain(&after, "the re-projected file");
     assert!(!resumed.contains(&ERROR_LINE.to_string()));
-    let held = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap();
+    let held = s.reader(&agent).unwrap().ledger().unwrap();
     for e in &error {
         assert_eq!(held.events.iter().find(|x| x.id == e.id), Some(e), "the ledger no longer holds the error event {} as it was", e.id);
         assert!(held.redacted().contains(&e.id) && !held.projected_view().iter().any(|x| x.id == e.id));
@@ -172,7 +183,7 @@ fn claude_code_api_error_is_redacted_and_reprojected_out_ledger_keeps_it_next_tu
     // Turn 2, resumed from the re-projected file: once each, no divergence.
     let pre_len = held.events.len();
     let (w2, wanted2) = run_turn(&mut s, follower.as_mut(), &b.binding, &loc, &agent, turn(NEXT_TURN, NEXT_SESSION, &session, &resumed[0]));
-    let all = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap();
+    let all = s.reader(&agent).unwrap().ledger().unwrap();
     common::no_divergence(&all.events, &w2, "turn 2 (after the re-projection)");
     // The rewritten file was read whole at least once (a new inode): the
     // divergence check ran against protoledger's rewrite, not only appends.
@@ -200,4 +211,8 @@ fn claude_code_api_error_is_redacted_and_reprojected_out_ledger_keeps_it_next_tu
 
     paths.store(&s);
     paths.assert_isolated("claude-code reproject");
+    drop(s);
+    m.check(&store_dir);
 }
+
+modes_tests!(reprojected_turns);

@@ -8,7 +8,7 @@
 
 pub(crate) mod jsonl;
 #[cfg(feature = "sqlite")]
-mod sqlite;
+pub(crate) mod sqlite;
 
 use crate::formats::{Detection, ExportOptions, Exported, Format, ImportOptions, Imported, Losses, Output, Variant};
 use crate::ledger::{Ledger, LedgerSet};
@@ -686,7 +686,7 @@ fn export(set: &LedgerSet, opts: &ExportOptions) -> Result<Exported> {
     let mut losses = Losses::default();
     let mut index_written: HashSet<String> = HashSet::new();
     #[cfg(feature = "sqlite")]
-    let in_db = sqlite::export(set, &mut output)?;
+    let in_db = sqlite::export(set, &mut output, &mut losses)?;
     #[cfg(not(feature = "sqlite"))]
     let in_db: HashSet<String> = HashSet::new();
     for l in set.iter().filter(|l| !in_db.contains(l.id())) {

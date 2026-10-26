@@ -7,13 +7,14 @@
 //! the session key, label, `spawned_by` and `previous_session_id`.
 //!
 //! For a row-identical rebuild the whole store is captured: every schema
-//! object, every row of every ordinary table and the content of FTS tables.
+//! object, every row of every ordinary table, the content of FTS tables and
+//! the file's header values ([`sqlite_header`]).
 //! On export, tables are created and filled first and indexes, triggers and
 //! views come last, so OpenClaw's triggers do not fire on restored rows.
 
 use super::{FORMAT, import_text};
 use crate::formats::hermes::db::{columns, insert, rows};
-use crate::formats::{ImportOptions, Losses};
+use crate::formats::{ImportOptions, Losses, sqlite_header};
 use crate::ledger::{Ledger, LedgerSet};
 use crate::model::{Event, Kind, Link, Native, Obj, Parent, Relation};
 use crate::util::OrderedMap;
@@ -69,7 +70,11 @@ fn snapshot(c: &Connection, skip: &[&str]) -> Result<Value> {
         table_rows.insert(name.to_string(), Value::Array(rs.into_iter().map(Value::Object).collect()));
     }
     let seq = rows(c, "SELECT name, seq FROM sqlite_sequence", &[]).unwrap_or_default();
-    Ok(json!({"objects": objects, "rows": table_rows, "fts": fts_rows, "sqlite_sequence": seq}))
+    let mut store = json!({"objects": objects, "rows": table_rows, "fts": fts_rows, "sqlite_sequence": seq});
+    if let Some(h) = sqlite_header::read(c)? {
+        store[sqlite_header::KEY] = h;
+    }
+    Ok(store)
 }
 
 fn external_content(sql: &str) -> bool {
@@ -260,6 +265,7 @@ pub fn rebuild(store: &Value, transcripts: &[Value]) -> Result<Vec<u8>> {
     let path = dir.path().join("openclaw-agent.sqlite");
     {
         let c = Connection::open(&path)?;
+        sqlite_header::write(&c, store.get(sqlite_header::KEY))?;
         c.execute_batch("PRAGMA foreign_keys = OFF;")?;
         let objects = store["objects"].as_array().cloned().unwrap_or_default();
         for o in objects.iter().filter(|o| o["type"] == "table") {
@@ -311,15 +317,28 @@ pub fn rebuild(store: &Value, transcripts: &[Value]) -> Result<Vec<u8>> {
     Ok(std::fs::read(&path)?)
 }
 
+/// Export loss: a store file not written because the session that carries
+/// its snapshot (its first) is not in the set, or no longer stands for its
+/// rows exactly (events added, removed or not OpenClaw's own).
+pub const STORE_NOT_REBUILT: &str = "sqlite-store-not-rebuilt";
+
 /// Export every intact OpenClaw-SQLite ledger back into its store file.
-/// Returns the ids of the ledgers it wrote.
-pub fn export(set: &LedgerSet, out: &mut crate::formats::Output) -> Result<HashSet<String>> {
+/// Returns the ids of the ledgers it wrote. A store whose snapshot rides on a
+/// ledger that is not in the set or not intact is not written (its sessions
+/// become JSONL), and is named [`STORE_NOT_REBUILT`].
+pub fn export(set: &LedgerSet, out: &mut crate::formats::Output, losses: &mut Losses) -> Result<HashSet<String>> {
     #[allow(clippy::type_complexity)] // a one-off tuple of rows, named by the function that builds it
     let mut by_file: HashMap<String, (Option<Value>, Vec<Value>, Vec<String>)> = HashMap::new();
+    // Every store file a ledger of the set was read from.
+    let mut files = HashSet::new();
     for l in set.iter() {
+        let x = l.agent().source.as_ref().filter(|s| s.format == FORMAT).and_then(|s| s.extra.get("sqlite"));
+        if let Some(f) = x.and_then(|x| x.get("file")).and_then(Value::as_str) {
+            files.insert(f.to_string());
+        }
         let Some((file, rs)) = intact_rows(l) else { continue };
         let entry = by_file.entry(file).or_default();
-        if let Some(st) = l.agent().source.as_ref().and_then(|s| s.extra.get("sqlite")).and_then(|x| x.get("store")) {
+        if let Some(st) = x.and_then(|x| x.get("store")) {
             entry.0 = Some(st.clone());
         }
         entry.1.extend(rs);
@@ -328,8 +347,15 @@ pub fn export(set: &LedgerSet, out: &mut crate::formats::Output) -> Result<HashS
     let mut done = HashSet::new();
     for (file, (store, rs, ids)) in by_file {
         let Some(store) = store else { continue }; // the store's schema travels with its first session
-        out.put(file, rebuild(&store, &rs)?);
+        out.put(file.clone(), rebuild(&store, &rs)?);
+        files.remove(&file);
         done.extend(ids);
     }
+    losses.add_n(
+        STORE_NOT_REBUILT,
+        None,
+        files.len() as u64,
+        "an OpenClaw SQLite store whose first session, which carries the store, is not exported or has events added, removed or not OpenClaw's own since import: its sessions are written as JSONL and the store file is not written, with its other tables' rows and its header values (PRAGMA application_id, user_version, encoding)",
+    );
     Ok(done)
 }

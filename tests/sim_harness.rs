@@ -29,6 +29,13 @@
 //! [`Follower`]: protoledger::sync::Follower
 #![cfg(all(feature = "sync", feature = "sqlite"))]
 
+// The store modes (plain, and compressed three ways): every simulated
+// turn runs in each (`<test>::no_dictionary`, `::passed_dictionary`,
+// `::retrained`).
+#[macro_use]
+#[path = "modes/mod.rs"]
+mod modes;
+
 #[path = "sim_harness/claude.rs"]
 mod claude;
 #[path = "sim_harness/common.rs"]

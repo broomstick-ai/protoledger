@@ -164,7 +164,14 @@ the rest of a user's `state.vscdb` (the IDE's own state; see Mapping,
 `ide-state-vscdb`) was never copied into a ledger, and the import names it
 (`unlinked-row-skipped`, `ide-state-skipped`). Its self trip is therefore row-identical, not
 byte-identical per file (`expect.json` says so; unit test
-`ide_fixtures_self_trip_row_identical`).
+`ide_fixtures_self_trip_row_identical`). Both SQLite variants keep the
+file's header values (`PRAGMA application_id`, `user_version`, and
+`encoding` when not UTF-8) in `agent.source.extra.sqlite_header` and set
+them on a rebuilt `store.db` or a new `state.vscdb`; ledgers from files with
+different header values written to one `state.vscdb` keep the values of the ledger whose id sorts first
+(`sqlite-header-conflict`).
+A ledger imported before this release carries no header values and exports
+with SQLite's defaults (0, 0, `UTF-8`).
 
 ### Loss codes
 
@@ -185,6 +192,7 @@ byte-identical per file (`expect.json` says so; unit test
 | `<kind>-dropped` | all | anything else the variant has no record for (`file-change`, `subagent`, `app`, `native`, ...) |
 | `store-rebuilt` | store | an imported store with appended events is rebuilt: orphan blobs, the old metadata subtree and newer root fields are not kept |
 | `binary-message-dropped` | store | protobuf turn blobs (field-8 stores) are not rewritten |
+| `sqlite-header-conflict` | ide | ledgers from `state.vscdb` files with different header values (`PRAGMA application_id`, `user_version`, `encoding`) written to one file, which keeps the values of the ledger whose id sorts first |
 | `inline-conversation-split` | ide | events appended to an inline (`_v` < 3) composer are stored as rows beside it |
 | import: `turn-index-provisional`, `missing-blob` | store | field-8 store read with provisional field numbers; a referenced blob is missing |
 | import: `null-value-skipped`, `unparseable-composer-skipped` | ide | a `composerData` row that is NULL / not JSON |

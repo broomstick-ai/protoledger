@@ -175,7 +175,9 @@ impl Engine {
             }
         }
         let follower = Follower::new(&store, opts)?;
-        let hub_seen: HashMap<String, u64> = store.agents()?.into_iter().map(|a| (a.id, a.last_seq)).collect();
+        // A damaged ledger is left out of the feed (the store names it, and
+        // every operation on it is refused).
+        let hub_seen: HashMap<String, u64> = store.agents()?.into_iter().filter(|a| store.damaged_agent(&a.id).is_none()).map(|a| (a.id, a.last_seq)).collect();
         let hub = store.subscribe(Since::Agents(hub_seen.iter().map(|(a, s)| (a.clone(), *s)).collect()))?;
         let mut e = Engine { store, follower, opts, hub, hub_seen, clients: Vec::new(), next_agent_check: Instant::now() };
         e.settle();
@@ -202,7 +204,9 @@ impl Engine {
 
     fn rehub(&mut self) -> Result<()> {
         self.pump();
-        let agents = self.store.agents()?;
+        let mut agents = self.store.agents()?;
+        agents.retain(|a| self.store.damaged_agent(&a.id).is_none());
+        self.hub_seen.retain(|a, _| self.store.damaged_agent(a).is_none());
         if agents.iter().all(|a| self.hub_seen.contains_key(&a.id)) {
             return Ok(());
         }
@@ -228,7 +232,7 @@ impl Engine {
     pub(crate) fn subscribe(&mut self, from: &From) -> Result<(UnboundedReceiver<Published>, Vec<Backfill>)> {
         self.rehub()?;
         let (targets, agents): (Vec<(String, u64)>, Option<HashSet<String>>) = match from {
-            From::All => (self.store.agents()?.into_iter().map(|a| (a.id, 0)).collect(), None),
+            From::All => (self.store.agents()?.into_iter().filter(|a| self.store.damaged_agent(&a.id).is_none()).map(|a| (a.id, 0)).collect(), None),
             From::Agents(v) => (v.clone(), Some(v.iter().map(|(a, _)| a.clone()).collect())),
         };
         let mut floor = HashMap::new();

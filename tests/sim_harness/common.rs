@@ -23,6 +23,22 @@ pub const LATE: Duration = Duration::from_millis(2500);
 /// default follow options) and the debounce (150 ms), and some.
 pub const QUIET: Duration = Duration::from_millis(1300);
 
+/// Where a compressed store's writers seal during a simulated turn: a few
+/// event lines, so that a turn seals several blocks while it is synced (the
+/// product's default, 256 KiB, would leave the whole turn in the hot tail).
+/// The store is seeded sealing on every append ([`crate::modes::SEAL_BYTES`]),
+/// so its ledgers hold blocks before the turn; sealing on every append
+/// during the turn too puts two fsyncs and a read-back on each event a sync
+/// appends, which under load took a turn past the 2 s bound (2041 ms).
+pub const SEAL_BYTES: u64 = 4096;
+
+/// Before the turn, in a compressed mode: seal at [`SEAL_BYTES`].
+pub fn live_sealing(m: crate::modes::Mode, s: &mut Store) {
+    if m.compressed() {
+        s.set_seal_bytes(SEAL_BYTES).unwrap();
+    }
+}
+
 pub fn fixture(p: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures").join(p)
 }
@@ -214,6 +230,11 @@ pub fn follow_turn(
     want: impl Fn() -> Vec<String>,
     diverge: impl FnOnce(),
 ) -> Watched {
+    // One turn at a time in this test binary: the 2 s bound is a latency
+    // measured on a wall clock, and every turn runs in four store modes, so
+    // the turns running side by side would measure each other's load.
+    static TURN: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let _one_at_a_time = TURN.lock().unwrap_or_else(|e| e.into_inner());
     let (tx, rx) = mpsc::channel();
     let th = std::thread::spawn(move || sim(tx));
     let late = force().as_deref() == Some("late-follower");

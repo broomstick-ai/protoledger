@@ -13,7 +13,7 @@ use super::{V_IDE, agent, ms_ts, native, output_text, own, push_record};
 use crate::carry;
 use crate::formats::atif::jsonfmt;
 use crate::formats::gemini_cli::{apply_agent, attach_with_agent, carried_agent};
-use crate::formats::{ExportOptions, Exported, ImportOptions, Imported, Losses, Output};
+use crate::formats::{ExportOptions, Exported, ImportOptions, Imported, Losses, Output, sqlite_header};
 use crate::ledger::{Ledger, LedgerSet};
 use crate::model::{Event, Kind, Obj};
 use crate::util::{self, get_str};
@@ -189,6 +189,7 @@ pub(super) fn import(input: &Path, opts: &ImportOptions) -> Result<Imported> {
             }
         }
         let c = rusqlite::Connection::open(&copy).with_context(|| path.display().to_string())?;
+        let header = sqlite_header::read(&c)?;
         let mut rows = Rows { rows: Vec::new(), taken: Default::default() };
         let mut odd_keys = 0u64;
         {
@@ -225,7 +226,12 @@ pub(super) fn import(input: &Path, opts: &ImportOptions) -> Result<Imported> {
                 losses.add("unparseable-composer-skipped", None, "a composerData row that is not JSON");
                 continue;
             };
-            let l = import_composer(&mut rows, &rel, &cid, &raw, cell.class(), &cd, opts, &mut losses)?;
+            let mut l = import_composer(&mut rows, &rel, &cid, &raw, cell.class(), &cd, opts, &mut losses)?;
+            if let Some(h) = &header
+                && let Some(src) = l.agent_mut().source.as_mut().filter(|s| s.format == super::NAME && s.variant.as_deref() == Some(V_IDE))
+            {
+                src.extra.insert(sqlite_header::KEY.into(), h.clone());
+            }
             set.insert(l);
         }
         let left = rows.rows.iter().filter(|(k, _)| !rows.taken.contains(k)).count();
@@ -533,10 +539,15 @@ pub(super) fn export(set: &LedgerSet, opts: &ExportOptions) -> Result<Exported> 
             rows.push((format!("bubbleId:{cid}:{bid}"), Cell::Text(v.into_bytes())));
         }
     }
+    // Every own ledger names its file's header values; one file is written.
+    let headers: Vec<Option<&Value>> =
+        set.iter().filter(|l| super::is_own_ledger(l, V_IDE)).filter_map(|l| l.agent().source.as_ref()).map(|s| s.extra.get(sqlite_header::KEY)).collect();
+    let header = sqlite_header::pick(headers, &mut losses);
     let tmp = tempfile::tempdir()?;
     let p = tmp.path().join("state.vscdb");
     {
         let c = rusqlite::Connection::open(&p)?;
+        sqlite_header::write(&c, header.as_ref())?;
         c.execute_batch(
             "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);
              CREATE TABLE cursorDiskKV (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);",

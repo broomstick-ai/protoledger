@@ -1082,4 +1082,31 @@ mod tests {
             }
         }
     }
+
+    /// A changed legacy session goes into `state.db` as a rendered row that
+    /// carries its agent; a carried trip restores that agent in place of the
+    /// one built from the row, and it keeps the header values of the file it
+    /// was read from. Values the carried agent was never read with, so the
+    /// carrier cannot supply them.
+    #[cfg(feature = "sqlite")]
+    #[test]
+    fn a_restored_hermes_agent_keeps_its_file_header() {
+        let input = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures/hermes/legacy-session-json/native");
+        let mut set = import(&input, &ImportOptions::standard()).unwrap().set;
+        let mut l = set.iter().next().unwrap().clone();
+        let id = l.id().to_string();
+        l.append_unique(Event::new("appended", Kind::Text).with("role", "user").with("text", "one more"));
+        set.insert(l);
+        let out = export(&set, &ExportOptions::standard()).unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        out.output.write_to(dir.path(), true).unwrap();
+        let c = rusqlite::Connection::open(dir.path().join("state.db")).unwrap();
+        c.pragma_update(None, "application_id", 1_234_567).unwrap();
+        c.pragma_update(None, "user_version", 7).unwrap();
+        drop(c);
+        let back = import(dir.path(), &ImportOptions { variant: None, restore_carried: true }).unwrap().set;
+        let src = back.get(&id).unwrap().agent().source.clone().unwrap();
+        assert_eq!(src.variant.as_deref(), Some("session-json"), "the carried agent is restored, not the one built from the row");
+        assert_eq!(src.extra.get(crate::formats::sqlite_header::KEY), Some(&serde_json::json!({"application_id": 1_234_567, "user_version": 7})));
+    }
 }

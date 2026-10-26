@@ -35,7 +35,7 @@ pub(super) fn applies(format: &str) -> bool {
 }
 
 /// The next `<base>#<n>` that names nothing in `taken`.
-fn fresh(base: &str, taken: &HashSet<String>) -> String {
+pub(super) fn fresh(base: &str, taken: &HashSet<String>) -> String {
     (1..).map(|n| format!("{base}#{n}")).find(|id| !taken.contains(id)).expect("an unused id")
 }
 

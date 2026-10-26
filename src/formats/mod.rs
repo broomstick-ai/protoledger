@@ -25,6 +25,8 @@ pub mod pi;
 pub(crate) mod pi_session;
 pub mod protoledger;
 pub mod slack;
+#[cfg(feature = "sqlite")]
+pub(crate) mod sqlite_header;
 
 /// One supported shape of a format's native data. A format has several when
 /// its storage changed between producer versions.

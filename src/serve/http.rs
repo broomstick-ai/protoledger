@@ -2,7 +2,7 @@
 
 use super::after;
 use super::engine::{Backfill, Engine, From, Handle};
-use crate::store::{AgentInfo, BindingRow, Published};
+use crate::store::{AgentInfo, BindingRow, Damaged, DamagedLedger, Published};
 use crate::sync;
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::extract::{Path as UrlPath, Query, State};
@@ -55,8 +55,22 @@ impl ApiError {
     }
     /// The store refused the operation (a projection that does not come back
     /// as itself, a location already bound, an unreadable input, ...).
+    /// A refusal because the ledger it reaches is damaged is a 409, as
+    /// [`ApiError::reading`] answers it.
     fn refused(e: anyhow::Error) -> ApiError {
+        if e.downcast_ref::<DamagedLedger>().is_some() {
+            return ApiError::new(StatusCode::CONFLICT, format!("{e:#}"));
+        }
         ApiError::new(StatusCode::UNPROCESSABLE_ENTITY, format!("{e:#}"))
+    }
+    /// A read of the store failed: 409 when the store refused it because
+    /// the ledger is damaged (the store's state, not the request, is what is
+    /// wrong), else 500.
+    fn reading(e: anyhow::Error) -> ApiError {
+        if e.downcast_ref::<DamagedLedger>().is_some() {
+            return ApiError::new(StatusCode::CONFLICT, format!("{e:#}"));
+        }
+        ApiError::internal(e)
     }
     fn internal(e: anyhow::Error) -> ApiError {
         ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, format!("{e:#}"))
@@ -98,6 +112,20 @@ pub(crate) fn agent_json(a: &AgentInfo) -> Value {
     })
 }
 
+/// A damaged agent's row in a listing: its id, its ledger and why, and none
+/// of the counts the index read before the damage (as `store ls` marks it).
+fn damaged_json(a: &AgentInfo, d: &Damaged) -> Value {
+    json!({ "id": a.id, "path": a.path, "damaged": d.to_string() })
+}
+
+/// An agent's row in a listing, marked when its ledger is damaged.
+fn listed(e: &Engine, a: &AgentInfo) -> Value {
+    match e.store.damaged_agent(&a.id) {
+        Some(d) => damaged_json(a, &d),
+        None => agent_json(a),
+    }
+}
+
 pub(crate) fn binding_json(b: &BindingRow) -> Value {
     json!({
         "binding": b.binding,
@@ -117,7 +145,12 @@ pub(crate) fn published_json(p: &Published) -> Value {
     json!({ "agent": p.agent, "seq": p.seq, "offset": p.offset, "event": p.event })
 }
 
+/// The agent `id`: 404 when the store does not know it, 409 when its ledger
+/// is damaged (every request naming it is refused, naming it).
 fn known(e: &Engine, id: &str) -> Result<AgentInfo, ApiError> {
+    if let Some(d) = e.store.damaged_agent(id) {
+        return Err(ApiError::reading(anyhow::Error::new(DamagedLedger(d))));
+    }
     e.store.agent(id).map_err(ApiError::internal)?.ok_or_else(|| ApiError::not_found(format!("no agent {id:?}")))
 }
 
@@ -125,7 +158,7 @@ fn known(e: &Engine, id: &str) -> Result<AgentInfo, ApiError> {
 
 async fn agents(State(h): State<Handle>) -> Answer {
     on_engine(&h, |e| {
-        let v: Vec<Value> = e.store.agents().map_err(ApiError::internal)?.iter().map(agent_json).collect();
+        let v: Vec<Value> = e.store.agents().map_err(ApiError::internal)?.iter().map(|a| listed(e, a)).collect();
         Ok(Json(Value::Array(v)))
     })
     .await
@@ -164,7 +197,7 @@ async fn events(State(h): State<Handle>, UrlPath(id): UrlPath<String>, q: Result
 async fn children(State(h): State<Handle>, UrlPath(id): UrlPath<String>) -> Answer {
     on_engine(&h, move |e| {
         known(e, &id)?;
-        let v: Vec<Value> = e.store.children(&id).map_err(ApiError::internal)?.iter().map(agent_json).collect();
+        let v: Vec<Value> = e.store.children(&id).map_err(ApiError::internal)?.iter().map(|a| listed(e, a)).collect();
         Ok(Json(Value::Array(v)))
     })
     .await
@@ -304,7 +337,7 @@ async fn subscribe(
         let from = q.from.ok_or_else(|| ApiError::bad("from is required: <agent>:<seq>,... or all"))?;
         let from = parse_from(&from).map_err(ApiError::bad)?;
         let ws = ws.map_err(|e| ApiError::bad(e.body_text()))?;
-        let (rx, backfill) = on_engine(&h, move |e| e.subscribe(&from).map_err(ApiError::internal)).await?;
+        let (rx, backfill) = on_engine(&h, move |e| e.subscribe(&from).map_err(ApiError::reading)).await?;
         Ok(ws.on_upgrade(move |socket| stream(socket, rx, backfill)))
     }
     .await;
@@ -348,4 +381,44 @@ async fn stream(mut socket: WebSocket, mut rx: UnboundedReceiver<Published>, bac
 async fn close(mut socket: WebSocket, why: &str) {
     let frame = axum::extract::ws::CloseFrame { code: 1011, reason: why.chars().take(120).collect::<String>().into() };
     let _ = socket.send(Message::Close(Some(frame))).await;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::store::Store;
+
+    /// A store refusing a damaged ledger is a 409; any other failure of a
+    /// read of the store stays a 500, even one wrapped in context, and a
+    /// refusal wrapped in context is still a 409. The errors are the store's
+    /// own: one reader refused for damage, one for an agent it does not know.
+    #[test]
+    fn a_damaged_ledger_is_409_and_every_other_store_error_stays_500() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().join("store");
+        let mut s = Store::open(&root).unwrap();
+        s.import("protoledger", &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures/protoledger/minimal/native")).unwrap();
+        let path = root.join(s.agent("hello-1").unwrap().unwrap().path);
+        drop(s);
+        let text = std::fs::read_to_string(&path).unwrap();
+        let mut lines: Vec<&str> = text.lines().collect();
+        lines[1] = "{this line is not json";
+        std::fs::write(&path, lines.join("\n") + "\n").unwrap();
+        let s = Store::open(&root).unwrap();
+
+        let damaged = s.reader("hello-1").unwrap_err();
+        assert!(damaged.downcast_ref::<DamagedLedger>().is_some(), "{damaged:#}");
+        let other = s.reader("nobody").unwrap_err();
+        assert!(other.downcast_ref::<DamagedLedger>().is_none(), "{other:#}");
+
+        let r = ApiError::reading(damaged);
+        assert_eq!(r.status, StatusCode::CONFLICT, "{}", r.msg);
+        assert!(r.msg.contains("damaged") && r.msg.contains("hello-1"), "{}", r.msg);
+        let r = ApiError::reading(s.reader("hello-1").unwrap_err().context("subscribing"));
+        assert_eq!(r.status, StatusCode::CONFLICT, "{}", r.msg);
+        let r = ApiError::reading(other);
+        assert_eq!(r.status, StatusCode::INTERNAL_SERVER_ERROR, "{}", r.msg);
+        let r = ApiError::reading(s.reader("nobody").unwrap_err().context("subscribing"));
+        assert_eq!(r.status, StatusCode::INTERNAL_SERVER_ERROR, "{}", r.msg);
+    }
 }

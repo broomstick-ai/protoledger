@@ -18,6 +18,11 @@
 //!   place)? Sessions and container bookkeeping are not: opencode rewrites the
 //!   session row on every message (`time_updated`), and its newer versions
 //!   ride only on new session facts (a title).
+//!
+//! Sync's deleted-records path (`src/sync/deleted.rs`) asks one more,
+//! [`deletable`]: is the record a row opencode deletes and rewrites on its
+//! own (a todo, a store row)? Its deletion and each rewrite are newer
+//! versions of it.
 
 use super::{Container, FORMAT, Gen, Role, get_ms, render, s};
 use crate::model::{Event, Kind, Native};
@@ -65,6 +70,22 @@ pub fn versioned(n: &Native) -> bool {
         },
         _ => false,
     }
+}
+
+/// Does opencode delete and rewrite this record on its own, so that its
+/// absence from a re-read is a newer version of it (a tombstone, SPEC §4.1)
+/// and not divergence, and a re-read of it with other content is a newer
+/// version too? A row of an `opencode.db` that is not a session, message or
+/// part: a store row (a worktree, a kv, permission, project or account row,
+/// ...) or a row kept beside a session (a todo, which opencode replaces whole
+/// when the list changes, a share, ...). Sessions, messages and parts are
+/// not: a message gone from a session is a rewrite of the conversation
+/// (§9.3), and a message or part rewritten in place is versioned only as
+/// [`versioned`] says, by sync's in-place hook.
+pub fn deletable(n: &Native) -> bool {
+    let Some(c) = n.variant.as_deref().and_then(Container::from_variant) else { return false };
+    matches!(c, Container::SqliteV1 | Container::SqliteV2)
+        && render::role_of(c, n.id.as_deref().unwrap_or(""), n.file.as_deref().unwrap_or(""), &Value::Null) == Role::Extra
 }
 
 /// Has a 1.x text or reasoning part ended (a part with no `time` never streams)?

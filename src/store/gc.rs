@@ -211,8 +211,15 @@ pub struct Plan {
     /// ... or left in place, each with why.
     pub projections_kept: Vec<(PathBuf, String)>,
     /// Agents the plan named that [`Store::gc_apply`] kept, each with why
-    /// (the ledger changed between planning and locking).
+    /// (the ledger changed between planning and locking, or is damaged).
     pub skipped: Vec<(String, String)>,
+    /// The store's damaged ledgers ([`Store::damaged`]) when the plan was
+    /// made: never removed, whatever the policy says.
+    pub damaged: Vec<super::Damaged>,
+    /// Agents the policy reached that the plan keeps because of a damaged
+    /// ledger (a parent whose child's ledger is damaged, and the children
+    /// planned only for that parent's sake), each with why.
+    pub kept: Vec<(String, String)>,
     /// With `older_than`: every agent's age clock, as epoch milliseconds,
     /// selected or not, by agent id.
     pub clocks: Vec<(String, Clock, i64)>,
@@ -264,6 +271,12 @@ impl Plan {
         }
         for (a, why) in &self.skipped {
             let _ = writeln!(o, "skipped\t{a}\t{why}");
+        }
+        for d in &self.damaged {
+            let _ = writeln!(o, "damaged\t{}\tnever removed: {}", d.ledger, d.reason);
+        }
+        for (a, why) in &self.kept {
+            let _ = writeln!(o, "kept\t{a}\t{why}");
         }
         let events: u64 = self.removals.iter().map(|r| r.event_rows).sum();
         let bindings: usize = self.removals.iter().map(|r| r.bindings.len()).sum();
@@ -335,16 +348,7 @@ impl Store {
     /// ledgers) and caught up there exactly as [`Store::open`] would catch it
     /// up, so the plan is the one [`Store::gc`] would carry out.
     pub fn gc_dry_run(root: impl AsRef<Path>, policy: &Policy, now: SystemTime) -> Result<Plan> {
-        let root = root.as_ref().to_path_buf();
-        let db = index::open(Path::new(":memory:"))?;
-        if copy_index(&db, &root.join(super::INDEX)).is_err() {
-            // Nothing usable to copy: the ledgers alone rebuild it.
-            index::reset(&db)?;
-        }
-        let config = super::Config::read(&root)?;
-        let store = Store { root, db, writers: Default::default(), subs: Default::default(), config };
-        store.catch_up().context("reading the ledgers")?;
-        store.gc_plan(policy, now)
+        Store::in_memory(root.as_ref())?.gc_plan(policy, now)
     }
 
     /// What `policy` removes, as of `now`. Changes nothing.
@@ -353,21 +357,64 @@ impl Store {
         let agents = self.agents()?;
         let mut why: BTreeMap<String, Why> = BTreeMap::new();
         let mut clocks = Vec::new();
+        // A damaged ledger is never removed (its index rows may predate the
+        // damage): it is not selected, never goes with its parent, and keeps
+        // its ancestors (SPEC §2.1: a child names an existing parent).
+        let damaged = |id: &str| self.damaged_agent(id);
         for a in &agents {
-            if self.matches(a, policy, now, &mut clocks)? {
+            if damaged(&a.id).is_none() && self.matches(a, policy, now, &mut clocks)? {
                 why.insert(a.id.clone(), Why::Selected);
             }
         }
         // Close downwards: a child goes with its parent (SPEC §2.1).
+        let mut kept: BTreeMap<String, String> = BTreeMap::new();
         let mut queue: Vec<String> = why.keys().cloned().collect();
         while let Some(id) = queue.pop() {
             for c in self.children(&id)? {
-                if !why.contains_key(&c.id) {
+                if damaged(&c.id).is_some() {
+                    kept.insert(id.clone(), format!("parent of damaged {}", c.id));
+                } else if !why.contains_key(&c.id) {
                     why.insert(c.id.clone(), Why::ChildOf(id.clone()));
                     queue.push(c.id);
                 }
             }
         }
+        // A damaged ledger the index has no row for names its parent, if at
+        // all, in its header: read it, when it can be read.
+        let rows: HashSet<&str> = agents.iter().map(|a| a.path.as_str()).collect();
+        for d in self.damaged() {
+            if rows.contains(d.ledger.as_str()) {
+                continue;
+            }
+            let parent = self.reader_of(&d.ledger).header().ok().flatten().and_then(|h| h.agent.parent).map(|p| p.agent);
+            if let Some(p) = parent.filter(|p| why.contains_key(p)) {
+                kept.insert(p, format!("parent of damaged {}", d.agent.as_deref().unwrap_or(&d.ledger)));
+            }
+        }
+        // A kept agent keeps its planned parent, and the children planned
+        // only for its sake stay with it.
+        loop {
+            let mut grew = false;
+            for (id, w) in &why {
+                if kept.contains_key(id) {
+                    continue;
+                }
+                let parent_of_kept =
+                    why.keys().find(|c| kept.contains_key(*c) && agents.iter().any(|a| &a.id == *c && a.parent.as_ref().is_some_and(|p| &p.agent == id)));
+                let reason = match (parent_of_kept, w) {
+                    (Some(c), _) => format!("parent of kept {c}"),
+                    (None, Why::ChildOf(p)) if kept.contains_key(p) => format!("child of kept {p}"),
+                    _ => continue,
+                };
+                kept.insert(id.clone(), reason);
+                grew = true;
+                break;
+            }
+            if !grew {
+                break;
+            }
+        }
+        why.retain(|id, _| !kept.contains_key(id));
         // Deletion order: every child before its parent (deepest first).
         let by_id: BTreeMap<&str, &AgentInfo> = agents.iter().map(|a| (a.id.as_str(), a)).collect();
         let depth = |id: &str| {
@@ -386,7 +433,7 @@ impl Store {
         let mut ids: Vec<&String> = why.keys().collect();
         ids.sort_by(|a, b| depth(b).cmp(&depth(a)).then(a.cmp(b)));
         let all_bindings = self.bindings()?;
-        let mut plan = Plan { policy: policy.clone(), clocks, ..Default::default() };
+        let mut plan = Plan { policy: policy.clone(), clocks, damaged: self.damaged(), kept: kept.into_iter().collect(), ..Default::default() };
         for id in ids {
             let agent = (*by_id.get(id.as_str()).ok_or_else(|| anyhow!("agent {id} left the index"))?).clone();
             let bindings: Vec<BindingRow> = all_bindings.iter().filter(|b| &b.agent == id).cloned().collect();
@@ -440,6 +487,10 @@ impl Store {
         let mut kept: BTreeMap<String, String> = BTreeMap::new();
         for r in &plan.removals {
             let id = &r.agent.id;
+            if let Some(d) = self.damaged_agent(id) {
+                kept.insert(id.clone(), format!("damaged, never removed: {}", d.reason));
+                continue;
+            }
             match self.agent(id)? {
                 None => {
                     kept.insert(id.clone(), "gone before gc locked it".into());
@@ -480,6 +531,7 @@ impl Store {
             plan.removals.retain(|r| !kept.contains_key(&r.agent.id));
             plan.skipped = kept.into_iter().collect();
         }
+        plan.damaged = self.damaged();
         // Always, not only when something was kept: a surviving agent may
         // have bound a planned file since the plan was made.
         plan.place_projections(&self.bindings()?);
@@ -552,7 +604,7 @@ fn normalize(location: &str) -> PathBuf {
 /// the same schema), reading the file read-only and as immutable, so nothing
 /// is written beside it (no `-wal`, no `-shm`). A newer write still in another
 /// process's WAL is not seen; catch-up reads it from the ledgers instead.
-fn copy_index(db: &rusqlite::Connection, path: &Path) -> Result<()> {
+pub(crate) fn copy_index(db: &rusqlite::Connection, path: &Path) -> Result<()> {
     if !path.is_file() {
         bail!("{} does not exist", path.display());
     }

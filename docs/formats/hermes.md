@@ -74,7 +74,16 @@ row id for a message row; `<session>/<index>` for legacy JSON messages;
   BLOBs as `{"$blob": base64}`). Verified with `sqlite3` on both fixtures:
   identical schema text, identical rows in every table, identical FTS5 index
   contents (rebuilt by hermes' own triggers). Session rows can come back in a
-  different rowid order.
+  different rowid order. The file's header values (`PRAGMA application_id`,
+  `user_version`, and `encoding` when not UTF-8) are kept on every session's
+  ledger, in `agent.source.extra.sqlite_header`, and set on the new file, so
+  a subset of a file's sessions writes them too. A subset without the first
+  session has no store to rebuild from: the file gets the v31 schema and
+  none of the other tables' rows, and the export names it
+  (`sqlite-store-left-out`; so does a second `state.db` exported into the
+  same file, whose store is not the one written).
+  A ledger imported before this release carries no header values and exports
+  with SQLite's defaults (0, 0, `UTF-8`).
 
 ## Export of foreign ledgers
 
@@ -135,6 +144,8 @@ the root listing as hermes' delegates do.
 | `subagent-marker-dropped`, `error-dropped`, `file-change-dropped`, `app-dropped`, `foreign-native-dropped` | no hermes row exists |
 | `title-renamed` | a title another exported session already holds, numbered `<title> #N` |
 | `carry-unavailable` | carry requested into a schema without `display_metadata` (v4-era stores); a renamed hermes session row whose schema has no `model_config` or whose `model_config` is not a JSON object |
+| `sqlite-header-conflict` | several `state.db` files with different header values (`PRAGMA application_id`, `user_version`, `encoding`) exported as one, which keeps the values of the ledger whose id sorts first |
+| `sqlite-store-left-out` | sessions of a `state.db` exported without its first session, which carries the file's schema text, other tables' rows and `sqlite_sequence`, or with another `state.db`'s store written instead |
 
 
 ## Branches (SPEC §2.3)

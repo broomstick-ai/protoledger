@@ -16,10 +16,11 @@
 //! the whole file is one chain from the turn's last line back to the root.
 
 use crate::common::{self, Mark, Paths};
+use crate::modes::Mode;
 use protoledger::formats::{self, ImportOptions};
 use protoledger::store::Store;
 use protoledger::sync;
-use protoledger::{Event, Kind, Ledger};
+use protoledger::{Event, Kind};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
@@ -73,16 +74,23 @@ fn append(path: &Path, bytes: &[u8]) {
 
 #[test]
 fn claude_code_resumes_a_projection_with_a_redacted_event_once_each_no_divergence_one_chain_for_a_1s_poll_after() {
+    redacted_resume(Mode::Plain);
+}
+
+/// The test above in a store in `m` (retrained, in that mode, once the
+/// session is projected and before the turn).
+fn redacted_resume(m: Mode) {
     let mut paths = Paths::new();
     let projects = paths.dir("claude/projects/-sim-redact");
     let store_dir = paths.root.join("store");
+    m.prepare(&store_dir);
     let src = common::fixture(LEDGER);
     paths.fixture(&src);
     paths.fixture(&common::fixture(TURN));
     let mut s = Store::open(&store_dir).unwrap();
     s.import("claude-code", &src).unwrap();
     let agent = s.agents().unwrap()[0].id.clone();
-    let held = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap();
+    let held = s.reader(&agent).unwrap().ledger().unwrap();
     let target = held
         .events
         .iter()
@@ -93,6 +101,8 @@ fn claude_code_resumes_a_projection_with_a_redacted_event_once_each_no_divergenc
     s.redact(&agent, std::slice::from_ref(&target.id), "simulated: an answer to take back").unwrap();
 
     let b = sync::project(&mut s, &agent, "claude-code", &projects).unwrap();
+    m.retrain(&mut s);
+    common::live_sealing(m, &mut s);
     let loc = PathBuf::from(&b.location);
     paths.wrote(&loc);
     let pre_bytes = std::fs::read(&loc).unwrap();
@@ -116,7 +126,7 @@ fn claude_code_resumes_a_projection_with_a_redacted_event_once_each_no_divergenc
     let pre_import = formats::by_name("claude-code").unwrap().import(&loc, &ImportOptions::standard()).unwrap();
     let pre_ids: Vec<String> = pre_import.set.get(&agent).unwrap().events.iter().map(|e| e.id.clone()).collect();
     assert!(!pre_ids.contains(&target.id));
-    let pre_len = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap().events.len();
+    let pre_len = s.reader(&agent).unwrap().ledger().unwrap().events.len();
 
     let session = loc.file_stem().unwrap().to_string_lossy().to_string();
     let turn = std::fs::read_to_string(common::fixture(TURN)).unwrap().replace(TURN_SESSION, &session).replacen(
@@ -142,7 +152,7 @@ fn claude_code_resumes_a_projection_with_a_redacted_event_once_each_no_divergenc
         imp.set.get(&want_agent).unwrap().events.iter().map(|e| e.id.clone()).collect::<Vec<_>>()[pre_n..].to_vec()
     };
     let w = common::follow_turn(&mut s, follower.as_mut(), &b.binding, sim, &want, || {});
-    let all = Ledger::read(&s.ledger_path(&agent).unwrap()).unwrap();
+    let all = s.reader(&agent).unwrap().ledger().unwrap();
     common::no_divergence(&all.events, &w, "claude-code redacted");
     let got: Vec<Event> = all.events[pre_len..].to_vec();
     let wanted = want();
@@ -164,4 +174,8 @@ fn claude_code_resumes_a_projection_with_a_redacted_event_once_each_no_divergenc
 
     paths.store(&s);
     paths.assert_isolated("claude-code redacted");
+    drop(s);
+    m.check(&store_dir);
 }
+
+modes_tests!(redacted_resume);

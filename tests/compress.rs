@@ -593,9 +593,14 @@ fn a_leftover_tail_after_a_seal_crash_equals_the_stream_end_and_is_cut() {
     assert!(e.contains("a.jsonl") && e.contains("damaged"), "cat fails naming the ledger: {e}");
     assert_eq!((std::fs::read(&p.zst).unwrap(), std::fs::read(&p.tail).unwrap()), (zst.clone(), bad.clone()), "nothing was changed");
     drop(s);
-    // And a store that has to read it to open says so.
+    // And a store that has to read it to open still opens, skips it and
+    // names it, and refuses it.
     std::fs::write(&p.tail, &bad).unwrap();
-    let e = format!("{:#}", Store::open(dir.path()).err().expect("the index cannot read a"));
+    let s = Store::open(dir.path()).unwrap();
+    let d = s.damaged();
+    assert_eq!(d.len(), 1, "{d:?}");
+    assert!(d[0].ledger == "ledgers/a.jsonl" && d[0].reason.contains("damaged"), "{d:?}");
+    let e = format!("{:#}", s.reader("a").unwrap_err());
     assert!(e.contains("a.jsonl") && e.contains("damaged"), "{e}");
 }
 
@@ -614,16 +619,25 @@ fn a_corrupt_block_that_is_not_the_final_one_is_damage() {
     zst[i] ^= 0x55;
     std::fs::write(&p.zst, &zst).unwrap();
     let tail = std::fs::read(&p.tail).unwrap();
+    // The reader, opened on the files alone, finds the damage.
+    let e = format!("{:#}", protoledger::store::LedgerReader::plain(p.plain.clone()).stream().unwrap_err());
+    assert!(e.contains("a.jsonl") && e.contains("damaged") && e.contains("not whole"), "{e}");
+    // The store, whose index read the ledger before the block was damaged,
+    // still opens: the block file changed without growing, so catch-up
+    // reads it whole, finds the damage, and names the ledger once.
     let mut s = Store::open(dir.path()).unwrap();
-    let e = format!("{:#}", s.reader("a").unwrap().stream().unwrap_err());
+    let d = s.damaged();
+    assert!(d.len() == 1 && d[0].ledger == "ledgers/a.jsonl" && d[0].reason.contains("not whole"), "{d:?}");
+    // Every operation on it fails naming it, the reads that would not need
+    // the damaged block included.
+    let e = format!("{:#}", s.reader("a").unwrap_err());
     assert!(e.contains("a.jsonl") && e.contains("damaged"), "{e}");
-    let e = format!("{:#}", s.event_at("a", 5).unwrap_err());
-    assert!(e.contains("a.jsonl"), "{e}");
-    // A read that does not need the damaged block still works.
-    assert_eq!(s.event_at("a", 1).unwrap().unwrap().id, "e10");
-    assert_eq!(s.event_at("a", 25).unwrap().unwrap().id, "e34");
+    for seq in [1, 5, 25] {
+        let e = format!("{:#}", s.event_at("a", seq).unwrap_err());
+        assert!(e.contains("a.jsonl") && e.contains("damaged"), "seq {seq}: {e}");
+    }
     let e = format!("{:#}", s.append("a", fixed(36)).unwrap_err());
-    assert!(e.contains("a.jsonl") && e.contains("not the final block"), "{e}");
+    assert!(e.contains("a.jsonl") && e.contains("damaged"), "{e}");
     assert_eq!((std::fs::read(&p.zst).unwrap(), std::fs::read(&p.tail).unwrap()), (zst, tail), "nothing was repaired");
 }
 
@@ -652,8 +666,14 @@ fn a_block_of_an_unknown_version_is_refused_and_unknown_meta_fields_ignored() {
     std::fs::write(ledgers.join("w.jsonl.zst"), craft_block(data.replace("\"v\"", "\"w\"").as_bytes(), meta(2, ""))).unwrap();
     let e = format!("{:#}", protoledger::store::LedgerReader::plain(ledgers.join("w.jsonl")).stream().unwrap_err());
     assert!(e.contains("w.jsonl") && e.contains("version 2"), "{e}");
-    let e = format!("{:#}", Store::open(dir.path()).err().expect("the index cannot read w"));
+    // The store opens, skips it and names it, and refuses it.
+    let s = Store::open(dir.path()).unwrap();
+    let d = s.damaged();
+    assert!(d.len() == 1 && d[0].ledger == "ledgers/w.jsonl" && d[0].reason.contains("version 2"), "{d:?}");
+    let e = format!("{:#}", s.reader("w").unwrap_err());
     assert!(e.contains("w.jsonl") && e.contains("version 2"), "{e}");
+    assert_eq!(lines(&cat(&s, "v")).len(), 3, "v still reads");
+    drop(s);
     // Opposed: the same block at version 1 is read.
     std::fs::write(ledgers.join("w.jsonl.zst"), craft_block(data.replace("\"v\"", "\"w\"").as_bytes(), meta(1, ""))).unwrap();
     assert_eq!(lines(&protoledger::store::LedgerReader::plain(ledgers.join("w.jsonl")).stream().unwrap()).len(), 2);

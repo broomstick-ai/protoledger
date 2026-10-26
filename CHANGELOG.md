@@ -5,7 +5,7 @@ All notable changes to protoledger are recorded here. The format follows
 [Semantic Versioning](https://semver.org/) (before 1.0, a minor version may
 break the API).
 
-## 0.1.0 — 2026-10-20
+## 0.1.0 — 2026-10-25
 
 The first release. What you get:
 
@@ -60,6 +60,22 @@ The first release. What you get:
   encodes (from the index, which `store reindex` rebuilds); `store dict rm`
   refuses while a dictionary is the default or any block uses it (SPEC §10.7,
   §10.9).
+- **Damaged ledgers.** A store that finds a damaged ledger (a compressed one
+  whose blocks or hot tail disagree, or a plain one that does not parse)
+  still opens: the index skips that ledger, `Store::damaged` and every CLI
+  command that reads the store name it (`store ls` marks its row), and every
+  operation on it fails naming it until it is repaired by hand. Nothing in
+  it is changed: `store gc` never removes it (nor its parent, when the index or
+  the ledger's header names one) and lists it as
+  `damaged` in its plan, a subscription to every agent (and `serve`'s feed)
+  leaves it out while one naming it is refused, and sync defers its
+  bindings.
+- **Every mode tested.** The conformance, sync (simulated harness), serve,
+  garbage-collection and reindex tests run in a plain store and in a
+  compressed one with no dictionary, with a passed dictionary, and after a
+  recompression with a trained one.
+- The store's test hooks (`protoledger::store::testing`) are behind a
+  non-default `test-hooks` feature; without it they compile to nothing.
 
 ### Format
 
@@ -80,6 +96,19 @@ The first release. What you get:
   key, SQLite storage class and bytes; the rest of the file, which is the
   IDE's own state, is counted as skipped by name (`unlinked-row-skipped`,
   `ide-state-skipped`), never dropped silently.
+- SQLite stores (Hermes, OpenClaw, Cursor, opencode, Deep Agents): the
+  file's header values an application reads back (`PRAGMA application_id`,
+  `user_version`, and `encoding` when not UTF-8) are kept in the ledger and
+  written back on export, so a self trip keeps them; several files exported
+  as one with different values keep the values of the ledger whose
+  id sorts first, named
+  `sqlite-header-conflict`; for Hermes, Deep Agents, Cursor and opencode
+  every ledger of a file carries them, so a subset of a file's sessions
+  writes them too, and store-level data a subset cannot rebuild is named
+  (`sqlite-store-left-out`, Hermes and Deep Agents); OpenClaw keeps them in
+  the store captured on its first session, and a store whose first session
+  is changed or not exported is not rebuilt and is named, header values
+  included (`sqlite-store-not-rebuilt`).
 - opencode (`opencode.db`): every row of every table is kept, so the
   database re-exports row for row; the rows that belong to no session
   (projects, worktrees, instruction blobs, ...) go in one store ledger per
@@ -91,6 +120,12 @@ The first release. What you get:
   format other than its own and `protoledger`, counted as
   `container-not-rendered`, instead of being rendered as an empty
   conversation (SPEC §2.3).
+- Sync of an attached `opencode.db`: a store row or todo row opencode
+  deletes is appended as a tombstone, a newer version of that row (SPEC
+  §4.1), and the binding keeps following; exports leave the row out.
+- Sync of an attached `opencode.db`: a store row or todo row opencode
+  rewrites in place (a todo going `pending` → `completed`) is appended as a
+  newer version of that row (SPEC §4.1); exports write the newest version.
 - A conformance suite over 191 fixture cases (self trips byte-exact unless
   `expect.json` says why not, cross trips with and without carry), ratcheted
   against committed reports; a mutation harness in which no importer panics.

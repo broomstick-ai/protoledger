@@ -21,10 +21,11 @@
 //! delay.
 
 use crate::common::{self, Mark, Paths};
+use crate::modes::Mode;
+use protoledger::Kind;
 use protoledger::formats::{self, ImportOptions};
 use protoledger::store::Store;
 use protoledger::sync;
-use protoledger::{Kind, Ledger};
 use rusqlite::{Connection, OpenFlags, types::ValueRef};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
@@ -131,13 +132,23 @@ fn file_state(p: &Path) -> (Vec<u8>, std::time::SystemTime) {
 /// turn into the WAL, and check the live-sync properties on the ledger.
 #[test]
 fn opencode_simulated_turn_in_wal_once_each_exact_within_2s_no_divergence_for_a_1s_poll_after() {
+    opencode_turn(Mode::Plain);
+}
+
+/// The test above in a store in `m` (retrained, in that mode, once the
+/// session is projected and before the turn).
+fn opencode_turn(m: Mode) {
     let mut paths = Paths::new();
     let src = common::fixture(SOURCE);
     paths.fixture(&src);
-    let mut s = Store::open(paths.root.join("store")).unwrap();
+    let store_dir = paths.root.join("store");
+    m.prepare(&store_dir);
+    let mut s = Store::open(&store_dir).unwrap();
     s.import("opencode", &src).unwrap();
     let dir = paths.dir("opencode-data/opencode");
     let b = sync::project(&mut s, SID, "opencode", &dir).unwrap();
+    m.retrain(&mut s);
+    common::live_sealing(m, &mut s);
     let loc = PathBuf::from(&b.location);
     assert_eq!(loc, dir.join("opencode.db"), "the projection is the data directory's opencode.db");
     assert_eq!(b.variant.as_deref(), Some("v2-sqlite"));
@@ -154,7 +165,7 @@ fn opencode_simulated_turn_in_wal_once_each_exact_within_2s_no_divergence_for_a_
     hold.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
     let seq0: i64 = hold.query_row("SELECT COALESCE(MAX(seq), 0) FROM session_message WHERE session_id = ?1", [SID], |r| r.get(0)).unwrap();
     let pre_rows = rows(&loc);
-    let pre = Ledger::read(&s.ledger_path(SID).unwrap()).unwrap().events;
+    let pre = s.reader(SID).unwrap().ledger().unwrap().events;
     let pre_ids = import_ids(&loc);
 
     let mut follower = common::follower(&s);
@@ -197,7 +208,7 @@ fn opencode_simulated_turn_in_wal_once_each_exact_within_2s_no_divergence_for_a_
         cut.lock().unwrap().execute("DELETE FROM session_message WHERE id = ?1", [M_USER]).unwrap();
     };
     let w = common::follow_turn(&mut s, follower.as_mut(), &b.binding, sim, want_fn.clone(), diverge);
-    let all = Ledger::read(&s.ledger_path(SID).unwrap()).unwrap().events;
+    let all = s.reader(SID).unwrap().ledger().unwrap().events;
     // First, before anything reads the location again: no sync up to a poll
     // period past the last event found it diverged.
     common::no_divergence(&all, &w, "opencode");
@@ -259,4 +270,8 @@ fn opencode_simulated_turn_in_wal_once_each_exact_within_2s_no_divergence_for_a_
     paths.store(&s);
     paths.assert_isolated("opencode");
     drop(hold);
+    drop(s);
+    m.check(&store_dir);
 }
+
+modes_tests!(opencode_turn);

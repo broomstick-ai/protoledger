@@ -31,7 +31,6 @@
 use super::blocks::{self, Located};
 use super::dicts::Dicts;
 use super::layout::{self, Files, Form, Ident};
-use super::testing::{self, Point};
 use crate::Ledger;
 use crate::model::{Event, Header};
 use anyhow::{Context, Result, anyhow, bail};
@@ -241,9 +240,9 @@ impl LedgerReader {
             }
         }
         // The hot tail, at physical offset pos - L.
-        testing::fire(Point::ReaderBeforeTail, &files.zst)?;
+        hook!(ReaderBeforeTail, &files.zst);
         let tail = read_complete(&files.tail)?;
-        testing::fire(Point::ReaderAfterTail, &files.tail)?;
+        hook!(ReaderAfterTail, &files.tail);
         if snap.changed(files, packed)? {
             return Ok(None);
         }

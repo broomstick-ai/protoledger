@@ -151,7 +151,7 @@ Content kinds default to `audience: model`; the rest default to `record`.
 | `file_change` | `path`, `op` (`create`\|`edit`\|`delete`\|`snapshot`), `diff`, `content`, `snapshot` | record |
 | `error` | `kind`, `message`, `retryable`, `status` | record |
 | `app` | `type` (`<namespace>/<name>`), `data` | record |
-| `native` | `{}`. A source record with no neutral meaning; it exists only in `native`. | record |
+| `native` | `{}`, or `{"deleted": true}` for a tombstone (§4.1). A source record with no neutral meaning; it exists only in `native`. | record |
 
 ### 3.1 Neutral conventions
 
@@ -230,6 +230,12 @@ settled and never waits for, or records, the transient states in between:
   earlier event already carries, the later event carries the newer `record` with
   the same `native.id` and `part: 0`. **Exporters use the newest version of each
   native record.** The older version stays where it was; nothing is rewritten.
+- A harness deleting a native record it owns (a row it removes from its store)
+  is a newer version of that record too: a `native` event whose body is
+  `{"deleted": true}` and whose `native` names the record (`format`,
+  `variant`, `id`, `file`) and carries no `record`, a **tombstone**. Readers
+  and exporters take the newest version, so they leave out a record whose
+  newest version is a tombstone, and a later version brings it back.
 
 ## 5. Metadata namespaces
 

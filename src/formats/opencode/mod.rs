@@ -220,6 +220,22 @@ pub(crate) fn is_store_ledger(l: &Ledger) -> bool {
     l.agent().source.as_ref().is_some_and(|s| s.format == FORMAT && s.extra.get(STORE_KEY).and_then(Value::as_bool) == Some(true))
 }
 
+/// The opencode records `events` hold whose newest version is a tombstone
+/// (SPEC §4.1): opencode deleted them, and an export leaves them out.
+pub(crate) fn deleted_records(events: &[Event]) -> std::collections::HashSet<String> {
+    let mut gone = std::collections::HashSet::new();
+    for e in events {
+        let Some(n) = e.native.as_ref().filter(|n| n.format == FORMAT && n.part == 0) else { continue };
+        let Some(rid) = n.id.as_deref() else { continue };
+        if e.is_tombstone() {
+            gone.insert(rid.to_string());
+        } else if n.record.is_some() {
+            gone.remove(rid);
+        }
+    }
+    gone
+}
+
 // ---------------------------------------------------------------- helpers
 
 /// Epoch milliseconds → RFC 3339.
