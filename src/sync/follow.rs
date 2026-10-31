@@ -5,7 +5,7 @@
 use super::{Follows, Synced, sidecar, stamp, sync_with, wal};
 use crate::store::Store;
 use anyhow::Result;
-use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, RecvTimeoutError, channel};
@@ -55,6 +55,19 @@ pub struct Follower {
     follows: Follows,
     /// How many times a location was synced.
     syncs: u64,
+}
+
+/// Whether a watcher event can mean a file's content changed. An access
+/// event (open, read, close) cannot, and a sync's own reads produce exactly
+/// those: Linux's inotify reports `IN_OPEN` and `IN_CLOSE_NOWRITE` for a
+/// read, and `IN_CLOSE_WRITE` when SQLite closes the `-wal` it opens
+/// read-write even for a read-only connection, so taking any of them as a
+/// change makes every sync schedule another. A write itself is a modify
+/// event (`IN_MODIFY`; FSEvents' content change), which is what wakes the
+/// follower; a write the watcher cannot see (through a memory map) is left
+/// to the poll.
+fn is_change(kind: &EventKind) -> bool {
+    !matches!(kind, EventKind::Access(_))
 }
 
 fn canon(p: &Path) -> PathBuf {
@@ -193,7 +206,7 @@ impl Follower {
                 wake = wake.min(*t);
             }
             match self.rx.recv_timeout(wake.saturating_duration_since(now)) {
-                Ok(Ok(ev)) => {
+                Ok(Ok(ev)) if is_change(&ev.kind) => {
                     let at = Instant::now() + self.opts.debounce;
                     for p in &ev.paths {
                         for b in self.bindings_for(p) {
@@ -202,12 +215,43 @@ impl Follower {
                         }
                     }
                 }
-                Ok(Err(_)) | Err(RecvTimeoutError::Timeout) => {}
+                Ok(_) | Err(RecvTimeoutError::Timeout) => {}
                 Err(RecvTimeoutError::Disconnected) => {
                     // No watcher (or it died): the poll carries on alone.
                     std::thread::sleep(wake.saturating_duration_since(Instant::now()));
                 }
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_change;
+    use notify::EventKind;
+    use notify::event::{AccessKind, AccessMode, CreateKind, DataChange, ModifyKind, RemoveKind};
+
+    /// What a sync's own reads produce on Linux (a read-only SQLite
+    /// connection closes the `-wal` it opened read-write) is not a change;
+    /// every write is.
+    #[test]
+    fn an_access_is_not_a_change_and_a_write_is() {
+        for k in [
+            EventKind::Access(AccessKind::Open(AccessMode::Any)),
+            EventKind::Access(AccessKind::Read),
+            EventKind::Access(AccessKind::Close(AccessMode::Read)),
+            EventKind::Access(AccessKind::Close(AccessMode::Write)),
+        ] {
+            assert!(!is_change(&k), "{k:?}");
+        }
+        for k in [
+            EventKind::Modify(ModifyKind::Data(DataChange::Any)),
+            EventKind::Modify(ModifyKind::Any),
+            EventKind::Create(CreateKind::File),
+            EventKind::Remove(RemoveKind::File),
+            EventKind::Any,
+        ] {
+            assert!(is_change(&k), "{k:?}");
         }
     }
 }

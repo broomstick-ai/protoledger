@@ -25,6 +25,9 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
 
+#[path = "fixture_cases/mod.rs"]
+mod fixture_cases;
+
 const SEED: u64 = 0x5eed_7051_2026_1019;
 const PER_FIXTURE: usize = 60;
 /// Longer than any single mutated case has been measured to take (well
@@ -77,35 +80,6 @@ struct Case {
     files: Vec<PathBuf>,
 }
 
-/// The `requires_features` of a case's `expect.json` that this build lacks
-/// (`--no-default-features --features store` runs without sqlite
-/// and zstd). A name the harness does not know is a failure, as in fixtures.rs.
-fn lacking_features(case: &Path) -> Vec<String> {
-    let Ok(text) = std::fs::read_to_string(case.join("expect.json")) else { return vec![] };
-    let v: serde_json::Value = serde_json::from_str(&text).unwrap_or_else(|e| panic!("{}/expect.json: {e}", case.display()));
-    let names = v.get("requires_features").and_then(|r| r.as_array()).cloned().unwrap_or_default();
-    names
-        .iter()
-        .map(|n| n.as_str().unwrap_or_else(|| panic!("{}: requires_features holds {n}", case.display())))
-        .filter(|n| !match *n {
-            "zstd" => cfg!(feature = "zstd"),
-            "sqlite" => cfg!(feature = "sqlite"),
-            "store" => cfg!(feature = "store"),
-            other => panic!("{}: requires_features names {other:?}, which is not a crate feature the harness knows", case.display()),
-        })
-        .map(str::to_string)
-        .collect()
-}
-
-/// Whether any file under `native` starts with SQLite's header.
-fn holds_sqlite(native: &Path) -> bool {
-    use std::io::Read;
-    walkdir::WalkDir::new(native).into_iter().filter_map(|e| e.ok()).filter(|e| e.file_type().is_file()).any(|e| {
-        let mut head = [0u8; 16];
-        std::fs::File::open(e.path()).and_then(|mut f| f.read_exact(&mut head)).is_ok() && &head == b"SQLite format 3\0"
-    })
-}
-
 fn cases() -> Vec<Case> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
     let filter = std::env::var("MUTATE_FIXTURE").ok();
@@ -129,12 +103,9 @@ fn cases() -> Vec<Case> {
                 continue;
             }
             // As tests/fixtures.rs does: a case needing a feature this build lacks is skipped, and said so.
-            let mut lacking = lacking_features(&case);
             // A SQLite file needs `sqlite` whether or not the case says so (the
             // `_live-*` cases have no expect.json).
-            if !cfg!(feature = "sqlite") && !lacking.iter().any(|f| f == "sqlite") && holds_sqlite(&native) {
-                lacking.push("sqlite".into());
-            }
+            let lacking = fixture_cases::lacking(&case);
             if !lacking.is_empty() {
                 eprintln!("mutate: SKIPPED {format}/{name}: this build lacks feature {}", lacking.join(", "));
                 continue;

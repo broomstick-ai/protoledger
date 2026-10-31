@@ -76,7 +76,7 @@
 //!
 //! **Temporary files** of a re-projection are named
 //! `.<file name>.protoledger-tmp` beside the file they replace; sync never
-//! reads them ([`files_of`] skips them, and the Claude Code importer skips
+//! reads them (`files_of` skips them, and the Claude Code importer skips
 //! names that start with a dot), and the next re-projection of the binding
 //! deletes any a crash left behind.
 //!

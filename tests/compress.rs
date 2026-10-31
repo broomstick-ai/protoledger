@@ -4,6 +4,9 @@
 //! refused; readers consistent while a writer seals or a ledger migrates.
 #![cfg(feature = "store")]
 
+#[path = "fixture_cases/mod.rs"]
+mod fixture_cases;
+
 use protoledger::store::testing::{self, Point};
 use protoledger::store::{BlockRow, Store};
 use protoledger::{Agent, Event, Kind};
@@ -145,33 +148,12 @@ fn fixed_numbers(stream: &[u8]) -> Vec<u64> {
 
 // ---- the core property: every fixture ----
 
-/// Every `fixtures/<format>/<case>/native`, with its format's name.
-fn fixture_cases() -> Vec<(String, PathBuf)> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
-    let mut out = Vec::new();
-    for f in std::fs::read_dir(&root).unwrap() {
-        let f = f.unwrap().path();
-        if !f.is_dir() {
-            continue;
-        }
-        for c in std::fs::read_dir(&f).unwrap() {
-            let native = c.unwrap().path().join("native");
-            if native.is_dir() {
-                out.push((f.file_name().unwrap().to_string_lossy().into_owned(), native));
-            }
-        }
-    }
-    out.sort();
-    out
-}
-
 const FIXTURE_SEAL_BYTES: u64 = 256;
 
 #[test]
 fn every_fixture_in_a_compressed_store_reads_back_byte_for_byte() {
     let dir = tempfile::tempdir().unwrap();
-    let cases = fixture_cases();
-    assert!(cases.len() > 150, "found {} fixture cases", cases.len());
+    let cases = fixture_cases::readable();
     let (mut ledgers, mut events, mut skipped) = (0usize, 0u64, Vec::new());
     let mut block_counts: Vec<(usize, String)> = Vec::new();
     let mut with_tail = 0usize;
@@ -228,7 +210,11 @@ fn every_fixture_in_a_compressed_store_reads_back_byte_for_byte() {
         max.0,
         max.1
     );
-    assert!(ledgers > 250 && max.0 > 10 && several > ledgers / 2, "the fixtures must exercise several blocks");
+    // The population floor is the feature set's; the several-blocks floor is
+    // relative to the ledgers this build read, so it holds in every set.
+    let set = fixture_cases::FeatureSet::this_build();
+    assert!(ledgers > set.min_ledgers(), "{ledgers} ledgers read back; {set:?} must read more than {}", set.min_ledgers());
+    assert!(max.0 > 10 && several > ledgers / 2, "the fixtures must exercise several blocks");
 }
 
 /// One plain store at `root` holding every fixture (cases whose agent ids
@@ -236,7 +222,7 @@ fn every_fixture_in_a_compressed_store_reads_back_byte_for_byte() {
 /// ledger). `scratch` is a directory it may use.
 fn store_of_every_fixture(root: &Path, scratch: &Path) -> Store {
     let mut s = Store::open(root).unwrap();
-    for (format, native) in fixture_cases() {
+    for (format, native) in fixture_cases::readable() {
         let probe_root = scratch.join("probe");
         let _ = std::fs::remove_dir_all(&probe_root);
         let mut probe = Store::open(&probe_root).unwrap();

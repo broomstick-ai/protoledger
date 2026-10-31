@@ -5,6 +5,9 @@
 //! byte for byte whatever its blocks were compressed with.
 #![cfg(feature = "store")]
 
+#[path = "fixture_cases/mod.rs"]
+mod fixture_cases;
+
 use protoledger::store::testing::{self, Point};
 use protoledger::store::{BlockRow, DictChoice, Store};
 use protoledger::{Agent, Event, Kind};
@@ -127,31 +130,11 @@ fn three_blocks(root: &Path) -> Vec<u8> {
     cat(&s, "a")
 }
 
-/// Every `fixtures/<format>/<case>/native`, with its format's name.
-fn fixture_cases() -> Vec<(String, PathBuf)> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
-    let mut out = Vec::new();
-    for f in std::fs::read_dir(&root).unwrap() {
-        let f = f.unwrap().path();
-        if !f.is_dir() {
-            continue;
-        }
-        for c in std::fs::read_dir(&f).unwrap() {
-            let native = c.unwrap().path().join("native");
-            if native.is_dir() {
-                out.push((f.file_name().unwrap().to_string_lossy().into_owned(), native));
-            }
-        }
-    }
-    out.sort();
-    out
-}
-
 /// One plain store at `root` holding every fixture (a case whose agent ids
 /// collide with an earlier case's is left out).
 fn store_of_every_fixture(root: &Path, scratch: &Path) -> Store {
     let mut s = Store::open(root).unwrap();
-    for (format, native) in fixture_cases() {
+    for (format, native) in fixture_cases::readable() {
         let probe_root = scratch.join("probe");
         let _ = std::fs::remove_dir_all(&probe_root);
         let mut probe = Store::open(&probe_root).unwrap();
@@ -889,6 +872,8 @@ fn migrations_with_a_dictionary_write_it_back_and_never_decode_without_it() {
 
 // ---- the command line ----
 
+// The binary is built only with `cli`.
+#[cfg(feature = "cli")]
 mod cli {
     use super::*;
     use std::process::{Command, Output};
