@@ -18,7 +18,7 @@
 //! `task` tool in V1 or the `subagent` tool in V2) is a child ledger with
 //! `parent.relation = subagent`; a V2 fork (`fork{sessionID, boundary}`) is a
 //! `forked-from` link. An `opencode.db`'s rows that belong to no session
-//! are one more ledger, the store ledger ([`StoreSrc`]), which every session
+//! are one more ledger, the store ledger (`StoreSrc`), which every session
 //! ledger of the database names with a `member-of` link.
 
 mod ids;

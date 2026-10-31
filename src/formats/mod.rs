@@ -328,7 +328,7 @@ pub(crate) const CONTAINER: &str = "container-not-rendered";
 
 /// Does an export of `set` as `format` leave `l` out? Only a store container
 /// ([`is_store_container`]), only in an export without carry, and never from
-/// its own format ([`own_format`]), which writes its records back. With carry
+/// its own format (`own_format`), which writes its records back. With carry
 /// the target's rendering of it is what carries its records back to its own
 /// format exactly, so it is rendered as before.
 pub fn leaves_out(l: &crate::ledger::Ledger, set: &LedgerSet, format: &str, opts: &ExportOptions) -> bool {
