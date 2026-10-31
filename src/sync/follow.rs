@@ -5,7 +5,6 @@
 use super::{Follows, Synced, sidecar, stamp, sync_with, wal};
 use crate::store::Store;
 use anyhow::Result;
-use notify::event::{AccessKind, AccessMode};
 use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -58,14 +57,17 @@ pub struct Follower {
     syncs: u64,
 }
 
-/// Whether a watcher event can mean a file's content changed. Opening a
-/// file, reading it, or closing it unwritten cannot, and those are exactly
-/// what a sync does to the files it reads: Linux's inotify reports them
-/// (`IN_OPEN`, `IN_ACCESS`, `IN_CLOSE_NOWRITE`), so taking them as changes
-/// would make every sync schedule another. A close after writing
-/// (`IN_CLOSE_WRITE`) is a change; so is any kind the backend cannot name.
+/// Whether a watcher event can mean a file's content changed. An access
+/// event (open, read, close) cannot, and a sync's own reads produce exactly
+/// those: Linux's inotify reports `IN_OPEN` and `IN_CLOSE_NOWRITE` for a
+/// read, and `IN_CLOSE_WRITE` when SQLite closes the `-wal` it opens
+/// read-write even for a read-only connection, so taking any of them as a
+/// change makes every sync schedule another. A write itself is a modify
+/// event (`IN_MODIFY`; FSEvents' content change), which is what wakes the
+/// follower; a write the watcher cannot see (through a memory map) is left
+/// to the poll.
 fn is_change(kind: &EventKind) -> bool {
-    !matches!(kind, EventKind::Access(AccessKind::Open(_) | AccessKind::Read | AccessKind::Close(AccessMode::Read | AccessMode::Execute)))
+    !matches!(kind, EventKind::Access(_))
 }
 
 fn canon(p: &Path) -> PathBuf {
@@ -229,16 +231,20 @@ mod tests {
     use notify::EventKind;
     use notify::event::{AccessKind, AccessMode, CreateKind, DataChange, ModifyKind, RemoveKind};
 
-    /// What a sync's own reads produce on Linux is not a change; every write is.
+    /// What a sync's own reads produce on Linux (a read-only SQLite
+    /// connection closes the `-wal` it opened read-write) is not a change;
+    /// every write is.
     #[test]
-    fn a_read_is_not_a_change_and_a_write_is() {
-        for k in
-            [EventKind::Access(AccessKind::Open(AccessMode::Any)), EventKind::Access(AccessKind::Read), EventKind::Access(AccessKind::Close(AccessMode::Read))]
-        {
+    fn an_access_is_not_a_change_and_a_write_is() {
+        for k in [
+            EventKind::Access(AccessKind::Open(AccessMode::Any)),
+            EventKind::Access(AccessKind::Read),
+            EventKind::Access(AccessKind::Close(AccessMode::Read)),
+            EventKind::Access(AccessKind::Close(AccessMode::Write)),
+        ] {
             assert!(!is_change(&k), "{k:?}");
         }
         for k in [
-            EventKind::Access(AccessKind::Close(AccessMode::Write)),
             EventKind::Modify(ModifyKind::Data(DataChange::Any)),
             EventKind::Modify(ModifyKind::Any),
             EventKind::Create(CreateKind::File),
