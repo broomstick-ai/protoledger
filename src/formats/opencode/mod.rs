@@ -208,6 +208,8 @@ pub(crate) const STORE_KEY: &str = "store";
 /// project row the first time it opens a directory, before any session, and
 /// never deletes it or rewrites its `time_created`; adding or removing
 /// sessions, reordering rows or vacuuming the file leaves the id unchanged.
+/// Only the SQLite reader mints it, so it exists only with `sqlite`.
+#[cfg(feature = "sqlite")]
 pub(crate) fn store_ledger_id(first_project: Option<(&str, i64)>) -> String {
     match first_project {
         Some((id, t)) => format!("opencode:store:{id}:{t}"),

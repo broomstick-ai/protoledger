@@ -19,6 +19,9 @@
 //! mode: compressed, with sealed blocks, each naming the mode's dictionary.
 #![cfg(feature = "store")]
 
+#[path = "fixture_cases/mod.rs"]
+mod fixture_cases;
+
 #[macro_use]
 #[path = "modes/mod.rs"]
 mod modes;
@@ -27,26 +30,6 @@ use modes::{Found, Mode};
 use protoledger::formats::{self, ExportOptions, ImportOptions};
 use protoledger::store::Store;
 use std::path::{Path, PathBuf};
-
-/// Every `fixtures/<format>/<case>/native` (or its one file), with its format.
-fn fixture_cases() -> Vec<(String, PathBuf)> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
-    let mut out = Vec::new();
-    for f in std::fs::read_dir(&root).unwrap() {
-        let f = f.unwrap().path();
-        if !f.is_dir() {
-            continue;
-        }
-        for c in std::fs::read_dir(&f).unwrap() {
-            let native = c.unwrap().path().join("native");
-            if native.is_dir() {
-                out.push((f.file_name().unwrap().to_string_lossy().into_owned(), native));
-            }
-        }
-    }
-    out.sort();
-    out
-}
 
 /// The input the conformance suite hands an importer: the one file of a
 /// `native/` holding one, else the directory.
@@ -73,9 +56,8 @@ const FIXTURE_SEAL_BYTES: u64 = 1024;
 /// The cell: every fixture case through a store in `mode`.
 fn fixtures_through_the_store(mode: Mode) {
     let dir = tempfile::tempdir().unwrap();
-    let cases = fixture_cases();
-    assert!(cases.len() > 150, "found {} fixture cases", cases.len());
-    let (mut ledgers, mut events, mut exports, mut skipped, mut refused) = (0usize, 0u64, 0usize, 0usize, 0usize);
+    let cases = fixture_cases::readable();
+    let (mut ledgers, mut events, mut exports, mut refused) = (0usize, 0u64, 0usize, 0usize);
     let mut found = Found::default();
     for (i, (format, native)) in cases.iter().enumerate() {
         let f = formats::by_name(format).unwrap();
@@ -90,16 +72,8 @@ fn fixtures_through_the_store(mode: Mode) {
             s.set_seal_bytes(FIXTURE_SEAL_BYTES).unwrap();
         }
         let imported = s.import(format, &input);
-        let direct = match direct {
-            Ok(d) => d,
-            Err(e) => {
-                // A case its importer refuses (a build without a feature it
-                // needs) is refused through the store too.
-                assert!(imported.is_err(), "{what}: imports through the store but not directly ({e:#})");
-                skipped += 1;
-                continue;
-            }
-        };
+        // Every case left is one this build's features can read.
+        let direct = direct.unwrap_or_else(|e| panic!("{what}: its importer refuses a case this build can read ({e:#})"));
         if let Err(e) = imported {
             // A set a store cannot hold (a child whose parent the set does
             // not have, SPEC §2.1) is refused by a plain store just the same.
@@ -169,13 +143,11 @@ fn fixtures_through_the_store(mode: Mode) {
         drop(s);
         found.add(&modes::found(&root));
     }
-    eprintln!(
-        "{mode:?}: {} cases ({skipped} not importable, {refused} refused by every store), {ledgers} ledgers, {events} events, {exports} exports compared; {found:?}",
-        cases.len()
-    );
-    assert!(ledgers > 250 && exports > 150, "{ledgers} ledgers, {exports} exports");
+    eprintln!("{mode:?}: {} cases ({refused} refused by every store), {ledgers} ledgers, {events} events, {exports} exports compared; {found:?}", cases.len());
+    let set = fixture_cases::FeatureSet::this_build();
+    assert!(ledgers > set.min_ledgers() && exports > 150, "{set:?}: {ledgers} ledgers (floor {}), {exports} exports", set.min_ledgers());
     assert!(refused < 10, "{refused} cases refused by the store");
-    mode.check_found(&found, &format!("{} fixture stores", cases.len() - skipped - refused));
+    mode.check_found(&found, &format!("{} fixture stores", cases.len() - refused));
 }
 
 #[test]

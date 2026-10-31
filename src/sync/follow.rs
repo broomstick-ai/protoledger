@@ -5,7 +5,8 @@
 use super::{Follows, Synced, sidecar, stamp, sync_with, wal};
 use crate::store::Store;
 use anyhow::Result;
-use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use notify::event::{AccessKind, AccessMode};
+use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, RecvTimeoutError, channel};
@@ -55,6 +56,16 @@ pub struct Follower {
     follows: Follows,
     /// How many times a location was synced.
     syncs: u64,
+}
+
+/// Whether a watcher event can mean a file's content changed. Opening a
+/// file, reading it, or closing it unwritten cannot, and those are exactly
+/// what a sync does to the files it reads: Linux's inotify reports them
+/// (`IN_OPEN`, `IN_ACCESS`, `IN_CLOSE_NOWRITE`), so taking them as changes
+/// would make every sync schedule another. A close after writing
+/// (`IN_CLOSE_WRITE`) is a change; so is any kind the backend cannot name.
+fn is_change(kind: &EventKind) -> bool {
+    !matches!(kind, EventKind::Access(AccessKind::Open(_) | AccessKind::Read | AccessKind::Close(AccessMode::Read | AccessMode::Execute)))
 }
 
 fn canon(p: &Path) -> PathBuf {
@@ -193,7 +204,7 @@ impl Follower {
                 wake = wake.min(*t);
             }
             match self.rx.recv_timeout(wake.saturating_duration_since(now)) {
-                Ok(Ok(ev)) => {
+                Ok(Ok(ev)) if is_change(&ev.kind) => {
                     let at = Instant::now() + self.opts.debounce;
                     for p in &ev.paths {
                         for b in self.bindings_for(p) {
@@ -202,12 +213,39 @@ impl Follower {
                         }
                     }
                 }
-                Ok(Err(_)) | Err(RecvTimeoutError::Timeout) => {}
+                Ok(_) | Err(RecvTimeoutError::Timeout) => {}
                 Err(RecvTimeoutError::Disconnected) => {
                     // No watcher (or it died): the poll carries on alone.
                     std::thread::sleep(wake.saturating_duration_since(Instant::now()));
                 }
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_change;
+    use notify::EventKind;
+    use notify::event::{AccessKind, AccessMode, CreateKind, DataChange, ModifyKind, RemoveKind};
+
+    /// What a sync's own reads produce on Linux is not a change; every write is.
+    #[test]
+    fn a_read_is_not_a_change_and_a_write_is() {
+        for k in
+            [EventKind::Access(AccessKind::Open(AccessMode::Any)), EventKind::Access(AccessKind::Read), EventKind::Access(AccessKind::Close(AccessMode::Read))]
+        {
+            assert!(!is_change(&k), "{k:?}");
+        }
+        for k in [
+            EventKind::Access(AccessKind::Close(AccessMode::Write)),
+            EventKind::Modify(ModifyKind::Data(DataChange::Any)),
+            EventKind::Modify(ModifyKind::Any),
+            EventKind::Create(CreateKind::File),
+            EventKind::Remove(RemoveKind::File),
+            EventKind::Any,
+        ] {
+            assert!(is_change(&k), "{k:?}");
         }
     }
 }
