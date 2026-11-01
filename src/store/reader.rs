@@ -27,10 +27,22 @@
 //!   a short tail is the end of the stream, a leftover tail (SPEC §10.6) is
 //!   skipped, and a line that is not where it should be is an error naming the
 //!   ledger.
+//!
+//! A reader the store hands out ([`Store::reader`](super::Store::reader))
+//! carries the store's read cache ([`super::cache`]) and the ledger's
+//! fingerprint and length as the index last read it. Before every answer it
+//! stats the ledger's files and has the cache check that its entries were
+//! read from these files ([`ReadCache::validate`]), never from the index,
+//! which another handle or process may have brought up to another ledger
+//! made under the same id: the same files, or the same files grown as
+//! appends and seals grow them, keep the entries; anything else drops them.
+//! Every line it does read from disk goes into the cache, under the epoch
+//! that check gave.
 
 use super::blocks::{self, Located};
+use super::cache::{Line, Parsed, ReadCache};
 use super::dicts::Dicts;
-use super::layout::{self, Files, Form, Ident};
+use super::layout::{self, Files, Fingerprint, Form, Ident, Seen};
 use crate::Ledger;
 use crate::model::{Event, Header};
 use anyhow::{Context, Result, anyhow, bail};
@@ -48,13 +60,51 @@ const MAX_ROUNDS: usize = 10_000;
 /// line and every complete event line, each ending in `\n`. A torn final
 /// line is not part of the stream. Cheap to clone; it holds no file open,
 /// so each read opens the ledger afresh and needs no lock.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct LedgerReader {
     path: PathBuf,
     /// Where the index last saw the ledger's sealed blocks (SPEC §10.8): a
     /// shortcut past walking their meta frames, checked against the file
     /// before it is used. Never the source of `L`.
     hints: Option<Arc<Vec<Located>>>,
+    /// The store's read cache, when it has one.
+    cache: Option<Cached>,
+}
+
+/// A reader's view of the store's read cache.
+#[derive(Debug, Clone)]
+pub(crate) struct Cached {
+    pub cache: Arc<ReadCache>,
+    pub agent: Arc<str>,
+    /// The ledger's files as the index last read them.
+    pub indexed: Fingerprint,
+    /// Its decompressed length then.
+    pub byte_len: u64,
+}
+
+/// Two readers are equal when they read the same ledger the same way: the
+/// cache only spares reads, it never changes what is read.
+impl PartialEq for LedgerReader {
+    fn eq(&self, o: &LedgerReader) -> bool {
+        self.path == o.path && self.hints == o.hints
+    }
+}
+
+impl Eq for LedgerReader {}
+
+/// Lines of the stream, each with its offset, and the offset to resume from.
+type Lines = (Vec<(u64, Arc<Line>)>, u64);
+
+/// A tail read from disk: the bytes read, the events in them (each with its
+/// offset), and the offset to resume from.
+pub(crate) type RawTail = (Vec<u8>, Vec<(u64, Event)>, u64);
+
+/// How far the stream is known for this ledger right now.
+enum Trust {
+    /// Its files are the ones the index read: the stream ends at this offset.
+    AtRest(u64),
+    /// Not known: read on from disk past the last line the cache holds.
+    Grown,
 }
 
 /// What a read wants.
@@ -72,7 +122,84 @@ impl LedgerReader {
     /// The reader of the ledger whose plain file is `path`
     /// (`<dir>/<name>.jsonl`), in whichever form it is stored.
     pub fn plain(path: impl Into<PathBuf>) -> LedgerReader {
-        LedgerReader { path: path.into(), hints: None }
+        LedgerReader { path: path.into(), hints: None, cache: None }
+    }
+
+    /// The same reader, answering from (and filling) the store's read cache.
+    pub(crate) fn with_cache(mut self, cached: Cached) -> LedgerReader {
+        self.cache = Some(cached);
+        self
+    }
+
+    /// The counters of the read cache this reader shares with its store
+    /// (SPEC §9.6); `None` when it has none.
+    pub fn cache_stats(&self) -> Option<super::CacheStats> {
+        self.cache.as_ref().map(|c| c.cache.stats())
+    }
+
+    /// The cache, when this reader has one and its entries are of the
+    /// ledger on disk now ([`ReadCache::validate`]: one stat of its files,
+    /// plus a short read when they changed), with the epoch to fill it under.
+    fn trusted(&self) -> Option<(&Cached, Trust, u64)> {
+        let c = self.cache.as_ref()?;
+        let files = Files::of(&self.path);
+        let now = Seen::of(&files).ok()??;
+        let epoch = c.cache.validate(&c.agent, &files, &now)?;
+        let t = if now.fingerprint() == c.indexed { Trust::AtRest(c.byte_len) } else { Trust::Grown };
+        Some((c, t, epoch))
+    }
+
+    /// The epoch this reader would answer from the cache under now (see
+    /// [`ReadCache::validate`]); `None` when it would not use the cache.
+    pub(crate) fn cache_epoch(&self) -> Option<u64> {
+        self.trusted().map(|(_, _, e)| e)
+    }
+
+    /// Every complete line from decompressed offset `offset` on, each with
+    /// its offset, plus the offset to resume from: from the cache while it
+    /// holds the next line, then from disk (filling the cache). `None` when
+    /// the cache is not to be used.
+    fn cached_lines(&self, offset: u64) -> Result<Option<Lines>> {
+        let Some((c, trust, epoch)) = self.trusted() else { return Ok(None) };
+        let end = match trust {
+            Trust::AtRest(end) => Some(end),
+            Trust::Grown => None,
+        };
+        let mut out = Vec::new();
+        let mut at = offset;
+        loop {
+            if end.is_some_and(|e| at >= e) {
+                return Ok(Some((out, at)));
+            }
+            match c.cache.line(&c.agent, at) {
+                Some(l) => {
+                    let n = l.bytes.len() as u64;
+                    out.push((at, l));
+                    at += n;
+                }
+                None => break,
+            }
+        }
+        let (bytes, end) = self.read(at, Want::Rest)?;
+        for (start, line) in split_lines(&bytes, at) {
+            let l = Arc::new(Line { bytes: line.into(), parsed: self.parse_line(start, line)? });
+            c.cache.put_line(&c.agent, start, l.clone(), epoch);
+            out.push((start, l));
+        }
+        Ok(Some((out, end)))
+    }
+
+    /// Parse the line at `start`: the header at 0, an event elsewhere.
+    fn parse_line(&self, start: u64, line: &[u8]) -> Result<Parsed> {
+        let text = std::str::from_utf8(line).with_context(|| format!("{self}: offset {start}"))?.trim_end();
+        if text.is_empty() {
+            return Ok(Parsed::Blank);
+        }
+        if start == 0 {
+            let h: Header = serde_json::from_str(text).with_context(|| format!("{self}: line 1 is not a protoledger header"))?;
+            return Ok(Parsed::Header(Box::new(h)));
+        }
+        Ok(Parsed::Event(Box::new(serde_json::from_str(text).with_context(|| format!("{self}: offset {start}"))?)))
     }
 
     /// The same reader, told where the index last saw the ledger's blocks.
@@ -109,9 +236,23 @@ impl LedgerReader {
     }
 
     fn read_event(&self, offset: u64, seq: Option<u64>) -> Result<Event> {
+        let cached = self.trusted().map(|(c, _, e)| (c, e));
+        if let Some((c, _)) = cached
+            && let Some(l) = c.cache.line(&c.agent, offset)
+            && let Parsed::Event(e) = &l.parsed
+            && seq.is_none_or(|s| s == e.seq)
+        {
+            return Ok((**e).clone());
+        }
         let (line, _) = self.read(offset, Want::Line(seq))?;
         let text = std::str::from_utf8(&line).with_context(|| format!("{self}: offset {offset}"))?;
-        serde_json::from_str(text.trim_end()).with_context(|| format!("{self}: offset {offset}"))
+        let e: Event = serde_json::from_str(text.trim_end()).with_context(|| format!("{self}: offset {offset}"))?;
+        if let Some((c, epoch)) = cached
+            && offset > 0
+        {
+            c.cache.put_line(&c.agent, offset, Arc::new(Line { bytes: line.into(), parsed: Parsed::Event(Box::new(e.clone())) }), epoch);
+        }
+        Ok(e)
     }
 
     /// The events in complete lines from decompressed offset `offset` on
@@ -119,33 +260,52 @@ impl LedgerReader {
     /// plus the offset to resume from. A torn final line is left for the
     /// next call.
     pub fn tail(&self, offset: u64) -> Result<(Vec<(u64, Event)>, u64)> {
+        if let Some((lines, end)) = self.cached_lines(offset)? {
+            let evs = lines
+                .into_iter()
+                .filter_map(|(o, l)| match &l.parsed {
+                    Parsed::Event(e) => Some((o, (**e).clone())),
+                    _ => None,
+                })
+                .collect();
+            return Ok((evs, end));
+        }
+        let (_, evs, end) = self.tail_raw(offset)?;
+        Ok((evs, end))
+    }
+
+    /// [`LedgerReader::tail`] from disk, never the cache, with the bytes it
+    /// read (from `offset` on).
+    pub(crate) fn tail_raw(&self, offset: u64) -> Result<RawTail> {
         let (bytes, end) = self.read(offset, Want::Rest)?;
         let mut out = Vec::new();
-        let mut at = offset;
-        for line in bytes.split_inclusive(|b| *b == b'\n') {
-            let start = at;
-            at += line.len() as u64;
-            let text = std::str::from_utf8(line).with_context(|| format!("{self}: offset {start}"))?.trim_end();
-            if text.is_empty() {
-                continue;
+        for (start, line) in split_lines(&bytes, offset) {
+            if let Parsed::Event(e) = self.parse_line(start, line)? {
+                out.push((start, *e));
             }
-            if start == 0 {
-                serde_json::from_str::<Header>(text).with_context(|| format!("{self}: line 1 is not a protoledger header"))?;
-                continue;
-            }
-            out.push((start, serde_json::from_str(text).with_context(|| format!("{self}: offset {start}"))?));
         }
-        debug_assert_eq!(at, end);
-        Ok((out, end))
+        debug_assert_eq!(offset + bytes.len() as u64, end);
+        Ok((bytes, out, end))
     }
 
     /// The header, or `None` while the stream holds no complete first line.
     pub fn header(&self) -> Result<Option<Header>> {
+        let cached = self.trusted().map(|(c, _, e)| (c, e));
+        if let Some((c, _)) = cached
+            && let Some(l) = c.cache.line(&c.agent, 0)
+            && let Parsed::Header(h) = &l.parsed
+        {
+            return Ok(Some((**h).clone()));
+        }
         if self.is_empty()? {
             return Ok(None);
         }
         let (line, _) = self.read(0, Want::Line(Some(0)))?;
-        Ok(Some(serde_json::from_slice(line.trim_ascii_end()).with_context(|| format!("{self}: line 1 is not a protoledger header"))?))
+        let h: Header = serde_json::from_slice(line.trim_ascii_end()).with_context(|| format!("{self}: line 1 is not a protoledger header"))?;
+        if let Some((c, epoch)) = cached {
+            c.cache.put_line(&c.agent, 0, Arc::new(Line { bytes: line.into(), parsed: Parsed::Header(Box::new(h.clone())) }), epoch);
+        }
+        Ok(Some(h))
     }
 
     /// Write the whole decompressed stream to `out`, exactly, and return how
@@ -174,9 +334,35 @@ impl LedgerReader {
 
     /// The whole ledger, parsed from the stream.
     pub fn ledger(&self) -> Result<Ledger> {
+        if let Some((lines, _)) = self.cached_lines(0)? {
+            return self.assemble(&lines).with_context(|| self.to_string());
+        }
         let bytes = self.stream()?;
         let text = std::str::from_utf8(&bytes).with_context(|| format!("reading {self}"))?;
         Ok(Ledger::from_jsonl(text).with_context(|| self.to_string())?.0)
+    }
+
+    /// A ledger from its lines, checked as [`Ledger::from_jsonl`] checks it.
+    fn assemble(&self, lines: &[(u64, Arc<Line>)]) -> Result<Ledger> {
+        let mut it = lines.iter().enumerate();
+        let header = match it.next() {
+            None => bail!("empty ledger"),
+            Some((_, (_, l))) => match &l.parsed {
+                Parsed::Header(h) => (**h).clone(),
+                _ => bail!("line 1 is not a protoledger header"),
+            },
+        };
+        let mut l = Ledger::new(header.agent.clone());
+        l.header = header;
+        for (n, (_, line)) in it {
+            let Parsed::Event(e) = &line.parsed else { continue };
+            let want = l.last_seq() + 1;
+            if e.seq != want {
+                bail!("line {}: seq {} where {} was expected", n + 1, e.seq, want);
+            }
+            l.append((**e).clone()).map_err(|err| anyhow!("line {}: {err}", n + 1))?;
+        }
+        Ok(l)
     }
 
     /// The plain file, when the ledger is plain right now.
@@ -193,6 +379,8 @@ impl LedgerReader {
     /// [`LedgerReader::read`]; with `packed`, the compressed form's stream
     /// even while a plain file exists too (a writer resolving both forms).
     fn read_as(&self, from: u64, want: Want, packed: bool) -> Result<(Vec<u8>, u64)> {
+        #[cfg(feature = "test-hooks")]
+        super::testing::count_read();
         let files = Files::of(&self.path);
         let mut out = Vec::new();
         let mut pos = from;
@@ -321,6 +509,17 @@ impl fmt::Display for LedgerReader {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.path.display())
     }
+}
+
+/// The complete lines of `bytes`, which start at stream offset `offset`,
+/// each with its own offset.
+fn split_lines(bytes: &[u8], offset: u64) -> impl Iterator<Item = (u64, &[u8])> {
+    let mut at = offset;
+    bytes.split_inclusive(|b| *b == b'\n').map(move |line| {
+        let start = at;
+        at += line.len() as u64;
+        (start, line)
+    })
 }
 
 /// Check the line found at `pos`: the header at 0; otherwise an event past

@@ -32,6 +32,11 @@
 //! across [`Store::reindex`] and across a whole-file re-read by carrying it
 //! over by binding id, and it is lost only with `index.db` itself, which
 //! costs one rescan (the next sync re-reads the location and re-baselines).
+//!
+//! Every store keeps a byte-bounded read cache ([`cache`], SPEC §9.6) that
+//! its readers share: lines of ledgers, and threads rendered into a harness
+//! ([`Store::render`]), so a line or a render read again costs no
+//! decompression and no rendering. [`Store::cache_stats`] says what it holds.
 
 /// A point at which a test can act ([`testing`]): with the `test-hooks`
 /// feature, runs the hook set for `$point` on this thread, and an error it
@@ -45,6 +50,7 @@ macro_rules! hook {
 
 pub mod bindings;
 mod blocks;
+pub mod cache;
 mod config;
 mod dicts;
 pub mod gc;
@@ -57,13 +63,14 @@ pub mod testing;
 mod writer;
 
 pub use blocks::{FrameHeader, frame_header};
-pub use config::{Compression, Config};
+pub use cache::{CacheStats, DEFAULT_CACHE_BYTES, KindStats, Render};
+pub use config::{CacheConfig, Compression, Config};
 pub use dicts::DEFAULT_TRAIN_SIZE;
 pub use gc::{Plan as GcPlan, Policy as GcPolicy};
 pub use index::{AgentInfo, BindingRow, BlockRow, EventRow, SCHEMA_VERSION};
 pub use reader::LedgerReader;
 
-use crate::formats::{self, ImportOptions, Losses};
+use crate::formats::{self, ExportOptions, ImportOptions, Losses};
 pub use crate::ledger::RedactError;
 use crate::ledger::{Appended, file_safe};
 use crate::model::{Agent, Event, Kind};
@@ -73,8 +80,8 @@ use rusqlite::Connection;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
 use std::sync::mpsc::{Receiver, Sender, channel};
+use std::sync::{Arc, Mutex};
 use writer::{Migrated, Opts, Writer};
 
 /// One appended event, as published to subscribers (SPEC §9.4).
@@ -246,6 +253,14 @@ struct Subscriber {
     agents: Option<HashSet<String>>,
 }
 
+/// How [`Store::open_with`] opens a store.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct StoreOptions {
+    /// The read cache's budget in bytes (SPEC §9.6), over what `store.json`
+    /// says (`cache.mb`, default [`DEFAULT_CACHE_BYTES`]); 0 turns it off.
+    pub cache_bytes: Option<u64>,
+}
+
 pub struct Store {
     root: PathBuf,
     db: Connection,
@@ -254,6 +269,8 @@ pub struct Store {
     config: Config,
     /// What the last catch-up could not read.
     damaged: Mutex<Vec<Damaged>>,
+    /// The read cache every reader of this store shares (SPEC §9.6).
+    cache: Arc<cache::ReadCache>,
 }
 
 pub const LEDGERS: &str = "ledgers";
@@ -264,11 +281,17 @@ impl Store {
     /// and bring the index up to date with the ledgers. A damaged ledger does
     /// not stop it: the index skips it, and [`Store::damaged`] names it.
     pub fn open(root: impl AsRef<Path>) -> Result<Store> {
+        Store::open_with(root, StoreOptions::default())
+    }
+
+    /// [`Store::open`], with `opts`.
+    pub fn open_with(root: impl AsRef<Path>, opts: StoreOptions) -> Result<Store> {
         let root = root.as_ref().to_path_buf();
         fs::create_dir_all(root.join(LEDGERS)).with_context(|| format!("creating {}", root.join(LEDGERS).display()))?;
         let db = index::open(&root.join(INDEX))?;
         let config = Config::read(&root)?;
-        let store = Store { root, db, writers: HashMap::new(), subs: Mutex::new(Vec::new()), config, damaged: Mutex::new(Vec::new()) };
+        let cache = Arc::new(cache::ReadCache::new(opts.cache_bytes.unwrap_or(config.cache_bytes())));
+        let store = Store { root, db, writers: HashMap::new(), subs: Mutex::new(Vec::new()), config, damaged: Mutex::new(Vec::new()), cache };
         store.catch_up().context("bringing the index up to date")?;
         Ok(store)
     }
@@ -321,7 +344,9 @@ impl Store {
             index::reset(&db)?;
         }
         let config = Config::read(&root)?;
-        let store = Store { root, db, writers: Default::default(), subs: Default::default(), config, damaged: Default::default() };
+        // A dry run reads each ledger once: nothing to cache.
+        let cache = Arc::new(cache::ReadCache::new(0));
+        let store = Store { root, db, writers: Default::default(), subs: Default::default(), config, damaged: Default::default(), cache };
         store.catch_up().context("reading the ledgers")?;
         Ok(store)
     }
@@ -345,7 +370,115 @@ impl Store {
     pub fn reader(&self, agent: &str) -> Result<LedgerReader> {
         self.refuse_damaged(agent)?;
         let info = self.agent(agent)?.ok_or_else(|| anyhow!("no agent {agent:?} in the store"))?;
-        Ok(self.reader_of(&info.path))
+        Ok(self.cached_reader(&info))
+    }
+
+    /// The reader of an indexed ledger, answering from the read cache (when
+    /// the store has one) while its entries are of the ledger on disk now
+    /// (SPEC §9.6).
+    fn cached_reader(&self, info: &AgentInfo) -> LedgerReader {
+        let r = self.reader_of(&info.path);
+        if self.cache.budget() == 0 {
+            return r;
+        }
+        r.with_cache(reader::Cached { cache: self.cache.clone(), agent: info.id.as_str().into(), indexed: info.fingerprint(), byte_len: info.byte_len })
+    }
+
+    // ---- the read cache (SPEC §9.6) ----
+
+    /// What the read cache holds and has done: hits, misses, evictions,
+    /// entries and bytes, per kind of entry.
+    pub fn cache_stats(&self) -> CacheStats {
+        self.cache.stats()
+    }
+
+    /// Change the read cache's budget for this store's life (0 turns it
+    /// off and empties it), evicting what no longer fits. Not recorded.
+    pub fn set_cache_bytes(&mut self, bytes: u64) {
+        self.cache.set_budget(bytes);
+    }
+
+    /// `store config --cache-mb <n>`: record the read cache's budget in
+    /// `store.json` (0 turns it off), and apply it to this store.
+    pub fn set_cache_mb(&mut self, mb: u64) -> Result<()> {
+        let mut c = self.config.clone();
+        c.cache = Some(CacheConfig { mb });
+        c.write(&self.root)?;
+        self.config = c;
+        self.cache.set_budget(self.config.cache_bytes());
+        Ok(())
+    }
+
+    /// `agent` and its structural descendants (agents whose `parent` chain
+    /// reaches it), `agent` first, as the index holds them.
+    pub fn thread(&self, agent: &str) -> Result<Vec<AgentInfo>> {
+        let first = self.agent(agent)?.ok_or_else(|| anyhow!("no agent {agent:?} in the store"))?;
+        let mut out = vec![first];
+        let mut seen: HashSet<String> = HashSet::from([agent.to_string()]);
+        let mut i = 0;
+        while i < out.len() {
+            for k in self.children(&out[i].id)? {
+                if seen.insert(k.id.clone()) {
+                    out.push(k);
+                }
+            }
+            i += 1;
+        }
+        Ok(out)
+    }
+
+    /// `agent` and its structural descendants ([`Store::thread`]) rendered
+    /// as `format` with `opts`, through the export entry point
+    /// ([`formats::export`]: the projected view, SPEC §11.1), with the id of
+    /// `agent`'s last event in that view. Answered from the read cache when
+    /// it holds this thread, as this format with these options, at the same
+    /// last seq and length of every ledger in it: then nothing is read or
+    /// rendered (SPEC §9.6). The index is caught up first when any of the
+    /// thread's ledgers changed on disk since it was read.
+    pub fn render(&self, agent: &str, format: &str, opts: &ExportOptions) -> Result<Arc<Render>> {
+        let f = formats::by_name(format).ok_or_else(|| anyhow!("unknown format {format:?}"))?;
+        let mut thread = self.thread(agent)?;
+        if thread.iter().any(|a| Fingerprint::of(&self.files(&a.path)).ok() != Some(a.fingerprint())) {
+            self.refresh()?;
+            thread = self.thread(agent)?;
+        }
+        for a in &thread {
+            self.refuse_damaged(&a.id)?;
+        }
+        let key = cache::RenderKey {
+            agent: agent.to_string(),
+            format: f.name().to_string(),
+            variant: opts.variant.clone(),
+            carry: opts.carry,
+            target_version: opts.target_version.clone(),
+            view: thread.iter().map(|a| (a.id.clone(), a.last_seq, a.byte_len)).collect(),
+        };
+        let readers: Vec<LedgerReader> = thread.iter().map(|a| self.cached_reader(a)).collect();
+        // Every ledger of the thread is checked to be the one the cache read
+        // (SPEC §9.6): a ledger made again under the same id by another
+        // handle or process has the same seqs and lengths, so the key alone
+        // cannot tell it.
+        let epochs: Option<Vec<u64>> = if self.cache.budget() > 0 { readers.iter().map(LedgerReader::cache_epoch).collect() } else { None };
+        if epochs.is_some()
+            && let Some(r) = self.cache.render(&key)
+        {
+            return Ok(r);
+        }
+        let mut set = crate::LedgerSet::new();
+        for r in &readers {
+            set.insert(r.ledger()?);
+        }
+        let exported = f.export(&set, opts)?;
+        let through = set.get(agent).and_then(|l| l.projected_view().last().map(|e| e.id.clone()));
+        let r = Arc::new(Render { exported, through });
+        // Cached only when what was read is exactly what the key names (a
+        // ledger read past its indexed end renders a later view).
+        if let Some(epochs) = &epochs
+            && thread.iter().all(|a| set.get(&a.id).is_some_and(|l| l.last_seq() == a.last_seq))
+        {
+            self.cache.put_render(key, r.clone(), epochs);
+        }
+        Ok(r)
     }
 
     /// The reader of the ledger at `rel` (relative to the store root),
@@ -708,6 +841,11 @@ impl Store {
         }
         index::advance(&tx, agent, at.seq, byte_len, fp, title.as_deref())?;
         tx.commit().with_context(|| format!("{agent} seq {} is durable but not indexed; the next open catches it up", at.seq))?;
+        // A fact no view holds leaves every rendered view as it was (SPEC
+        // §9.6): what was rendered before it is still the render.
+        if crate::ledger::fact_type(&event).is_some_and(|t| t != crate::ledger::REDACTED && t != crate::ledger::UNREDACTED) && event.after.is_none() {
+            self.cache.carry_renders(agent, (at.seq - 1, at.offset), (at.seq, byte_len));
+        }
         let mut subs = self.subs.lock().expect("subscriber lock");
         publish(&mut subs, vec![Published { agent: agent.to_string(), seq: at.seq, offset: at.offset, event }]);
         Ok(at)
@@ -852,16 +990,32 @@ impl Store {
                 Err(e) => return Err(e),
             }
         }
+        // A damaged ledger's lines leave the cache (SPEC §9.6).
+        for d in &damaged {
+            match &d.agent {
+                Some(a) => self.cache.drop_agent(a),
+                None => {
+                    if let Some(p) = known.get(&d.ledger) {
+                        self.cache.drop_agent(&p.id);
+                    }
+                }
+            }
+        }
         *self.damaged.lock().expect("damaged lock") = damaged;
         let present: HashSet<&String> = files.iter().collect();
         let tx = self.db.unchecked_transaction()?;
         index::put_dicts(&tx, &dicts::Dicts::of_store(&self.root).list()?)?;
+        let mut gone = Vec::new();
         for (rel, info) in &known {
             if !present.contains(rel) {
                 index::forget_agent(&tx, &info.id)?;
+                gone.push(info.id.clone());
             }
         }
         tx.commit()?;
+        for a in gone {
+            self.cache.drop_agent(&a);
+        }
         Ok(fresh)
     }
 
@@ -895,7 +1049,20 @@ impl Store {
         let Some(header) = reader.header().map_err(unreadable)? else {
             return Ok(Vec::new()); // no complete header line yet
         };
-        let (evs, end) = reader.tail(0).map_err(|e| named(&reader, e)).map_err(unreadable)?;
+        let (bytes, evs, end) = reader.tail_raw(0).map_err(|e| named(&reader, e)).map_err(unreadable)?;
+        // What the cache holds of this ledger must be what it holds now,
+        // byte for byte (a recompression or a migration keeps every byte; a
+        // ledger made again under the same id does not), SPEC §9.6.
+        let mut lines = HashMap::new();
+        let mut at = 0u64;
+        for line in bytes.split_inclusive(|b| *b == b'\n') {
+            lines.insert(at, line);
+            at += line.len() as u64;
+        }
+        self.cache.check_agent(&header.agent.id, &lines);
+        if let Some(p) = prev.as_ref().filter(|p| p.id != header.agent.id) {
+            self.cache.drop_agent(&p.id);
+        }
         let blocks = block_rows(&header.agent.id, &files).map_err(unreadable)?;
         self.index_events(&header.agent.id, rel, evs, end, fp, &blocks, Some((&header.agent, prev)))
     }
@@ -1036,7 +1203,7 @@ impl Store {
         for (agent, seq) in targets {
             let Some(info) = index::agent(&self.db, &agent)? else { continue };
             let Some(first) = index::events(&self.db, &agent, seq + 1, 1)?.pop() else { continue };
-            let (evs, _) = self.reader_of(&info.path).tail(first.offset)?;
+            let (evs, _) = self.cached_reader(&info).tail(first.offset)?;
             for (offset, event) in evs.into_iter().filter(|(o, _)| *o < info.byte_len) {
                 let _ = tx.send(Published { agent: agent.clone(), seq: event.seq, offset, event });
             }

@@ -1,7 +1,7 @@
 # `protoledger serve`
 
 ```sh
-protoledger serve --store <dir> [--listen 127.0.0.1:7417] [--allow-remote] [--poll-ms 1000] [--debounce-ms 150] [--no-watcher]
+protoledger serve --store <dir> [--listen 127.0.0.1:7417] [--allow-remote] [--poll-ms 1000] [--debounce-ms 150] [--no-watcher] [--cache-mb <n>]
 ```
 
 Serves one store (SPEC §9): every append is streamed over a WebSocket, the
@@ -26,6 +26,15 @@ while `serve` runs, `protoledger unbind` (or any other writer) from another
 process is refused as *locked* for those ledgers. Use `POST /v1/unbind` (and
 `/v1/project`, `/v1/attach`, `/v1/import`) instead: `serve` performs them
 itself, as the lock holder, and starts or stops following at once.
+
+## The read cache
+
+`serve` keeps the store's read cache (SPEC §9.6) for as long as it runs: a
+line of a ledger read again (a backfill, `/events`, sync's reads) costs no
+decompression, and a thread projected or re-projected into a harness with an
+unchanged view costs no rendering. `--cache-mb <n>` sets its budget in MiB
+(over the store's `store config --cache-mb`, default 256); `--cache-mb 0`
+turns it off. `GET /v1/stats` shows what it holds and has done.
 
 ## Loopback only, by default
 
@@ -161,6 +170,7 @@ produces them yet.
 | `GET /v1/agents/{id}/events?from=<seq>&limit=<n>` | `[Published event]`: up to `limit` (default 1000) of the events the resume rule gives for `from` (default 0), in seq order; `[]` past the end; 404 if the agent is unknown, 409 if its ledger is damaged |
 | `GET /v1/agents/{id}/children` | `[Agent]`: direct structural children (agents whose `parent` names it), a damaged one as a `Damaged agent`; 404 if unknown, 409 if its ledger is damaged |
 | `GET /v1/bindings` | `[Binding]`, active and ended |
+| `GET /v1/stats` | `{"cache": {...}}`: the read cache (SPEC §9.6): `budget`, `bytes`, `entries`, and for `events` (lines of ledgers) and `projections` (threads rendered into a harness) each `hits`, `misses`, `inserts`, `evictions`, `oversized`, `dropped`, `entries`, `bytes` |
 
 To page through `/events`, pass the last `seq` of one page as the next
 `from`.

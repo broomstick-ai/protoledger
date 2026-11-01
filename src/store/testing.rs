@@ -85,3 +85,30 @@ pub(crate) fn fire(point: Point, path: &Path) -> Result<()> {
     });
     r
 }
+
+/// What this thread's readers did, counted at the reader seam: how many
+/// reads [`LedgerReader`](crate::store::LedgerReader) made of a ledger's
+/// files, and how many zstd blocks were decompressed (by anything on this
+/// thread: a reader, a seal's check, a recompression's).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct Counts {
+    pub reads: u64,
+    pub decompressions: u64,
+}
+
+thread_local! {
+    static COUNTS: std::cell::Cell<Counts> = const { std::cell::Cell::new(Counts { reads: 0, decompressions: 0 }) };
+}
+
+/// This thread's counts so far.
+pub fn counts() -> Counts {
+    COUNTS.with(|c| c.get())
+}
+
+pub(crate) fn count_read() {
+    COUNTS.with(|c| c.set(Counts { reads: c.get().reads + 1, ..c.get() }));
+}
+
+pub(crate) fn count_decompression() {
+    COUNTS.with(|c| c.set(Counts { decompressions: c.get().decompressions + 1, ..c.get() }));
+}

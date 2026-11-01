@@ -48,7 +48,7 @@
 //! not run it while a harness process that may write the location is
 //! running (SPEC §11.2). The step-4 check is defence in depth, not a lock.
 
-use super::{Cursor, Follows, files_of, projection_set, stamp, strangers, sync_with};
+use super::{Cursor, Follows, files_of, stamp, strangers, sync_with};
 use crate::formats::{self, ExportOptions, Format, ImportOptions, Output};
 use crate::ledger::{Appended, LedgerSet};
 use crate::store::bindings::{Projected, Projections, sha256_hex};
@@ -156,9 +156,11 @@ pub fn reproject_with(store: &mut Store, binding: &str, hook: &mut dyn FnMut(Sta
         }
         hook(Stage::Synced { attempt })?;
 
-        // Step 3.
-        let set = projection_set(store, &row.agent)?;
-        let mut ex = f.export(&set, &ExportOptions::standard())?;
+        // Step 3: through the store's read cache, so a thread whose view
+        // has not changed since it was last rendered as this format is not
+        // read or rendered again (SPEC §9.6).
+        let rendered = store.render(&row.agent, f.name(), &ExportOptions::standard())?;
+        let mut ex = rendered.exported.clone();
         hook(Stage::Rendered(&mut ex.output))?;
         let (dir, rel) = locate(&loc, &ex.output)?;
         let scratch = tempfile::tempdir()?;
@@ -175,7 +177,7 @@ pub fn reproject_with(store: &mut Store, binding: &str, hook: &mut dyn FnMut(Sta
             );
         }
         let render = ex.output.files[&rel].clone();
-        let through = set.get(&row.agent).and_then(|l| l.projected_view().last().map(|e| e.id.clone()));
+        let through = rendered.through.clone();
         let projected = Projected::of(binding, &render, through);
 
         // Step 4: the files that differ, the location file last.

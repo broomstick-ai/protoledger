@@ -5,6 +5,21 @@ All notable changes to protoledger are recorded here. The format follows
 [Semantic Versioning](https://semver.org/) (before 1.0, a minor version may
 break the API).
 
+## Unreleased
+
+- **Read cache.** Every store keeps one byte-bounded, least-recently-used
+  cache, shared by its readers (SPEC §9.6): lines of ledgers, so an event
+  read again costs no decompression, and threads rendered into a harness,
+  so projecting or re-projecting an unchanged thread costs no reading and
+  no rendering. 256 MiB by default; `store config <store> --cache-mb <n>`
+  records another budget (0 turns it off), `serve --cache-mb <n>` overrides
+  it, `StoreOptions { cache_bytes }` sets it in the library. Counters:
+  `Store::cache_stats`, `store cache stats`, `GET /v1/stats`.
+  Every entry carries the identity of the ledger it was read from (its
+  growing file's device, inode and birth time) and is checked with one stat
+  before every answer, so a ledger garbage-collected and made again under
+  the same id by another handle or process is never answered from the cache.
+
 ## 0.1.0 — 2026-10-25
 
 The first release. What you get:

@@ -393,6 +393,77 @@ own subagents and forks, §2.1), never the reverse, and never agents merely
 linked to it: a `spawned-by` peer, or any other `links` entry, is a separate
 thread and stays.
 
+### 9.6 Read cache
+
+*Informative.* An implementation MAY keep what it read of a store in memory
+and answer from it, as long as no answer differs from a read of the ledgers.
+protoledger keeps one cache per open store, shared by every reader of it,
+bounded by bytes (256 MiB by default; `store config --cache-mb <n>` records
+another budget in `store.json` as `{"cache":{"mb":n}}`, absent until set,
+and 0 turns the cache off) and evicting the least recently used entry first.
+An entry weighs what it holds plus a fixed overhead; one heavier than the
+whole budget is not cached. It holds two kinds of entry:
+
+- **Lines**, keyed by `(agent, offset)` in the ledger's decompressed stream:
+  the line's exact bytes and its parsed event (or header). A second read of
+  an event, a range or a subscriber's backlog costs no decompression.
+- **Renders**, keyed by a thread (an agent and its structural descendants),
+  a target format, the export options (variant, carry, target version) and
+  the thread's *view fingerprint*: each of its ledgers with its last seq and
+  decompressed length. Re-projecting an unchanged thread into the same
+  harness (§11.2) reads and renders nothing.
+
+Why it never serves stale data: a line at an offset never changes while its
+ledger exists (§1.2), and recompression and migration never change a byte of
+the decompressed stream (§10.1). Everything that changes a projected view (an
+event, a redaction or unredaction fact, a branch, a new subagent, §2.3,
+§11.1) is an append to one of the thread's ledgers, or a new ledger in it, so
+it changes the fingerprint. The one append that changes a fingerprint and no view is a §11
+fact other than a redaction or unredaction, with no `after` (a
+`protoledger/projected` fact, a delivery fact): no format but `protoledger`
+renders it, so a render of the thread before it, as any other format, is
+carried to the new fingerprint, and the re-projection after the one that
+wrote that fact is a hit too.
+
+Every entry carries the identity of the ledger it was read from, and is
+checked against the files on disk before every answer, never against the
+index (which another handle or process may have caught up to a ledger made
+again under the same id, with the same seqs and lengths). The identity is the
+file the ledger grows by: the plain file, or a compressed ledger's hot tail,
+which is made with the ledger and kept, emptied by every seal and
+recompression, until it leaves that form. The check is one stat of the
+ledger's files (device, inode, birth time where the platform records one,
+length and modification time) compared with what the cache last saw:
+
+- unchanged: the entries answer, and nothing is read;
+- the same file, longer (an append), with the last 256 bytes before its old
+  end unchanged (one short read, made only when the file changed); or a
+  compressed ledger whose block file grew in place (a seal) or was replaced
+  under the same hot tail (a recompression, which keeps every byte of the
+  stream, §10.1): the entries answer;
+- anything else: other files (garbage collection and a ledger made again
+  under the same id, by any handle or process; a migration, §10.10), a file
+  shrunk, rewritten at its length, or rewritten just before its old end:
+  every entry of the agent is dropped, renders of threads holding it
+  included, and a read begun before the drop puts nothing in.
+
+Where the platform records no birth time, a ledger removed and made again
+under the same id that reuses the same inode and ends at the same length and
+modification time is not told apart by the stat alone; the 256-byte check
+still catches it unless those bytes are identical too.
+
+Entries are also dropped when a ledger is removed (§9.5) or found damaged
+(§10.6), and when a catch-up re-reads a ledger whole and any entry differs
+from the line at its offset.
+
+*Limit.* A ledger rewritten in place, against §1.2, so that its file grows
+while the 256 bytes before its old end stay as they were, is not seen: no
+stat tells it from an append (the same file, longer, newer), and finding it
+means reading every byte the cache holds of the ledger, which is the read the
+cache exists to save. Its entries answer until the ledger changes again in a
+way the check sees, or `store reindex` re-reads it whole. Only a writer that
+breaks §1.2 can cause it; every change this specification allows is seen.
+
 ## 10. Compression
 
 A store MAY keep its ledgers compressed. Compression changes how a ledger is
@@ -691,7 +762,8 @@ or field means its default:
 | `seal_bytes` | The hot tail's size at which a writer seals (§10.4); set by `store config --seal-bytes <n>`. |
 | `recompress_bytes` | The target block size for recompression and migration. |
 
-Readers never consult the configuration. A compressed ledger is sealed by these
+Readers never consult the configuration (the read cache's budget, `cache`,
+is the opening program's, §9.6). A compressed ledger is sealed by these
 rules whatever `enabled` says.
 
 **Migration.** `store config --compression on` records the setting, then

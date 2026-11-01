@@ -203,6 +203,7 @@ pub struct Imported {
     pub variant: String,
 }
 
+#[derive(Debug, Clone)]
 pub struct Exported {
     pub output: Output,
     pub losses: Losses,

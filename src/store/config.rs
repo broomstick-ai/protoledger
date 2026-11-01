@@ -13,7 +13,26 @@ pub const STORE_JSON: &str = "store.json";
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(default)]
 pub struct Config {
+    /// The read cache's budget (SPEC §9.6), when it is not the default.
+    /// Written only when set, so a store that never set it keeps the
+    /// `store.json` it had.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cache: Option<CacheConfig>,
     pub compression: Compression,
+}
+
+/// `store.json`'s `cache` object: `store config --cache-mb <n>`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CacheConfig {
+    /// The budget in MiB; 0 turns the cache off.
+    pub mb: u64,
+}
+
+impl Config {
+    /// The read cache's budget in bytes: `cache.mb`, or the default.
+    pub fn cache_bytes(&self) -> u64 {
+        self.cache.map_or(super::cache::DEFAULT_CACHE_BYTES, |c| c.mb.saturating_mul(1024 * 1024))
+    }
 }
 
 /// `store.json`'s `compression` object.
@@ -89,5 +108,12 @@ mod tests {
         assert_eq!(partial.compression, Compression { enabled: true, ..Compression::default() });
         let empty: Config = serde_json::from_str("{}").unwrap();
         assert_eq!(empty, Config::default());
+        assert_eq!(empty.cache_bytes(), 256 * 1024 * 1024);
+        let set = Config { cache: Some(CacheConfig { mb: 0 }), ..Config::default() };
+        assert_eq!(
+            serde_json::to_string(&set).unwrap(),
+            r#"{"cache":{"mb":0},"compression":{"dictionary":null,"enabled":false,"recompress_bytes":1048576,"seal_bytes":262144}}"#
+        );
+        assert_eq!(serde_json::from_str::<Config>(&serde_json::to_string(&set).unwrap()).unwrap().cache_bytes(), 0);
     }
 }

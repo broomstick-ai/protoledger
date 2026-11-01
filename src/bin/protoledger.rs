@@ -160,18 +160,23 @@ enum Cmd {
         /// Do not use the filesystem watcher; poll only.
         #[arg(long)]
         no_watcher: bool,
+        /// The read cache's budget in MiB (SPEC §9.6), over the store's
+        /// `store config --cache-mb` (default 256); 0 turns it off.
+        #[arg(long)]
+        cache_mb: Option<u64>,
     },
 }
 
 #[cfg(feature = "serve")]
-fn serve_cmd(store: PathBuf, listen: &str, allow_remote: bool, debounce_ms: u64, poll_ms: u64, no_watcher: bool) -> Result<()> {
+fn serve_cmd(store: PathBuf, listen: &str, allow_remote: bool, debounce_ms: u64, poll_ms: u64, no_watcher: bool, cache_mb: Option<u64>) -> Result<()> {
     use protoledger::serve::{ServeOptions, Server, resolve_listen};
     use protoledger::sync::FollowOptions;
     use std::io::Write;
     use std::time::Duration;
     let follow = FollowOptions { debounce: Duration::from_millis(debounce_ms), poll: Duration::from_millis(poll_ms), watcher: !no_watcher };
     report_damaged(&store);
-    let server = Server::start(&store, resolve_listen(listen, allow_remote)?, ServeOptions { follow, allow_remote })?;
+    let cache_bytes = cache_mb.map(|mb| mb.saturating_mul(1024 * 1024));
+    let server = Server::start(&store, resolve_listen(listen, allow_remote)?, ServeOptions { follow, allow_remote, cache_bytes })?;
     let mut out = std::io::stdout().lock();
     writeln!(out, "listening on {}", server.addr())?;
     out.flush()?;
@@ -321,6 +326,15 @@ enum StoreCmd {
         /// or `none`. Existing blocks are not touched (see `store recompress`).
         #[arg(long)]
         dictionary: Option<String>,
+        /// The read cache's budget in MiB (SPEC §9.6) for every program that
+        /// opens this store (`serve --cache-mb` overrides it); 0 turns it off.
+        #[arg(long)]
+        cache_mb: Option<u64>,
+    },
+    /// The read cache (SPEC §9.6).
+    Cache {
+        #[command(subcommand)]
+        cmd: CacheCmd,
     },
     /// Compression dictionaries (SPEC §10.7): add, train, list, remove.
     Dict {
@@ -395,6 +409,18 @@ enum StoreCmd {
         #[arg(long)]
         yes: bool,
     },
+}
+
+#[cfg(feature = "store")]
+#[derive(Subcommand)]
+enum CacheCmd {
+    /// Print the read cache's budget and counters as JSON: hits, misses,
+    /// inserts, evictions, oversized, dropped, entries and bytes, for lines
+    /// of ledgers (`events`) and rendered threads (`projections`). The cache
+    /// lives in the process that opened the store, so these are this
+    /// command's own (a fresh cache); a running `serve`'s are at
+    /// `GET /v1/stats`.
+    Stats { store: PathBuf },
 }
 
 #[cfg(feature = "store")]
@@ -486,10 +512,13 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
             let r = s.reindex()?;
             eprintln!("{}: reindexed {} agents, {} events", store.display(), r.agents, r.events);
         }
-        StoreCmd::Config { store, compression, seal_bytes, dictionary } => {
+        StoreCmd::Config { store, compression, seal_bytes, dictionary, cache_mb } => {
             let mut s = open_store(&store)?;
             if let Some(n) = seal_bytes {
                 s.set_seal_bytes(n)?;
+            }
+            if let Some(mb) = cache_mb {
+                s.set_cache_mb(mb)?;
             }
             if let Some(d) = dictionary {
                 s.set_dictionary(if d == "none" { None } else { Some(d.as_str()) })?;
@@ -515,6 +544,10 @@ fn store_cmd(cmd: StoreCmd) -> Result<()> {
             }
         }
         StoreCmd::Dict { cmd } => dict_cmd(cmd)?,
+        StoreCmd::Cache { cmd: CacheCmd::Stats { store } } => {
+            let s = open_store(&store)?;
+            println!("{}", serde_json::to_string(&s.cache_stats())?);
+        }
         StoreCmd::Recompress { store, dictionary, agents } => {
             use protoledger::store::DictChoice;
             let choice = match dictionary.as_deref() {
@@ -723,8 +756,8 @@ fn main() -> Result<()> {
         #[cfg(feature = "sync")]
         cmd @ (Cmd::Project { .. } | Cmd::Attach { .. } | Cmd::Unbind { .. } | Cmd::Reproject { .. } | Cmd::Watch { .. }) => sync_cmd(cmd)?,
         #[cfg(feature = "serve")]
-        Cmd::Serve { store, listen, allow_remote, debounce_ms, poll_ms, no_watcher } => {
-            serve_cmd(store, &listen, allow_remote, debounce_ms, poll_ms, no_watcher)?
+        Cmd::Serve { store, listen, allow_remote, debounce_ms, poll_ms, no_watcher, cache_mb } => {
+            serve_cmd(store, &listen, allow_remote, debounce_ms, poll_ms, no_watcher, cache_mb)?
         }
     }
     Ok(())

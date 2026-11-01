@@ -27,6 +27,7 @@ pub(crate) fn router(h: Handle) -> Router {
         .route("/v1/agents/{id}/events", get(events))
         .route("/v1/agents/{id}/children", get(children))
         .route("/v1/bindings", get(bindings))
+        .route("/v1/stats", get(stats))
         .route("/v1/import", post(import))
         .route("/v1/project", post(project))
         .route("/v1/attach", post(attach))
@@ -209,6 +210,12 @@ async fn bindings(State(h): State<Handle>) -> Answer {
         Ok(Json(Value::Array(v)))
     })
     .await
+}
+
+/// The store's read cache (SPEC §9.6): its budget, what it holds, and per
+/// kind of entry its hits, misses, evictions, entries and bytes.
+async fn stats(State(h): State<Handle>) -> Answer {
+    on_engine(&h, |e| Ok(Json(json!({ "cache": e.store.cache_stats() })))).await
 }
 
 // ---- operations ----

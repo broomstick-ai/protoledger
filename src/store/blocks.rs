@@ -253,6 +253,8 @@ pub fn decode(m: &Meta, frame: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, St
         Err(_) => return Err("its zstd frame is cut short".into()),
     }
     let len = usize::try_from(m.len).map_err(|_| "its length does not fit in memory")?;
+    #[cfg(feature = "test-hooks")]
+    super::testing::count_decompression();
     let out = super::dicts::decompress_with(frame, len, dict).map_err(|e| format!("its zstd frame does not decode: {e}"))?;
     if out.len() != len {
         return Err(format!("it decodes to {} bytes, its meta frame says {}", out.len(), m.len));

@@ -542,6 +542,7 @@ impl Store {
             let tx = self.db.unchecked_transaction()?;
             index::forget_agent(&tx, &r.agent.id)?;
             tx.commit()?;
+            self.cache.drop_agent(&r.agent.id);
         }
         for p in &plan.projections_removed {
             std::fs::remove_file(p).with_context(|| format!("removing projection {}", p.display()))?;

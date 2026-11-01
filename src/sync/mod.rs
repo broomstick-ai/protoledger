@@ -206,8 +206,9 @@ pub fn project(store: &mut Store, agent: &str, format: &str, dir: &Path) -> Resu
 /// error from it stops the projection there, as a crash would (for tests).
 pub fn project_with(store: &mut Store, agent: &str, format: &str, dir: &Path, hook: &mut dyn FnMut(Stage<'_>) -> Result<()>) -> Result<BindingRow> {
     let f = formats::by_name(format).ok_or_else(|| anyhow!("unknown format {format:?}"))?;
-    let set = projection_set(store, agent)?;
-    let ex = f.export(&set, &ExportOptions::standard())?;
+    // The thread rendered through the store's read cache (SPEC §9.6).
+    let render = store.render(agent, f.name(), &ExportOptions::standard())?;
+    let ex = &render.exported;
     let mut fresh: Vec<PathBuf> = Vec::new();
     for rel in ex.output.files.keys() {
         let p = dir.join(rel);
@@ -251,7 +252,7 @@ pub fn project_with(store: &mut Store, agent: &str, format: &str, dir: &Path, ho
     }
     // What was written, read back from the disk it is durable on.
     let bytes = std::fs::read(&location)?;
-    let through = set.get(agent).and_then(|l| l.projected_view().last().map(|e| e.id.clone()));
+    let through = render.through.clone();
     store.append(agent, bindings::bound_event(&b))?;
     hook(Stage::Bound)?;
     store.append_projected(agent, &bindings::Projected::of(&b.binding, &bytes, through))?;
@@ -259,22 +260,6 @@ pub fn project_with(store: &mut Store, agent: &str, format: &str, dir: &Path, ho
     let cursor = reproject::baseline(f, &location, &bytes, &facts, &imported.set, stamp(&location)?, None);
     store.set_cursor(&b.binding, &cursor.text())?;
     store.binding(&b.binding)?.ok_or_else(|| anyhow!("binding {} was appended but not indexed", b.binding))
-}
-
-/// `agent` and its structural descendants, as the store holds them.
-fn projection_set(store: &Store, agent: &str) -> Result<LedgerSet> {
-    let mut ids = vec![agent.to_string()];
-    let mut i = 0;
-    while i < ids.len() {
-        let kids = store.children(&ids[i])?;
-        ids.extend(kids.into_iter().map(|a| a.id));
-        i += 1;
-    }
-    let mut set = LedgerSet::new();
-    for id in &ids {
-        set.insert(store.reader(id)?.ledger()?);
-    }
-    Ok(set)
 }
 
 /// The agents and events of `set` the store does not hold (`agent <id>`, `<agent>: <event id>`).

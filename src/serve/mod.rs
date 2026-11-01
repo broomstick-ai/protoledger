@@ -5,7 +5,8 @@
 //!   frames, per agent in append order, each starting strictly after the seq
 //!   given (SPEC §9.4: `(agent, last seq seen)` is the whole cursor).
 //! - `GET /v1/agents`, `/v1/agents/{id}`, `/v1/agents/{id}/events`,
-//!   `/v1/agents/{id}/children`, `/v1/bindings`; `POST /v1/import`,
+//!   `/v1/agents/{id}/children`, `/v1/bindings`, `/v1/stats` (the store's
+//!   read cache, SPEC §9.6); `POST /v1/import`,
 //!   `/v1/project`, `/v1/attach`, `/v1/unbind`.
 //!
 //! **One owner.** The [`Store`](crate::Store) is not `Sync` and its writers
@@ -61,6 +62,9 @@ pub struct ServeOptions {
     /// Listen on an address that is not loopback. Off by default: `serve`
     /// has no authentication.
     pub allow_remote: bool,
+    /// The store's read cache budget in bytes (SPEC §9.6), over what its
+    /// `store.json` says; 0 turns it off. `None`: the store's own.
+    pub cache_bytes: Option<u64>,
 }
 
 /// Resolve `--listen`: an `ip:port` (`[::1]:7417` for IPv6) or a
@@ -125,7 +129,7 @@ impl Server {
         let engine = std::thread::Builder::new()
             .name("protoledger-serve-engine".into())
             .spawn(move || {
-                let r = engine::run(&root, opts.follow, jobs_rx, &stop2, ready_tx);
+                let r = engine::run(&root, opts, jobs_rx, &stop2, ready_tx);
                 let _ = done_tx.send(r);
             })
             .context("starting the engine thread")?;

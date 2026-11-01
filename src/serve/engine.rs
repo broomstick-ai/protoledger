@@ -20,7 +20,7 @@
 //! drop what a client already has.
 
 use super::after;
-use crate::store::{LedgerReader, Published, Since, Store};
+use crate::store::{LedgerReader, Published, Since, Store, StoreOptions};
 use crate::sync::{self, FollowOptions, Follower};
 use anyhow::{Result, anyhow};
 use std::collections::{HashMap, HashSet};
@@ -127,8 +127,8 @@ pub(crate) struct Engine {
 
 /// The engine thread's body: open, report ready, then serve until `stop` is
 /// set or every [`Handle`] is gone.
-pub(crate) fn run(root: &Path, opts: FollowOptions, jobs: Receiver<Job>, stop: &AtomicBool, ready: Sender<Result<()>>) -> Result<()> {
-    let mut e = match Engine::open(root, opts) {
+pub(crate) fn run(root: &Path, opts: super::ServeOptions, jobs: Receiver<Job>, stop: &AtomicBool, ready: Sender<Result<()>>) -> Result<()> {
+    let mut e = match Engine::open(root, opts.follow, StoreOptions { cache_bytes: opts.cache_bytes }) {
         Ok(e) => {
             let _ = ready.send(Ok(()));
             e
@@ -166,8 +166,8 @@ pub(crate) fn run(root: &Path, opts: FollowOptions, jobs: Receiver<Job>, stop: &
 }
 
 impl Engine {
-    fn open(root: &Path, opts: FollowOptions) -> Result<Engine> {
-        let mut store = Store::open(root)?;
+    fn open(root: &Path, opts: FollowOptions, store_opts: StoreOptions) -> Result<Engine> {
+        let mut store = Store::open_with(root, store_opts)?;
         // Catch up with whatever the bound locations gained while nobody followed them.
         for s in sync::sync_all(&mut store)? {
             if let Some(d) = &s.diverged {

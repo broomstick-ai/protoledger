@@ -8,6 +8,14 @@
 #[path = "modes/mod.rs"]
 mod modes;
 
+/// The read cache (SPEC §9.6).
+#[path = "store/cache.rs"]
+mod cache;
+
+/// The read cache against every change the ledgers allow (SPEC §9.6).
+#[path = "store/cache_stale.rs"]
+mod cache_stale;
+
 use protoledger::store::{AgentInfo, BindingRow, BlockRow, EventRow, Published, Since, Store};
 use protoledger::{Agent, Appender, Event, Kind, Link, Parent, Relation, Source};
 use std::path::{Path, PathBuf};

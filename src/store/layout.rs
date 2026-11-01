@@ -234,6 +234,103 @@ impl Fingerprint {
     }
 }
 
+/// One file as one stat sees it: which file it is (device, inode, and its
+/// birth time where the platform records one, so an inode number reused by a
+/// new file is a different file), how long it is and when it was last
+/// written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct FileStat {
+    pub dev: u64,
+    pub ino: u64,
+    pub born_ns: Option<i128>,
+    pub size: u64,
+    pub mtime_ns: i64,
+}
+
+impl FileStat {
+    pub fn of(m: &fs::Metadata) -> FileStat {
+        let id = Ident::of(m);
+        let ns = |t: std::io::Result<std::time::SystemTime>| t.ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d| d.as_nanos());
+        FileStat {
+            dev: id.dev,
+            ino: id.ino,
+            born_ns: ns(m.created()).map(|n| n as i128),
+            size: m.len(),
+            mtime_ns: ns(m.modified()).map(|n| n as i64).unwrap_or(0),
+        }
+    }
+
+    /// The same file, whatever its length and time.
+    pub fn same_file(&self, o: &FileStat) -> bool {
+        (self.dev, self.ino, self.born_ns) == (o.dev, o.ino, o.born_ns)
+    }
+}
+
+/// The stat of the file at `p`, or `None` when there is none.
+pub fn file_stat(p: &Path) -> Result<Option<FileStat>> {
+    match fs::metadata(p) {
+        Ok(m) => Ok(Some(FileStat::of(&m))),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(e) => Err(e).with_context(|| format!("stat {}", p.display())),
+    }
+}
+
+/// A ledger's files as one look at them sees them (SPEC §9.6): the stats
+/// the read cache tells one ledger from another by, and an append from a
+/// rewrite. A ledger in both forms reads as plain, as a reader reads it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Seen {
+    Plain(FileStat),
+    /// The block file and the hot tail; either may be absent, not both.
+    Compressed {
+        zst: Option<FileStat>,
+        tail: Option<FileStat>,
+    },
+}
+
+impl Seen {
+    /// Stat a ledger's files; `None` when it has none.
+    pub fn of(files: &Files) -> Result<Option<Seen>> {
+        if exists(&files.plain)? {
+            return Ok(file_stat(&files.plain)?.map(Seen::Plain));
+        }
+        let (zst, tail) = (file_stat(&files.zst)?, file_stat(&files.tail)?);
+        Ok((zst.is_some() || tail.is_some()).then_some(Seen::Compressed { zst, tail }))
+    }
+
+    /// What [`Fingerprint::of`] gives for the same files.
+    pub fn fingerprint(&self) -> Fingerprint {
+        let sm = |f: &Option<FileStat>| f.map_or((0, 0), |f| (f.size, f.mtime_ns));
+        match self {
+            Seen::Plain(f) => Fingerprint { compressed: false, size: f.size, mtime_ns: f.mtime_ns, tail_size: 0, tail_mtime_ns: 0 },
+            Seen::Compressed { zst, tail } => {
+                let ((size, mtime_ns), (tail_size, tail_mtime_ns)) = (sm(zst), sm(tail));
+                Fingerprint { compressed: true, size, mtime_ns, tail_size, tail_mtime_ns }
+            }
+        }
+    }
+
+    /// The file the ledger grows by appending to, when it has one: the plain
+    /// file, or the hot tail. Its bytes are the end of the stream.
+    pub fn growing<'a>(&self, files: &'a Files) -> Option<(&'a Path, FileStat)> {
+        match self {
+            Seen::Plain(f) => Some((&files.plain, *f)),
+            Seen::Compressed { tail: Some(t), .. } => Some((&files.tail, *t)),
+            Seen::Compressed { tail: None, .. } => None,
+        }
+    }
+}
+
+/// Bytes `[at, at + len)` of the file at `p`, when it is still the file
+/// `stat` saw and holds them; `None` otherwise. One open and one read.
+pub fn bytes_of(p: &Path, stat: &FileStat, at: u64, len: usize) -> Option<Vec<u8>> {
+    let f = File::open(p).ok()?;
+    if !FileStat::of(&f.metadata().ok()?).same_file(stat) {
+        return None;
+    }
+    super::blocks::read_exact_at(&f, at, len).ok()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
