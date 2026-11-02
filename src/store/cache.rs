@@ -34,7 +34,7 @@
 //! Each agent has an *anchor*: its files as the cache last saw them (device,
 //! inode, birth time, length and modification time of each, one stat) and
 //! the last [`PROBE_BYTES`] of the file it grows by. Every answer begins with
-//! a stat of the files ([`ReadCache::validate`]): exactly as anchored, the
+//! a stat of the files (`ReadCache::validate`): exactly as anchored, the
 //! entries stand and nothing is read; grown as appends grow them (the same
 //! file, longer, its bytes before the old end unchanged) or as seals and
 //! recompressions do (a compressed ledger's block file grown or replaced
@@ -441,7 +441,7 @@ impl ReadCache {
         }
     }
 
-    /// Put a line read under `epoch` ([`ReadCache::validate`]); refused when
+    /// Put a line read under `epoch` (`ReadCache::validate`); refused when
     /// the agent's ledger was found changed since.
     pub(crate) fn put_line(&self, agent: &Arc<str>, offset: u64, line: Arc<Line>, epoch: u64) {
         let w = line.weight();
